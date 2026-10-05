@@ -44,10 +44,16 @@ window.CHAT_DATA = {
     "Vous êtes disponible quand ?"
   ],
 
-  /* Explication du mode actif, affichée dans la barre du haut, hors conversation */
-  modeNotes: {
-    rules: "Mode règles : réponse préparée à l'avance, affichée immédiatement, sans rien télécharger.",
-    ai: "Mode IA locale : un petit modèle de langage tourne dans votre navigateur. Rien n'est envoyé à un serveur."
+  /* Les deux modes, expliqués dans la colonne de droite, hors conversation */
+  modes: {
+    rules: {
+      title: "Mode règles",
+      text: "Réponse préparée à l'avance, affichée immédiatement. Aucun téléchargement, aucune donnée ne quitte la page."
+    },
+    ai: {
+      title: "Mode IA locale",
+      text: "Un petit modèle de langage reformule la réponse dans votre navigateur. Téléchargé une seule fois (350 Mo), puis mis en cache. Rien n'est envoyé à un serveur."
+    }
   },
 
   /* Aucune règle ne correspond : on propose un menu et le contact direct */

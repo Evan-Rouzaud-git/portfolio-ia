@@ -430,7 +430,8 @@
     var isRules = state.mode === "rules";
     el.modeRules.setAttribute("aria-pressed", String(isRules));
     el.modeAI.setAttribute("aria-pressed", String(!isRules));
-    if (el.note) el.note.textContent = isRules ? DATA.modeNotes.rules : DATA.modeNotes.ai;
+    if (el.cardRules) el.cardRules.setAttribute("aria-pressed", String(isRules));
+    if (el.cardAI) el.cardAI.setAttribute("aria-pressed", String(!isRules));
   }
 
   function setMode(mode) {
@@ -490,11 +491,12 @@
   /* ------------------------------------------------------------------
    * Interface
    *
-   * L'assistant est une page fixe, posée SOUS le portfolio. C'est le portfolio
-   * (#site-shell) qui glisse vers le haut-gauche pour le découvrir : d'où l'effet
-   * de page qu'on tire, sans jamais voir à travers quoi que ce soit.
+   * Page plein écran, du haut en bas. Animation unique : la page est mise à
+   * l'échelle depuis le coin bas-droit (voir chat.css), avec un fondu. Au survol du
+   * coin et lors du rappel périodique, elle apparaît en petit aperçu dans le coin.
    * ------------------------------------------------------------------ */
   function build() {
+    var M = DATA.modes;
     var page = document.createElement("section");
     page.className = "chat-page";
     page.id = "chat-page";
@@ -503,22 +505,29 @@
     page.setAttribute("aria-labelledby", "chat-title");
     page.setAttribute("aria-hidden", "true");
     page.setAttribute("inert", "");
+
+    var card = function (which, icon) {
+      var m = M[which];
+      return '<button type="button" class="mode-card ' + which + '" id="mode-card-' + which + '" aria-pressed="' + (which === "rules" ? "true" : "false") + '">' +
+        '<span class="mode-state">Mode actif</span>' +
+        '<b><span class="mode-icon" aria-hidden="true">' + icon + '</span>' + esc(m.title) + '</b>' +
+        '<span>' + esc(m.text) + '</span>' +
+        '</button>';
+    };
+
     page.innerHTML = [
       '<div class="chat-aurora" aria-hidden="true"><i></i><i></i><i></i></div>',
 
-      // Coin haut-gauche : on rabat la feuille pour revenir au portfolio. Sans texte.
+      // Coin haut-gauche : on rabat la page pour revenir au portfolio. Sans texte.
       '<button type="button" class="unpeel" id="chat-close" aria-label="Revenir au portfolio et fermer l\'assistant">',
       '  <span class="unpeel-flap" aria-hidden="true"></span>',
       '</button>',
 
-      // Contrôles et explication du mode : en dehors de la conversation.
+      // Barre du haut : le titre et le sélecteur de mode.
       '<div class="chat-topbar">',
       '  <div class="chat-id">',
       '    <span class="chat-signal" aria-hidden="true"></span>',
-      '    <span class="chat-id-text">',
-      '      <span class="chat-title" id="chat-title">Assistant du portfolio<small style="display:none">Evan Rouzaud</small></span>',
-      '      <p class="chat-note" id="chat-note"></p>',
-      '    </span>',
+      '    <span class="chat-title" id="chat-title">Assistant du portfolio</span>',
       '  </div>',
       '  <div class="chat-modes" role="group" aria-label="Mode de réponse">',
       '    <button type="button" class="chat-mode" id="chat-mode-rules" aria-pressed="true">Règles</button>',
@@ -526,12 +535,19 @@
       '  </div>',
       '</div>',
 
-      // La conversation, dans sa propre surface.
-      '<div class="chat-surface">',
+      // La conversation, et la colonne d'explications à droite.
+      '<div class="chat-main">',
       '  <div class="chat-body" id="chat-body" role="log" aria-live="polite" aria-relevant="additions text"></div>',
+      '  <aside class="chat-side">',
+      '    <h2>Deux modes de réponse</h2>',
+      card("rules", "⚡"),
+      card("ai", "🧠"),
+      '    <a class="side-cta" href="' + CFG.calUrl + '" target="_blank" rel="noopener">Réserver 30 minutes</a>',
+      '    <p class="side-note">L\'assistant répond uniquement à partir du contenu de ce portfolio. Pour le reste, écrivez à ' + esc(CFG.email) + '.</p>',
+      '  </aside>',
       '</div>',
 
-      // La saisie, collée en bas, dans sa propre surface.
+      // La saisie, dernière ligne de la page.
       '<div class="chat-composer">',
       '  <form class="chat-form" id="chat-form">',
       '    <label for="chat-input" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Votre question</label>',
@@ -548,9 +564,10 @@
     el.body = page.querySelector("#chat-body");
     el.input = page.querySelector("#chat-input");
     el.send = page.querySelector("#chat-send");
-    el.note = page.querySelector("#chat-note");
     el.modeRules = page.querySelector("#chat-mode-rules");
     el.modeAI = page.querySelector("#chat-mode-ai");
+    el.cardRules = page.querySelector("#mode-card-rules");
+    el.cardAI = page.querySelector("#mode-card-ai");
     el.close = page.querySelector("#chat-close");
 
     document.body.appendChild(page);
@@ -560,7 +577,9 @@
       ask(el.input.value);
     });
     el.modeRules.addEventListener("click", function () { setMode("rules"); el.input.focus(); });
+    el.cardRules.addEventListener("click", function () { setMode("rules"); el.input.focus(); });
     el.modeAI.addEventListener("click", switchToAI);
+    el.cardAI.addEventListener("click", switchToAI);
     el.close.addEventListener("click", close);
 
     document.addEventListener("keydown", function (e) {
@@ -570,34 +589,18 @@
     document.addEventListener("pointerdown", touch, { passive: true });
   }
 
-  /* Premier message de la conversation : une phrase d'accueil, puis des questions
-     proposées. Les explications de mode restent dans la barre du haut, pas ici. */
+  /* Premier message de la conversation, puis questions proposées. Les explications de
+     mode restent dans la colonne de droite et la barre du haut, pas ici. */
   function greet() {
     addMsg("bot", DATA.intro);
     el.body.appendChild(topicRow(DATA.suggestions.map(function (s) { return { label: s, question: s }; })));
     scrollDown();
   }
 
-  /* Emballe le contenu du portfolio dans #site-shell : c'est ce bloc que l'on fait
-     glisser. Le coin de page est sorti de l'enveloppe pour rester fixe à l'écran. */
-  function wrapSite() {
-    if (document.getElementById("site-shell")) return;
-    var shell = document.createElement("div");
-    shell.id = "site-shell";
-    var nodes = [].slice.call(document.body.childNodes);
-    nodes.forEach(function (node) {
-      if (node.nodeType === 1 && (node.id === "peel" || node.tagName === "SCRIPT")) return;
-      shell.appendChild(node);
-    });
-    document.body.appendChild(shell);
-    var peel = document.getElementById("peel");
-    if (peel) document.body.appendChild(peel); // ressort de l'enveloppe
-    el.shell = shell;
-  }
-
   /* Le portfolio devient inerte pendant que l'assistant est ouvert. */
   function setInert(on) {
-    if (el.shell) el.shell.inert = on;
+    var nodes = document.querySelectorAll("body > header, body > main, body > footer");
+    for (var i = 0; i < nodes.length; i++) nodes[i].inert = on;
   }
 
   function touch() { state.lastAction = Date.now(); }
@@ -606,10 +609,10 @@
     if (state.opened) { if (question) ask(question); else el.input.focus(); return; }
     state.opened = true;
     touch();
-    document.body.classList.remove("chat-peek");
     var peel = document.getElementById("peel");
     if (peel) { peel.classList.remove("pulling"); peel.classList.add("hidden"); }
-    document.body.classList.add("chat-pulled");
+    el.page.classList.remove("preview");
+    el.page.classList.add("open");
     el.page.removeAttribute("inert");
     el.page.setAttribute("aria-hidden", "false");
     document.body.classList.add("chat-lock");
@@ -625,23 +628,23 @@
     if (!state.opened) return;
     state.opened = false;
     touch();
-    document.body.classList.remove("chat-pulled");
+    el.page.classList.remove("open");
     el.page.setAttribute("aria-hidden", "true");
     el.page.setAttribute("inert", "");
     setInert(false);
-    // Le portfolio redevient utilisable tout de suite, et le coin réapparaît une fois
-    // la page revenue.
+    // Le portfolio redevient utilisable tout de suite, et le coin réapparaît quand la
+    // page a fini de se replier.
     setTimeout(function () {
       document.body.classList.remove("chat-lock");
       var peel = document.getElementById("peel");
       if (peel) peel.classList.remove("hidden");
       if (el.launcher) el.launcher.setAttribute("aria-expanded", "false");
-    }, 900);
+    }, 560);
   }
 
-  /* Aperçu périodique : le coin tire la page du dessus, qui s'entrouvre puis se
-     referme. Ignoré si l'assistant est ouvert, si l'onglet est caché, ou si le
-     visiteur vient d'agir. */
+  /* Rappel périodique : le coin se replie et la page apparaît en petit aperçu dans le
+     coin, puis tout se referme. Ignoré si l'assistant est ouvert, si l'onglet est
+     caché, ou si le visiteur vient d'agir. */
   function peek() {
     if (state.opened || state.peeking) return;
     if (document.hidden) return;
@@ -649,18 +652,17 @@
     state.peeking = true;
     var peel = document.getElementById("peel");
     if (peel) peel.classList.add("pulling");
-    document.body.classList.add("chat-peek");
+    el.page.classList.add("preview");
     setTimeout(function () {
-      document.body.classList.remove("chat-peek");
+      el.page.classList.remove("preview");
       if (peel) peel.classList.remove("pulling");
       state.peeking = false;
       state.lastAction = Date.now();
-    }, 1500);
+    }, 1700);
   }
 
   function init() {
     el.launcher = document.getElementById("chat-launcher");
-    wrapSite();
     build();
     refreshModeUI();
     touch();

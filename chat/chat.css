@@ -1,20 +1,22 @@
 /*
- * Styles de l'assistant : une page plein écran, posée SOUS le portfolio.
+ * Styles de l'assistant : page plein écran, du haut en bas de l'écran.
  *
- * Principe de l'animation : c'est la page du dessus (le portfolio) qui glisse.
- * chat.js emballe le contenu du site dans #site-shell, puis déplace ce bloc vers le
- * haut-gauche : le portfolio s'en va, l'assistant apparaît dessous. Aucun clip-path,
- * aucun élément translaté depuis hors écran : la page du dessous est déjà en place,
- * elle est simplement découverte. C'est ce qui rend le mouvement fluide et naturel.
+ * Animation : une seule propriété, le transform. La page est mise à l'échelle depuis
+ * le coin bas-droit (transform-origin: 100% 100%) avec un fondu.
+ *   - cachée   : scale(.62) + opacité 0
+ *   - aperçu   : scale(.42), petite carte vivante dans le coin, avec ombre et coins arrondis
+ *   - ouverte  : scale(1), plein écran
+ * Rien d'autre ne bouge : aucun clip-path, aucun élément translaté depuis hors écran,
+ * donc pas de bord découpé ni de zone transparente. Fermer, c'est la même chose à
+ * l'envers : la page se replie vers le coin.
  *
- * Répartition de la page :
- *   .chat-topbar    titre + explication du mode actif + sélecteur, hors conversation
- *   .chat-surface   la conversation, dans sa propre surface, toute la hauteur restante
- *   .chat-composer  la saisie, collée en bas, dans sa propre surface
+ * Mise en page : la page est une colonne flex qui occupe tout l'écran.
+ *   .chat-topbar    titre + sélecteur de mode (fin)
+ *   .chat-main      la conversation (flexible) + la colonne d'explications à droite
+ *   .chat-composer  la saisie, en bas
  */
 
 :root{
-  /* le sous-site : plus clair et plus coloré que le portfolio */
   --chat-bg-1:#0c1428;
   --chat-bg-2:#101a33;
   --chat-line:rgba(158,220,255,.16);
@@ -23,21 +25,49 @@
   --chat-muted:rgba(222,236,255,.66);
   --chat-blue:#5ee7ff;
   --chat-violet:#a78bfa;
-  --chat-surface:rgba(4,9,20,.55);
 }
 
 /* ---------------------------------------------------------------
-   La page du dessous
+   La page : cachée, en aperçu, ou ouverte
    --------------------------------------------------------------- */
 .chat-page{
-  position:fixed;inset:0;z-index:60;
+  position:fixed;inset:0;z-index:70;
+  height:100vh;height:100dvh;
   display:flex;flex-direction:column;overflow:hidden;
+  transform-origin:100% 100%;
+  transform:scale(.62) translate3d(2%,5%,0);
+  opacity:0;visibility:hidden;pointer-events:none;
+  border-radius:34px;
+  box-shadow:0 50px 130px rgba(2,5,12,.65),0 0 0 1px rgba(158,220,255,.12);
   color:var(--chat-txt);font-family:inherit;font-size:16.5px;line-height:1.62;
-  background:linear-gradient(180deg,var(--chat-bg-1) 0%,var(--chat-bg-2) 46%,#0a1122 100%)
+  background:linear-gradient(180deg,var(--chat-bg-1) 0%,var(--chat-bg-2) 46%,#0a1122 100%);
+  transition:transform .58s cubic-bezier(.16,.84,.28,1),opacity .32s ease,
+             border-radius .5s ease,visibility 0s linear .58s
+}
+/* aperçu : survol du coin, ou rappel périodique */
+.chat-page.preview,
+.peel:hover ~ .chat-page,
+.peel:focus-within ~ .chat-page{
+  visibility:visible;opacity:1;pointer-events:none;
+  transform:scale(.42) translate3d(0,0,0);
+  transition:transform .5s cubic-bezier(.16,.84,.28,1),opacity .26s ease,
+             border-radius .4s ease,visibility 0s
+}
+/* ouverte */
+.chat-page.open{
+  visibility:visible;opacity:1;pointer-events:auto;
+  transform:none;border-radius:0;
+  transition:transform .58s cubic-bezier(.16,.84,.28,1),opacity .3s ease,
+             border-radius .5s ease,visibility 0s
+}
+@media(prefers-reduced-motion:reduce){
+  .chat-page,.chat-page.preview,.chat-page.open{transition:opacity .2s linear,visibility 0s}
+  .chat-page{transform:none}
+  .chat-page.preview{transform:scale(.42)}
 }
 
 /* aurores : trois nappes de couleur qui dérivent lentement */
-.chat-aurora{position:absolute;inset:-20%;z-index:0;pointer-events:none;filter:blur(10px)}
+.chat-aurora{position:absolute;inset:-20%;z-index:0;pointer-events:none}
 .chat-aurora i{position:absolute;display:block;border-radius:50%;opacity:.5}
 .chat-aurora i:nth-child(1){
   width:62vw;height:62vw;left:52%;top:-18%;
@@ -54,61 +84,101 @@
   background:radial-gradient(circle,rgba(45,212,191,.24),transparent 70%);
   animation:drift3 44s ease-in-out infinite alternate
 }
-.chat-aurora::after{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(4,8,18,.35),transparent 30%,rgba(4,8,18,.5))
-}
 @keyframes drift1{to{transform:translate3d(-8%,10%,0) scale(1.15)}}
 @keyframes drift2{to{transform:translate3d(10%,-8%,0) scale(1.12)}}
 @keyframes drift3{to{transform:translate3d(-6%,-10%,0) scale(1.18)}}
 @media(prefers-reduced-motion:reduce){.chat-aurora i{animation:none}}
 
 /* ---------------------------------------------------------------
-   Barre du haut : contrôles et explication du mode, hors conversation
+   Barre du haut : titre et sélecteur, sur une seule ligne
    --------------------------------------------------------------- */
 .chat-topbar{
-  position:relative;z-index:3;display:flex;align-items:flex-start;gap:18px;
-  padding:clamp(14px,2vw,22px) clamp(16px,3vw,34px) 12px
+  position:relative;z-index:3;flex:0 0 auto;
+  display:flex;align-items:center;gap:14px;
+  padding:11px clamp(14px,2.6vw,28px)
 }
-.chat-id{flex:1;min-width:0;display:flex;align-items:center;gap:12px}
+.chat-id{flex:1;min-width:0;display:flex;align-items:center;gap:11px}
 .chat-signal{width:10px;height:10px;border-radius:50%;flex:0 0 auto;background:#6cf3b0;box-shadow:0 0 0 6px rgba(108,243,176,.16)}
-.chat-id-text{min-width:0}
-.chat-title{font-weight:750;font-size:17px;letter-spacing:-.01em}
-.chat-note{margin-top:3px;font-size:13.4px;color:var(--chat-muted)}
+.chat-title{font-weight:750;font-size:16.6px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-modes{
   display:flex;gap:3px;padding:4px;border-radius:999px;flex:0 0 auto;
   background:rgba(4,9,20,.6);border:1px solid var(--chat-line);backdrop-filter:blur(8px)
 }
 .chat-mode{
-  padding:10px 18px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-family:inherit;
-  color:var(--chat-muted);font-size:13.6px;font-weight:650;line-height:1.2;white-space:nowrap;
+  padding:9px 17px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-family:inherit;
+  color:var(--chat-muted);font-size:13.4px;font-weight:650;line-height:1.2;white-space:nowrap;
   transition:background .18s,color .18s,box-shadow .18s
 }
 .chat-mode[aria-pressed="true"]{background:linear-gradient(135deg,var(--chat-blue),var(--chat-violet));color:#06121c;box-shadow:0 6px 20px rgba(94,231,255,.28)}
 .chat-mode:focus-visible{outline:2px solid var(--chat-blue);outline-offset:2px}
 
 /* ---------------------------------------------------------------
-   La conversation : sa propre surface, toute la hauteur restante
+   Corps : conversation + colonne d'explications
    --------------------------------------------------------------- */
-.chat-surface{
-  position:relative;z-index:2;flex:1;min-height:0;
-  display:flex;flex-direction:column;overflow:hidden;
-  margin:0 clamp(12px,2.4vw,30px);
-  border:1px solid var(--chat-line);border-bottom:0;
-  border-radius:22px 22px 0 0;
-  background:var(--chat-surface);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05)
-}
+.chat-main{position:relative;z-index:2;flex:1;min-height:0;display:flex;align-items:stretch}
 .chat-body{
   flex:1;min-height:0;overflow-y:auto;
-  width:100%;max-width:min(1180px,100%);margin:0 auto;
-  padding:22px clamp(18px,3vw,34px) 26px;
+  width:100%;max-width:1020px;margin:0 auto;
+  padding:18px clamp(16px,2.6vw,30px) 26px;
   display:flex;flex-direction:column;gap:14px
 }
 .chat-body::-webkit-scrollbar{width:11px}
 .chat-body::-webkit-scrollbar-thumb{background:rgba(158,220,255,.24);border-radius:8px}
 
-.chat-msg{max-width:76%;padding:14px 19px;border-radius:17px;font-size:16.3px;white-space:pre-wrap;overflow-wrap:anywhere}
+.chat-side{
+  flex:0 0 342px;z-index:2;overflow-y:auto;
+  padding:18px 22px 24px;
+  border-left:1px solid var(--chat-line);
+  background:rgba(4,9,20,.3)
+}
+.chat-side h2{
+  font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--chat-blue);
+  font-weight:700;margin:0 0 14px
+}
+.mode-card{
+  display:flex;flex-direction:column;gap:7px;align-items:flex-start;text-align:left;width:100%;
+  border:1px solid var(--chat-line);border-radius:16px;padding:16px 17px;margin-bottom:12px;
+  cursor:pointer;font-family:inherit;color:var(--chat-txt);background:rgba(6,12,26,.42);
+  transition:border-color .22s,background .22s,transform .22s
+}
+.mode-card:hover{transform:translateY(-2px)}
+.mode-card b{font-size:15.2px;font-weight:700;display:flex;align-items:center;gap:9px}
+.mode-card .mode-icon{
+  width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:14px;
+  border:1px solid var(--chat-line);background:rgba(255,255,255,.06)
+}
+.mode-card span{font-size:13.8px;color:var(--chat-muted);line-height:1.5}
+.mode-card .mode-state{
+  font-size:11.6px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--chat-blue);display:none
+}
+.mode-card[aria-pressed="true"] .mode-state{display:block}
+.mode-card.rules[aria-pressed="true"]{border-color:rgba(94,231,255,.65);background:rgba(94,231,255,.11)}
+.mode-card.ai[aria-pressed="true"]{border-color:rgba(167,139,250,.65);background:rgba(167,139,250,.13)}
+.mode-card:focus-visible{outline:2px solid var(--chat-blue);outline-offset:2px}
+.side-cta{
+  display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;padding:12px 16px;
+  border-radius:14px;text-decoration:none;font-size:14px;font-weight:650;
+  background:linear-gradient(135deg,var(--chat-blue),var(--chat-violet));color:#06121c
+}
+.side-cta:hover{filter:brightness(1.07)}
+.side-note{margin-top:14px;font-size:12.4px;color:var(--chat-muted);line-height:1.5}
+
+@media(max-width:960px){
+  .chat-main{flex-direction:column}
+  .chat-side{
+    flex:0 0 auto;order:-1;width:auto;border-left:0;border-bottom:1px solid var(--chat-line);
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 14px 12px;background:rgba(4,9,20,.4)
+  }
+  .chat-side h2,.chat-side .side-cta,.chat-side .side-note{display:none}
+  .mode-card{margin:0;padding:12px 13px;gap:5px}
+  .mode-card span{font-size:12.6px}
+  .mode-card .mode-state{display:none!important}
+}
+
+/* ---------------------------------------------------------------
+   Messages
+   --------------------------------------------------------------- */
+.chat-msg{max-width:74%;padding:14px 19px;border-radius:17px;font-size:16.3px;white-space:pre-wrap;overflow-wrap:anywhere}
 .chat-msg.bot{
   align-self:flex-start;background:rgba(255,255,255,.055);
   border:1px solid var(--chat-line);border-bottom-left-radius:6px
@@ -165,8 +235,7 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
 @media(prefers-reduced-motion:reduce){.chat-typing i,.chat-cursor::after{animation:none}}
 
 /* ---------------------------------------------------------------
-   Coin haut-gauche : on rabat la feuille pour revenir au portfolio.
-   Aucun texte, juste le coin.
+   Coin haut-gauche : on rabat la page pour revenir au portfolio
    --------------------------------------------------------------- */
 .unpeel{
   position:fixed;left:0;top:0;z-index:75;width:138px;height:138px;padding:0;border:0;
@@ -183,19 +252,18 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
   transition:clip-path .4s cubic-bezier(.2,.8,.25,1);
   animation:unpeelBreath 5s ease-in-out infinite
 }
-/* le coin respire doucement : il montre qu'il veut se rabattre */
 @keyframes unpeelBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
 .unpeel:hover .unpeel-flap,.unpeel:focus-visible .unpeel-flap{clip-path:polygon(0 0,100% 8%,8% 100%);animation:none}
 @media(prefers-reduced-motion:reduce){.unpeel-flap{animation:none}}
 @media(max-width:760px){.unpeel{width:106px;height:106px}.unpeel:hover,.unpeel:focus-visible{width:158px;height:158px}}
 
 /* ---------------------------------------------------------------
-   La saisie, collée en bas, dans sa propre surface
+   La saisie : dernière ligne de la page
    --------------------------------------------------------------- */
-.chat-composer{position:relative;z-index:3;padding:12px clamp(12px,2.4vw,30px) clamp(14px,2vw,22px)}
+.chat-composer{position:relative;z-index:3;flex:0 0 auto;padding:8px clamp(14px,2.6vw,28px) clamp(12px,2vw,18px)}
 .chat-form{
-  display:flex;align-items:center;gap:10px;width:100%;max-width:min(1180px,100%);margin:0 auto;
-  padding:8px 8px 8px 20px;border-radius:20px;
+  display:flex;align-items:center;gap:10px;width:100%;max-width:1020px;margin:0 auto;
+  padding:7px 7px 7px 20px;border-radius:20px;
   border:1px solid var(--chat-line-hi);background:rgba(6,11,24,.86);
   box-shadow:0 18px 50px rgba(2,5,12,.5),inset 0 1px 0 rgba(255,255,255,.06);
   backdrop-filter:blur(10px)
@@ -215,39 +283,10 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
 .chat-send:disabled{opacity:.5;cursor:not-allowed}
 .chat-send:focus-visible{outline:2px solid var(--chat-blue);outline-offset:2px}
 .chat-legal{
-  width:100%;max-width:min(1180px,100%);margin:11px auto 0;
-  font-size:12.6px;color:var(--chat-muted);line-height:1.45;text-align:center
+  width:100%;max-width:1020px;margin:10px auto 0;
+  font-size:12.4px;color:var(--chat-muted);line-height:1.45;text-align:center
 }
 @media(max-width:560px){.chat-legal{text-align:left}}
-
-/* ---------------------------------------------------------------
-   Le portfolio : c'est lui qui glisse pour découvrir l'assistant.
-   #site-shell est créé par chat.js autour du contenu du site.
-   --------------------------------------------------------------- */
-#site-shell{
-  position:relative;z-index:70;min-height:100vh;
-  /* pas de transform au repos : aucun contenant créé, donc l'en-tête collant et les
-     éléments fixes du portfolio restent normaux. La transition part de "none". */
-  transform:none;
-  transition:transform 1.05s cubic-bezier(.22,.85,.25,1),box-shadow 1.05s ease;
-  background:
-    radial-gradient(700px 500px at 12% -5%, rgba(94,231,255,.16), transparent 65%),
-    radial-gradient(800px 600px at 92% 8%, rgba(167,139,250,.16), transparent 62%),
-    radial-gradient(900px 700px at 50% 105%, rgba(95,240,168,.08), transparent 60%),
-    linear-gradient(180deg,#05070d,#070a13 60%,#05070d)
-}
-/* liseré clair et ombre sur le bord qui se déplace, pour lire la feuille */
-#site-shell::after{
-  content:"";position:absolute;inset:0;pointer-events:none;
-  box-shadow:26px 26px 80px rgba(2,5,12,.55), 1px 1px 0 rgba(158,220,255,.28)
-}
-/* aperçu périodique : la page du dessus s'entrouvre puis se referme */
-body.chat-peek #site-shell{transform:translate3d(-32%,-32%,0) rotate(-1.2deg)}
-/* survol du coin : elle s'entrouvre un peu plus */
-body:has(.peel:hover) #site-shell,body:has(.peel:focus-within) #site-shell{transform:translate3d(-24%,-24%,0) rotate(-1deg)}
-/* ouverte : elle sort complètement */
-body.chat-pulled #site-shell{transform:translate3d(-106%,-106%,0) rotate(-3deg)}
-@media(prefers-reduced-motion:reduce){#site-shell{transition:transform .2s linear}}
 
 /* le portfolio ne défile plus pendant que l'assistant est ouvert */
 .chat-lock{overflow:hidden}
