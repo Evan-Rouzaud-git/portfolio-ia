@@ -37,6 +37,15 @@
     return t && t.closest ? t.closest("#chat-launcher, [data-chat-open]") : null;
   }
 
+  // Le portfolio interactif a déjà été ouvert une fois : la pastille rouge a rempli son
+  // rôle, on la retire dès le chargement de la page, sans attendre le moteur du chat.
+  try {
+    if (localStorage.getItem("chat-seen")) {
+      var peel = document.getElementById("peel");
+      if (peel) peel.classList.add("seen");
+    }
+  } catch (e) { /* navigation privée : on laisse la pastille */ }
+
   // Préchargement au survol ou au focus clavier : le chat est prêt avant le clic.
   document.addEventListener("mouseover", function (e) { if (triggerFrom(e)) boot(); }, true);
   document.addEventListener("focusin", function (e) { if (triggerFrom(e)) boot(); }, true);

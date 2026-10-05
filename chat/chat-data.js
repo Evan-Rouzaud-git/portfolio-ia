@@ -36,12 +36,12 @@ window.CHAT_DATA = {
   },
 
   /* Premier message de la conversation, puis suggestions cliquables */
-  intro: "Bonjour, je suis le portfolio interactif d'Evan. Posez-moi vos questions, je pourrai vous aider.",
+  intro: "Bonjour, je suis le portfolio interactif d'Evan.\nPosez-moi vos questions, je pourrai vous aider.",
   placeholder: "Écrivez votre question...",
   suggestions: [
-    "Quels sont vos tarifs ?",
-    "Comment travaillez-vous ?",
-    "Sur quels projets avez-vous travaillé ?"
+    "Combien de temps pour un prototype ?",
+    "Mes données restent-elles chez moi ?",
+    "Pouvez-vous reprendre un projet existant ?"
   ],
 
   /* Mention affichée sous la saisie */
@@ -346,7 +346,7 @@ window.CHAT_DATA = {
     },
     {
       id: "ia_locale",
-      keywords: ["local", "locale", "confidentiel", "confidentialite", "confidentialité", "donnees sensibles", "données sensibles", "sont sensibles", "donnees confidentielles", "données confidentielles", "prive", "privé", "souverain", "souverainete", "souveraineté", "on premise", "on-premise", "hors ligne", "sans internet"],
+      keywords: ["local", "locale", "confidentiel", "confidentialite", "confidentialité", "donnees sensibles", "données sensibles", "sont sensibles", "mes donnees", "mes données", "chez moi", "donnees confidentielles", "données confidentielles", "prive", "privé", "souverain", "souverainete", "souveraineté", "on premise", "on-premise", "hors ligne", "sans internet"],
       answer: "Plusieurs projets fonctionnent avec des modèles exécutés localement, sans aucun appel à un service externe : les documents, tickets ou fichiers clients ne quittent jamais votre infrastructure, et le coût d'usage devient nul. C'est la bonne approche dès que les données sont sensibles ou réglementées.",
       links: ["case"],
       source: "Services"

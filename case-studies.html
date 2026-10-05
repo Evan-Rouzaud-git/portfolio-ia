@@ -154,8 +154,8 @@ footer{border-top:1px solid var(--line);padding:34px 0 104px}
 }
 @keyframes peelDot{0%{box-shadow:0 0 0 0 rgba(255,77,94,.5)}70%,100%{box-shadow:0 0 0 11px rgba(255,77,94,0)}}
 @media(prefers-reduced-motion:reduce){.peel-dot{animation:none}}
-/* page ouverte : le bouton devient un bouton de fermeture, plus discret */
-.peel.is-open .peel-dot{display:none}
+/* page ouverte, ou déjà vue une fois : plus de pastille */
+.peel.is-open .peel-dot,.peel.seen .peel-dot{display:none}
 .peel.is-open .ico-chat{display:none}
 .peel.is-open .ico-close{display:block}
 .peel.is-open .peel-btn{

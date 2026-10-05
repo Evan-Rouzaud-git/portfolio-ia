@@ -122,14 +122,7 @@ header.open .burger span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
 .btn svg{flex:0 0 auto}
 
 /* ---------- hero ---------- */
-.hero{position:relative;padding:clamp(60px,9vw,116px) 0 clamp(50px,7vw,86px)}
-.status{
-  display:inline-flex;align-items:center;gap:9px;padding:7px 15px;border-radius:999px;
-  border:1px solid rgba(95,240,168,.32);background:rgba(95,240,168,.08);color:var(--green);
-  font-size:13.5px;font-weight:600;margin-bottom:26px
-}
-.pulse{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(95,240,168,.5)}50%{opacity:.7;box-shadow:0 0 0 7px rgba(95,240,168,0)}}
+.hero{position:relative;padding:clamp(30px,4.5vw,58px) 0 clamp(50px,7vw,86px)}
 .hero h1{font-size:clamp(33px,5.6vw,62px);font-weight:750;letter-spacing:-.035em;max-width:20ch}
 .hero h1 em{
   font-style:normal;background:linear-gradient(120deg,var(--cyan),var(--violet));
@@ -346,8 +339,8 @@ footer{border-top:1px solid var(--line);padding:34px 0 104px;margin-top:20px}
 }
 @keyframes peelDot{0%{box-shadow:0 0 0 0 rgba(255,77,94,.5)}70%,100%{box-shadow:0 0 0 11px rgba(255,77,94,0)}}
 @media(prefers-reduced-motion:reduce){.peel-dot{animation:none}}
-/* page ouverte : le bouton devient un bouton de fermeture, plus discret */
-.peel.is-open .peel-dot{display:none}
+/* page ouverte, ou déjà vue une fois : plus de pastille */
+.peel.is-open .peel-dot,.peel.seen .peel-dot{display:none}
 .peel.is-open .ico-chat{display:none}
 .peel.is-open .ico-close{display:block}
 .peel.is-open .peel-btn{
@@ -437,7 +430,6 @@ footer{border-top:1px solid var(--line);padding:34px 0 104px;margin-top:20px}
   <!-- ================= HERO ================= -->
   <section class="hero">
     <div class="wrap">
-      <span class="status"><span class="pulse"></span> Disponible pour missions freelance</span>
       <h1>Je cadre, je pilote et je construis vos <em>projets IA</em>, du besoin métier au produit qui tourne.</h1>
       <p class="lead">
         Freelance en IA appliquée. Je commence par comprendre votre besoin et vos utilisateurs, je priorise ce qui

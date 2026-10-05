@@ -30,6 +30,7 @@
   var STORE_MODE = "chat-mode";
   var STORE_MODEL = "chat-model";
   var STORE_CACHED = "chat-model-cached";
+  var STORE_SEEN = "chat-seen";   // la pastille rouge a déjà été vue : on ne la remontre plus
   var REFUS = "Je réponds uniquement à partir de ce portfolio. Pour toute autre question, écrivez-moi directement à " + CFG.email + ".";
   var REFUS_RE = /uniquement (a|à) partir de ce portfolio/i;
 
@@ -614,6 +615,10 @@
     el.page.setAttribute("aria-hidden", "false");
     setLock(true);
     setLauncherState(true);
+    // La pastille rouge a rempli son rôle : elle ne reviendra plus.
+    try { localStorage.setItem(STORE_SEEN, "1"); } catch (e) {}
+    var peel = document.getElementById("peel");
+    if (peel) peel.classList.add("seen");
     if (!el.thread.childElementCount) greet();
     refreshModeUI();
     if (question) ask(question); else el.input.focus();
@@ -636,6 +641,8 @@
     build();
     refreshModeUI();
     setLauncherState(false);
+    var peel = document.getElementById("peel");
+    if (peel && localStorage.getItem(STORE_SEEN)) peel.classList.add("seen");
     if (el.launcher) {
       el.launcher.setAttribute("aria-controls", "chat-page");
       el.launcher.addEventListener("click", function () {
