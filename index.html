@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evan Rouzaud | Freelance en IA appliquée : agents LLM, RAG et IA locale</title>
+<meta name="description" content="Freelance en IA appliquée. Je transforme un besoin métier en produit IA utile, mesurable et adopté : agents LLM, RAG, IA 100 % locale, machine learning, cadrage et ROI. Cinq produits livrés de bout en bout.">
+<meta name="author" content="Evan Rouzaud">
+<meta name="theme-color" content="#05070d">
+<link rel="canonical" href="https://evan-rouzaud-git.github.io/portfolio/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Evan Rouzaud, freelance en IA appliquée">
+<meta property="og:description" content="Agents LLM, RAG, IA locale souveraine et machine learning. Du cadrage au déploiement, avec des résultats chiffrés.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230b1020'/><text y='68' x='50' text-anchor='middle' font-size='54' font-family='system-ui' font-weight='700' fill='%2360e6ff'>E</text></svg>">
+
+<style>
+:root{
+  --bg:#05070d;
+  --bg-2:#0a0e1a;
+  --card:rgba(255,255,255,.035);
+  --card-hi:rgba(255,255,255,.06);
+  --line:rgba(255,255,255,.09);
+  --line-hi:rgba(255,255,255,.18);
+  --txt:#eaf0ff;
+  --muted:#9aa6c2;
+  --cyan:#5ee7ff;
+  --violet:#a78bfa;
+  --green:#5ff0a8;
+  --radius:18px;
+  --maxw:1120px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--txt);
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(700px 500px at 12% -5%, rgba(94,231,255,.16), transparent 65%),
+    radial-gradient(800px 600px at 92% 8%, rgba(167,139,250,.16), transparent 62%),
+    radial-gradient(900px 700px at 50% 105%, rgba(95,240,168,.08), transparent 60%),
+    linear-gradient(180deg,#05070d,#070a13 60%,#05070d);
+}
+a{color:inherit}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+h1,h2,h3,h4{line-height:1.15;margin:0;letter-spacing:-.02em}
+h2{font-size:clamp(28px,4vw,42px);font-weight:700}
+h3{font-size:21px;font-weight:650}
+p{margin:0}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);
+}
+.eyebrow::before{content:"";width:26px;height:1px;background:linear-gradient(90deg,var(--cyan),transparent)}
+.muted{color:var(--muted)}
+.lead{font-size:clamp(17px,2vw,20px);color:var(--muted);max-width:62ch}
+
+/* ---------- nav ---------- */
+header{
+  position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+  background:rgba(5,7,13,.72);border-bottom:1px solid transparent;transition:border-color .3s,background .3s;
+}
+header.scrolled{border-bottom-color:var(--line);background:rgba(5,7,13,.92)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:18px;height:72px;position:relative}
+.brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.01em;text-decoration:none;font-size:16px;white-space:nowrap}
+.brand .dot{
+  width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:15px;color:#04121a;
+  background:linear-gradient(135deg,var(--cyan),var(--violet));font-weight:800;flex:0 0 auto
+}
+.nav-links{display:flex;gap:21px;font-size:14.8px}
+.nav-links a{color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--txt)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-cta{
+  padding:10px 18px;border-radius:999px;font-size:15px;font-weight:600;text-decoration:none;white-space:nowrap;
+  background:linear-gradient(135deg,var(--cyan),var(--violet));color:#04121a;
+}
+.nav-cta:hover{filter:brightness(1.08)}
+.burger{
+  display:none;width:42px;height:42px;border-radius:12px;border:1px solid var(--line-hi);
+  background:rgba(255,255,255,.03);cursor:pointer;padding:12px 10px;
+  flex-direction:column;justify-content:space-between;flex:0 0 auto
+}
+.burger span{display:block;height:2px;width:100%;background:var(--txt);border-radius:2px;transition:transform .25s,opacity .2s}
+header.open .burger span:nth-child(1){transform:translateY(8px) rotate(45deg)}
+header.open .burger span:nth-child(2){opacity:0}
+header.open .burger span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
+@media(max-width:1150px){
+  .nav-links{gap:14px;font-size:14px}
+}
+@media(max-width:1040px){
+  .burger{display:flex}
+  .nav-links{
+    display:none;position:absolute;top:72px;left:0;right:0;flex-direction:column;gap:0;
+    background:rgba(6,9,17,.98);backdrop-filter:blur(16px);font-size:17px;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    padding:6px 22px 18px;box-shadow:0 24px 50px rgba(0,0,0,.5)
+  }
+  header.open .nav-links{display:flex}
+  .nav-links a{padding:15px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+  .nav-links a:last-child{border-bottom:0}
+}
+@media(max-width:560px){.nav-cta{display:none}}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:999px;
+  font-weight:650;font-size:16px;text-decoration:none;border:1px solid transparent;cursor:pointer;
+  transition:transform .18s,filter .2s,background .2s,border-color .2s;font-family:inherit;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--violet));color:#04121a}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{border-color:var(--line-hi);color:var(--txt);background:rgba(255,255,255,.03)}
+.btn-ghost:hover{background:var(--card-hi);border-color:var(--cyan)}
+.btn-sm{padding:10px 18px;font-size:14.5px}
+.btn svg{flex:0 0 auto}
+
+/* ---------- hero ---------- */
+.hero{position:relative;padding:clamp(60px,9vw,116px) 0 clamp(50px,7vw,86px)}
+.status{
+  display:inline-flex;align-items:center;gap:9px;padding:7px 15px;border-radius:999px;
+  border:1px solid rgba(95,240,168,.32);background:rgba(95,240,168,.08);color:var(--green);
+  font-size:13.5px;font-weight:600;margin-bottom:26px
+}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(95,240,168,.5)}50%{opacity:.7;box-shadow:0 0 0 7px rgba(95,240,168,0)}}
+.hero h1{font-size:clamp(33px,5.6vw,62px);font-weight:750;letter-spacing:-.035em;max-width:20ch}
+.hero h1 em{
+  font-style:normal;background:linear-gradient(120deg,var(--cyan),var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent
+}
+.hero .lead{margin:26px 0 0;font-size:clamp(17px,2.1vw,20.5px)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:13px;margin-top:36px}
+.hero-note{margin-top:18px;font-size:14.5px;color:var(--muted)}
+.hero-note a{color:var(--cyan);text-decoration:none;border-bottom:1px solid rgba(94,231,255,.35)}
+.hero-note a:hover{border-color:var(--cyan)}
+
+/* ---------- kpi ---------- */
+.kpis{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:clamp(46px,6vw,74px);
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--line)
+}
+.kpi{background:var(--bg-2);padding:24px 22px}
+.kpi b{display:block;font-size:clamp(26px,3.4vw,36px);font-weight:750;letter-spacing:-.03em;
+  background:linear-gradient(135deg,#fff,#9fc6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi span{display:block;margin-top:7px;font-size:14px;color:var(--muted);line-height:1.45}
+@media(max-width:880px){.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:430px){.kpis{grid-template-columns:1fr}}
+
+/* ---------- sections ---------- */
+section{padding:clamp(62px,8vw,104px) 0;position:relative}
+.sec-head{max-width:70ch;margin-bottom:46px}
+.sec-head h2{margin:16px 0 14px}
+.sec-head.center{margin-left:auto;margin-right:auto;text-align:center}
+.sec-head.center .eyebrow{justify-content:center}
+
+/* ---------- cards ---------- */
+.grid{display:grid;gap:18px}
+.g-3{grid-template-columns:repeat(3,1fr)}
+.g-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:960px){.g-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.g-3,.g-2{grid-template-columns:1fr}}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px;
+  transition:transform .25s,border-color .25s,background .25s;position:relative;overflow:hidden
+}
+.card:hover{transform:translateY(-4px);border-color:var(--line-hi);background:var(--card-hi)}
+.card h3{margin-bottom:11px}
+.card p{color:var(--muted);font-size:15.5px}
+.icon{
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;
+  font-size:20px;background:rgba(94,231,255,.1);border:1px solid rgba(94,231,255,.22)
+}
+.card ul{margin:14px 0 0;padding-left:19px;color:var(--muted);font-size:15px}
+.card ul li{margin:6px 0}
+.card ul li::marker{color:var(--cyan)}
+
+/* ---------- audience ---------- */
+.who{border:1px solid var(--line);border-radius:var(--radius);padding:26px;background:var(--card);transition:transform .25s,border-color .25s,background .25s}
+.who:hover{transform:translateY(-4px);border-color:var(--line-hi);background:var(--card-hi)}
+.who h3{font-size:18px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.who p{color:var(--muted);font-size:15.4px}
+
+/* ---------- projects ---------- */
+.project{
+  border:1px solid var(--line);border-radius:22px;overflow:hidden;background:var(--card);
+  display:grid;grid-template-columns:1.02fr .98fr;transition:border-color .25s
+}
+.project:hover{border-color:var(--line-hi)}
+.project:nth-child(even) .pj-media{order:-1}
+@media(max-width:880px){.project{grid-template-columns:1fr}.project:nth-child(even) .pj-media{order:0}}
+.pj-body{padding:clamp(24px,3.4vw,38px);display:flex;flex-direction:column}
+.pj-tag{
+  align-self:flex-start;font-size:12px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 12px;border-radius:999px;border:1px solid var(--line-hi);color:var(--muted);margin-bottom:18px
+}
+.pj-body h3{font-size:clamp(22px,2.6vw,28px);margin-bottom:12px}
+.pj-body>p{color:var(--muted);font-size:15.8px}
+.pj-block{margin-top:24px}
+.pj-block h4{font-size:13px;letter-spacing:.13em;text-transform:uppercase;color:var(--cyan);margin-bottom:11px}
+.pj-facts{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px}
+.pj-facts li{position:relative;padding-left:19px;font-size:15.2px;color:#cdd7ee}
+.pj-facts li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;border-radius:50%;
+  background:linear-gradient(135deg,var(--cyan),var(--violet))}
+.stack{display:flex;flex-wrap:wrap;gap:7px;margin-top:auto;padding-top:26px}
+.chip{
+  font-size:12.8px;padding:5px 11px;border-radius:8px;color:#c6d2ec;
+  background:rgba(255,255,255,.045);border:1px solid var(--line);font-weight:500
+}
+.pj-actions{display:flex;flex-wrap:wrap;gap:11px;margin-top:24px}
+.pj-media{
+  position:relative;min-height:290px;border-left:1px solid var(--line);background:#070a12;
+  display:flex;align-items:center;justify-content:center
+}
+@media(max-width:880px){.pj-media{border-left:0;border-top:1px solid var(--line);min-height:0}}
+.pj-video{width:100%;aspect-ratio:16/9;object-fit:contain;background:#04060c;display:block}
+.media-badge{
+  position:absolute;top:14px;left:14px;z-index:2;font-size:11.5px;font-weight:650;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:999px;
+  padding:5px 11px;background:rgba(5,7,13,.72);backdrop-filter:blur(6px)
+}
+/* ---------- steps ---------- */
+.steps{counter-reset:s;display:grid;gap:16px;grid-template-columns:repeat(4,1fr)}
+@media(max-width:960px){.steps{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.steps{grid-template-columns:1fr}}
+.step{
+  border:1px solid var(--line);border-radius:var(--radius);padding:24px;background:var(--card);position:relative
+}
+.step::before{
+  counter-increment:s;content:"0" counter(s);display:block;font-size:13px;font-weight:700;letter-spacing:.1em;
+  color:var(--cyan);margin-bottom:14px
+}
+.step h3{font-size:17.5px;margin-bottom:9px}
+.step p{color:var(--muted);font-size:15px}
+
+/* ---------- profile ---------- */
+.profile-head{display:flex;align-items:center;gap:28px;flex-wrap:wrap;margin-bottom:46px}
+.avatar{
+  width:168px;height:168px;border-radius:50%;object-fit:cover;background:#fff;display:block;flex:0 0 auto;
+  box-shadow:0 0 0 1px rgba(255,255,255,.2),0 0 0 10px rgba(94,231,255,.07),0 18px 40px rgba(0,0,0,.5)
+}
+.profile-intro{flex:1 1 320px;min-width:280px}
+.profile-intro h3{font-size:clamp(19px,2.3vw,23px);margin-bottom:12px}
+.profile-intro p{color:var(--muted);font-size:15.8px}
+.profile-intro p strong{color:var(--txt);font-weight:600}
+@media(max-width:560px){.avatar{width:132px;height:132px}.profile-head{gap:22px}}
+.about{display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:start}
+@media(max-width:900px){.about{grid-template-columns:1fr;gap:34px}}
+.timeline{border-left:1px solid var(--line);padding-left:26px;display:flex;flex-direction:column;gap:26px}
+.tl-item{position:relative}
+.tl-item::before{
+  content:"";position:absolute;left:-31px;top:8px;width:9px;height:9px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--cyan)
+}
+.tl-item h4{font-size:16.5px}
+.tl-item span{font-size:13.5px;color:var(--cyan);font-weight:600}
+.tl-item p{color:var(--muted);font-size:15px;margin-top:5px}
+.panel{border:1px solid var(--line);border-radius:var(--radius);padding:26px;background:var(--card)}
+.panel + .panel{margin-top:18px}
+.panel h3{font-size:17px;margin-bottom:14px}
+.panel ul{margin:0;padding-left:18px;color:var(--muted);font-size:15.2px}
+.panel li{margin:7px 0}
+.panel li::marker{color:var(--violet)}
+
+/* ---------- pricing ---------- */
+.price{border:1px solid var(--line);border-radius:var(--radius);padding:28px;background:var(--card)}
+.price.featured{border-color:rgba(94,231,255,.34);background:linear-gradient(180deg,rgba(94,231,255,.06),rgba(255,255,255,.03))}
+.price .pj-tag{margin-bottom:18px}
+.price b{
+  display:block;font-size:clamp(26px,3.2vw,34px);font-weight:750;letter-spacing:-.03em;
+  background:linear-gradient(135deg,#fff,#9fc6ff);-webkit-background-clip:text;background-clip:text;color:transparent
+}
+.price .unit{display:block;margin-top:6px;font-size:14.5px;color:var(--muted)}
+.price p{margin-top:16px;color:var(--muted);font-size:15.4px}
+.price-note{margin-top:22px;color:var(--muted);font-size:15.4px;max-width:84ch}
+.price-note strong{color:var(--txt);font-weight:600}
+
+/* ---------- faq ---------- */
+.faq{max-width:840px;margin:0 auto}
+details{border:1px solid var(--line);border-radius:14px;background:var(--card);margin-bottom:12px;overflow:hidden}
+details[open]{border-color:var(--line-hi);background:var(--card-hi)}
+summary{
+  cursor:pointer;padding:20px 24px;font-weight:600;font-size:16.5px;list-style:none;
+  display:flex;justify-content:space-between;align-items:center;gap:18px
+}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:22px;color:var(--cyan);font-weight:400;transition:transform .25s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{padding:0 24px 22px;color:var(--muted);font-size:15.5px}
+
+/* ---------- cta ---------- */
+.cta-box{
+  border:1px solid var(--line-hi);border-radius:26px;padding:clamp(32px,5vw,64px);text-align:center;
+  background:
+    radial-gradient(600px 320px at 50% 0%, rgba(94,231,255,.14), transparent 70%),
+    radial-gradient(600px 320px at 50% 100%, rgba(167,139,250,.14), transparent 70%),
+    var(--bg-2)
+}
+.cta-box h2{max-width:26ch;margin:16px auto 0}
+.cta-box .lead{margin:20px auto 0;text-align:center}
+.cta-links{display:flex;flex-wrap:wrap;gap:13px;justify-content:center;margin-top:34px}
+.cta-note{margin-top:22px;font-size:14.5px;color:var(--muted)}
+.cta-note a{color:var(--cyan);text-decoration:none;border-bottom:1px solid rgba(94,231,255,.35)}
+.contact-row{display:flex;flex-wrap:wrap;gap:26px;justify-content:center;margin-top:30px;font-size:15.5px}
+.contact-row a{text-decoration:none;color:var(--muted);border-bottom:1px solid var(--line-hi);padding-bottom:2px}
+.contact-row a:hover{color:var(--txt);border-color:var(--cyan)}
+
+footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
+.foot{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;font-size:14px;color:var(--muted)}
+.foot a{text-decoration:none;color:var(--muted)}
+.foot a:hover{color:var(--txt)}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .rv{opacity:1;transform:none;transition:none}
+  html{scroll-behavior:auto}
+  .btn:hover,.card:hover,.who:hover,.project:hover{transform:none}
+}
+</style>
+</head>
+<body>
+
+<header id="hdr">
+  <div class="wrap nav">
+    <a class="brand" href="#top"><span class="dot">E</span> Evan Rouzaud <span class="muted" style="font-weight:500">· IA appliquée</span></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#pourqui">Pour qui</a>
+      <a href="#services">Services</a>
+      <a href="#projets">Réalisations</a>
+      <a href="#methode">Méthode</a>
+      <a href="#profil">Profil</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-right">
+      <a class="nav-cta" href="https://cal.com/rouzaud-evan-izeqwf/30min" target="_blank" rel="noopener">Réserver un appel</a>
+      <button class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="status"><span class="pulse"></span> Disponible pour missions freelance</span>
+      <h1>Je transforme votre besoin métier en <em>produit IA utile, mesurable et adopté</em>.</h1>
+      <p class="lead">
+        Freelance en IA appliquée. Agents LLM, RAG, IA 100 % locale et machine learning, du cadrage au
+        déploiement, avec des résultats chiffrés plutôt que des démos qui ne sortent jamais du laboratoire.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="https://cal.com/rouzaud-evan-izeqwf/30min" target="_blank" rel="noopener">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
+          Réserver 30 minutes de cadrage
+        </a>
+        <a class="btn btn-ghost" href="#projets">Voir les 5 produits livrés</a>
+      </div>
+      <p class="hero-note">
+        Premier échange gratuit de 30 minutes, réponse sous 24 h. Vous pouvez aussi
+        <a href="https://cal.com/rouzaud-evan-izeqwf/30min" target="_blank" rel="noopener">choisir directement un créneau</a>
+        dans mon agenda. France et international, à distance.
+      </p>
+
+      <div class="kpis rv">
+        <div class="kpi"><b>5</b><span>produits IA conçus, développés et livrés en autonomie</span></div>
+        <div class="kpi"><b>×60</b><span>de gain estimé sur certaines tâches métier (agent Excel)</span></div>
+        <div class="kpi"><b>+500 %</b><span>d'accélération de calculs scientifiques (XLIM / CNRS)</span></div>
+        <div class="kpi"><b>1 sem.</b><span>pour livrer un SaaS vendable de bout en bout</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= POUR QUI ================= -->
+  <section id="pourqui">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <span class="eyebrow">Pour qui je travaille</span>
+        <h2>Vous vous reconnaissez ?</h2>
+        <p class="lead">
+          Je suis utile là où le besoin est concret, le budget réel et les données sensibles. Si votre situation
+          ressemble à l'une de ces quatre, nous gagnerons du temps tous les deux.
+        </p>
+      </div>
+
+      <div class="grid g-2">
+        <article class="who rv">
+          <h3><span aria-hidden="true">🚀</span> Startups et jeunes entreprises</h3>
+          <p>Vous voulez valider une idée IA avec un premier produit réellement démontrable, sans recruter une équipe complète ni immobiliser vos développeurs pendant des mois.</p>
+        </article>
+        <article class="who rv">
+          <h3><span aria-hidden="true">🏭</span> PME et directions métier</h3>
+          <p>Un processus manuel consomme plusieurs heures chaque semaine : tri de données, rédaction, contrôle qualité. Vous cherchez à l'automatiser avec un gain mesurable et un coût maîtrisé.</p>
+        </article>
+        <article class="who rv">
+          <h3><span aria-hidden="true">🧩</span> Équipes produit et innovation</h3>
+          <p>Vous avez besoin d'un renfort qui code, cadre le besoin et sait parler aux utilisateurs comme à la direction. Un profil qui livre, pas un slide de plus.</p>
+        </article>
+        <article class="who rv">
+          <h3><span aria-hidden="true">🔐</span> Secteurs sensibles à la confidentialité</h3>
+          <p>Santé, juridique, finance, industrie, secteur public : vos données ne peuvent pas partir chez un prestataire. Je construis des solutions qui tournent sur votre infrastructure, sans appel externe.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SERVICES ================= -->
+  <section id="services">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <span class="eyebrow">Ce que je fais pour vous</span>
+        <h2>De l'idée floue au produit qui tourne en production.</h2>
+        <p class="lead">
+          La plupart des projets IA échouent avant la ligne de code : besoin mal cadré, valeur jamais mesurée,
+          données sensibles envoyées au cloud sans réflexion. Je couvre toute la chaîne : cadrage, prototypage,
+          industrialisation, adoption.
+        </p>
+      </div>
+
+      <div class="grid g-3">
+        <article class="card rv">
+          <div class="icon" aria-hidden="true">🤖</div>
+          <h3>Agents LLM &amp; automatisation</h3>
+          <p>Des agents qui exécutent de vraies tâches dans vos outils, sous contrôle strict : périmètre d'action limité, validation humaine et journalisation.</p>
+          <ul>
+            <li>Agents avec LangGraph, appels d'outils encadrés</li>
+            <li>Intégration Excel / Office.js, API internes, CRM</li>
+            <li>Plans d'exécution validés avant toute modification</li>
+          </ul>
+        </article>
+
+        <article class="card rv">
+          <div class="icon" aria-hidden="true">🔍</div>
+          <h3>RAG &amp; bases de connaissances</h3>
+          <p>Vos documents deviennent interrogeables, avec des réponses sourcées et vérifiables, pas un chatbot qui invente.</p>
+          <ul>
+            <li>Recherche hybride (mots-clés + vecteurs)</li>
+            <li>Citations obligatoires, refus explicite si l'information manque</li>
+            <li>Évaluation de la qualité des réponses</li>
+          </ul>
+        </article>
+
+        <article class="card rv">
+          <div class="icon" aria-hidden="true">🔒</div>
+          <h3>IA locale &amp; souveraine</h3>
+          <p>Quand vos données ne peuvent pas sortir : modèles exécutés sur vos machines, coût d'inférence à zéro, conformité plus simple.</p>
+          <ul>
+            <li>Modèles ouverts (Qwen, Phi, SmolLM) et embeddings locaux</li>
+            <li>Choix du modèle selon la RAM disponible (400 Mo à 2 Go)</li>
+            <li>Aucun envoi de donnée vers un tiers</li>
+          </ul>
+        </article>
+
+        <article class="card rv">
+          <div class="icon" aria-hidden="true">📈</div>
+          <h3>Data science &amp; ML prédictif</h3>
+          <p>Classification, scoring, prévision de volumes : des modèles simples, compris par vos équipes, avec les métriques qui comptent pour vous.</p>
+          <ul>
+            <li>Pipelines reproductibles (Pandas, scikit-learn)</li>
+            <li>Classification et régression, évaluation honnête</li>
+            <li>API REST et interfaces de restitution</li>
+          </ul>
+        </article>
+
+        <article class="card rv">
+          <div class="icon" aria-hidden="true">🎯</div>
+          <h3>Cadrage, ROI &amp; adoption</h3>
+          <p>Je commence par les utilisateurs, pas par la technologie. Vous obtenez un périmètre priorisé par la valeur et un business case défendable.</p>
+          <ul>
+            <li>Entretiens métier et cartographie des scénarios</li>
+            <li>User stories, priorisation valeur / complexité</li>
+            <li>Formation et conduite du changement</li>
+          </ul>
+        </article>
+
+        <article class="card rv">
+          <div class="icon" aria-hidden="true">🛡️</div>
+          <h3>Fiabilité &amp; garde-fous</h3>
+          <p>Une IA en production doit être observable et testable. Je livre les tests et les journaux avec le produit.</p>
+          <ul>
+            <li>Tests automatisés sans dépendance externe</li>
+            <li>Logs et artefacts d'exécution inspectables</li>
+            <li>Confirmation humaine sur les actions sensibles</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROJETS ================= -->
+  <section id="projets">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <span class="eyebrow">Réalisations</span>
+        <h2>Cinq produits livrés, cinq problèmes résolus.</h2>
+        <p class="lead">
+          Cinq projets, cinq problèmes réels, et une démonstration vidéo pour chacun. Chaque réalisation se
+          termine par quelque chose d'utilisable : une application installée, un SaaS en ligne, une API déployée.
+          Les trois produits les plus aboutis ont aussi leur case study détaillé.
+        </p>
+      </div>
+
+      <div class="grid" style="gap:26px">
+
+        <!-- 1. AI Spreadsheet Copilot -->
+        <article class="project rv">
+          <div class="pj-body">
+            <span class="pj-tag">Agents LLM · Sécurité d'exécution</span>
+            <h3>AI Spreadsheet Copilot : un agent Excel qui n'écrit jamais n'importe quoi</h3>
+            <p>
+              Un assistant qui agit vraiment dans Excel, mais dont le modèle ne touche jamais directement au
+              classeur : il propose un plan, le plan est validé, puis seules des macros connues s'exécutent.
+            </p>
+            <div class="pj-block">
+              <h4>Le contrat d'exécution, cœur du projet</h4>
+              <ul class="pj-facts">
+                <li>Chaîne contrôlée : instantané du classeur, plan JSON, normalisation, validation, confirmation, exécution</li>
+                <li>Validation par schéma (AJV) et invariants métier avant toute écriture</li>
+                <li>Confirmation humaine obligatoire pour les actions risquées ou ambiguës</li>
+                <li>Tests automatisés sur un hôte Excel simulé : la suite tourne sans Excel ni modèle</li>
+              </ul>
+            </div>
+            <div class="stack">
+              <span class="chip">TypeScript</span><span class="chip">Office.js</span><span class="chip">LangGraph</span>
+              <span class="chip">AJV</span><span class="chip">Ollama</span><span class="chip">Jest</span>
+            </div>
+            <div class="pj-actions">
+              <a class="btn btn-ghost btn-sm" href="https://github.com/Evan-Rouzaud-git/excel-agent-poc" target="_blank" rel="noopener">Code sur GitHub</a>
+            </div>
+          </div>
+          <div class="pj-media">
+            <span class="media-badge">Démo vidéo · 1 min 15</span>
+            <video class="pj-video" controls preload="metadata" playsinline
+                   src="videos/01-spreadsheet-copilot.mp4"
+                   aria-label="Démonstration de AI Spreadsheet Copilot"></video>
+          </div>
+        </article>
+
+        <!-- 2. Lead List QA -->
+        <article class="project rv">
+          <div class="pj-body">
+            <span class="pj-tag">SaaS · Livré en 1 semaine · En vente</span>
+            <h3>Lead List QA : le contrôle qualité avant vos campagnes outbound</h3>
+            <p>
+              Un SaaS en ligne qui vérifie une liste de prospects avant l'envoi : les adresses sont testées en
+              direct, chaque contact est noté face à votre profil client idéal, et chaque rejet est expliqué.
+            </p>
+            <div class="pj-block">
+              <h4>Ce que le projet démontre</h4>
+              <ul class="pj-facts">
+                <li>Produit vendable en self-service conçu et mis en ligne en une semaine</li>
+                <li>Paiement, crédits, comptes et historique de traitements intégrés de bout en bout</li>
+                <li>Scoring ICP configurable avec raisons de rejet lisibles, plutôt qu'une note opaque</li>
+                <li>Exports propres : liste validée, liste rejetée, vue complète, avec re-vérification avant envoi</li>
+              </ul>
+            </div>
+            <div class="stack">
+              <span class="chip">Next.js</span><span class="chip">TypeScript</span><span class="chip">Supabase</span>
+              <span class="chip">Stripe</span><span class="chip">Vérification e-mail live</span>
+            </div>
+            <div class="pj-actions">
+              <a class="btn btn-primary btn-sm" href="https://www.leadlistqa.com/" target="_blank" rel="noopener">Essayer Lead List QA</a>
+              <a class="btn btn-ghost btn-sm" href="case-studies.html#lead-list-qa">Lire le case study</a>
+            </div>
+          </div>
+          <div class="pj-media">
+            <span class="media-badge">Démo vidéo</span>
+            <video class="pj-video" controls preload="metadata" playsinline
+                   src="videos/02-lead-list-qa.mp4"
+                   aria-label="Démonstration de Lead List QA"></video>
+          </div>
+        </article>
+
+        <!-- 3. AI Business Analyst Workbench -->
+        <article class="project rv">
+          <div class="pj-body">
+            <span class="pj-tag">Data science · Analyse métier</span>
+            <h3>AI Business Analyst Workbench : analyser des milliers de tickets hors ligne</h3>
+            <p>
+              Un analyste métier qui tourne en local : il regroupe des milliers de réclamations clients par thème,
+              les priorise, chiffre le retour sur investissement et anticipe les volumes, sans envoyer une seule
+              donnée à un service tiers.
+            </p>
+            <div class="pj-block">
+              <h4>Ce que le projet démontre</h4>
+              <ul class="pj-facts">
+                <li>Regroupement sémantique par embeddings : 30 clusters fins agrégés en 6 macro-thèmes lisibles</li>
+                <li>Scoring de priorité sur 5 critères (volume, croissance, taux de réponse, gain, facilité)</li>
+                <li>Simulateur de ROI paramétrable et prévision de volume à 4 semaines</li>
+                <li>Résultats déterministes et explicables : chaque recommandation est justifiable devant un comité</li>
+              </ul>
+            </div>
+            <div class="stack">
+              <span class="chip">Python</span><span class="chip">Streamlit</span><span class="chip">sentence-transformers</span>
+              <span class="chip">scikit-learn</span><span class="chip">spaCy</span><span class="chip">Plotly</span>
+            </div>
+            <div class="pj-actions">
+              <a class="btn btn-primary btn-sm" href="case-studies.html#business-analyst">Lire le case study</a>
+              <a class="btn btn-ghost btn-sm" href="https://github.com/Evan-Rouzaud-git/ai-business-analyst-workbench" target="_blank" rel="noopener">Code sur GitHub</a>
+            </div>
+          </div>
+          <div class="pj-media">
+            <span class="media-badge">Démo vidéo · 52 s</span>
+            <video class="pj-video" controls preload="metadata" playsinline
+                   src="videos/03-business-analyst.mp4"
+                   aria-label="Démonstration de AI Business Analyst Workbench"></video>
+          </div>
+        </article>
+
+        <!-- 4. Projet Goutte d'Eau -->
+        <article class="project rv">
+          <div class="pj-body">
+            <span class="pj-tag">Machine Learning · Prédiction</span>
+            <h3>Projet Goutte d'Eau : prédire le risque de pluie</h3>
+            <p>
+              MVP de prévision pluviométrique locale construite sur des données météo ouvertes, destinée aux
+              agriculteurs qui doivent anticiper les épisodes de pluie à l'échelle de leur exploitation.
+            </p>
+            <div class="pj-block">
+              <h4>Ce que le projet démontre</h4>
+              <ul class="pj-facts">
+                <li>Pipeline complet : collecte, prétraitement, entraînement, restitution</li>
+                <li>Deux modèles complémentaires : classification du risque et régression de l'intensité</li>
+                <li>API REST (stations, dates, prédiction par point GPS, supervision) et interface web</li>
+                <li>Choix d'ingénierie assumé : prédictions précalculées en CSV pour la sobriété et la reproductibilité</li>
+              </ul>
+            </div>
+            <div class="stack">
+              <span class="chip">Python</span><span class="chip">Pandas</span><span class="chip">scikit-learn</span>
+              <span class="chip">FastAPI</span><span class="chip">JavaScript</span>
+            </div>
+            <div class="pj-actions">
+              <a class="btn btn-ghost btn-sm" href="https://github.com/Evan-Rouzaud-git/Projet-goutte-eau" target="_blank" rel="noopener">Code sur GitHub</a>
+            </div>
+          </div>
+          <div class="pj-media">
+            <span class="media-badge">Démo vidéo</span>
+            <video class="pj-video" controls preload="metadata" playsinline
+                   src="videos/04-goutte-eau.mp4"
+                   aria-label="Démonstration du projet Goutte d'Eau"></video>
+          </div>
+        </article>
+
+        <!-- 5. InSight -->
+        <article class="project rv">
+          <div class="pj-body">
+            <span class="pj-tag">Logiciel de bureau · IA locale · En vente</span>
+            <h3>InSight : votre veille transformée en briefing quotidien</h3>
+            <p>
+              Une application de bureau qui lit vos flux RSS, note chaque article selon votre profil et rédige
+              un briefing stratégique chaque matin. Tout s'exécute sur la machine de l'utilisateur : aucune
+              donnée de veille ne part vers le cloud.
+            </p>
+            <div class="pj-block">
+              <h4>Ce que le projet démontre</h4>
+              <ul class="pj-facts">
+                <li>Application multi-plateforme complète, du frontend à la base SQLite locale</li>
+                <li>Pertinence sémantique par similarité entre profil utilisateur et articles</li>
+                <li>Détection des sujets émergents par regroupement, recherche hybride mots-clés + vecteurs</li>
+                <li>Modèles locaux adaptés à la machine (400 Mo à 2 Go), briefing planifié et notifications</li>
+                <li>Produit commercialisé, version 1.1.0 livrée avec ses installateurs</li>
+              </ul>
+            </div>
+            <div class="stack">
+              <span class="chip">Tauri</span><span class="chip">Rust</span><span class="chip">React</span>
+              <span class="chip">TypeScript</span><span class="chip">SQLite FTS5</span><span class="chip">Qwen2.5</span><span class="chip">Embeddings BGE</span>
+            </div>
+            <div class="pj-actions">
+              <a class="btn btn-primary btn-sm" href="https://peterjean.gumroad.com/l/InSight" target="_blank" rel="noopener">Acheter InSight</a>
+              <a class="btn btn-ghost btn-sm" href="case-studies.html#insight">Lire le case study</a>
+            </div>
+          </div>
+          <div class="pj-media">
+            <span class="media-badge">Démo vidéo</span>
+            <video class="pj-video" controls preload="metadata" playsinline
+                   src="videos/05-insight.mp4"
+                   aria-label="Démonstration d'InSight"></video>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= METHODE ================= -->
+  <section id="methode">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <span class="eyebrow">Comment nous travaillons ensemble</span>
+        <h2>Un déroulé simple, des points de décision clairs.</h2>
+        <p class="lead">
+          Pas de tunnel de plusieurs mois. Vous voyez quelque chose qui fonctionne très vite, et vous décidez
+          à chaque étape de continuer, d'ajuster ou d'arrêter.
+        </p>
+      </div>
+      <div class="steps">
+        <div class="step rv">
+          <h3>Échange de cadrage</h3>
+          <p>30 minutes pour comprendre votre besoin, vos contraintes et ce qui compte vraiment. Vous repartez avec une première lecture, gratuitement.</p>
+        </div>
+        <div class="step rv">
+          <h3>Périmètre &amp; valeur</h3>
+          <p>Entretiens utilisateurs, scénarios priorisés par valeur et complexité, estimation des gains. Un périmètre écrit, pas une intention.</p>
+        </div>
+        <div class="step rv">
+          <h3>Prototype en 2 à 6 semaines</h3>
+          <p>Une version démontrable rapidement, avec des points d'avancement réguliers. Le code vous appartient dès la livraison.</p>
+        </div>
+        <div class="step rv">
+          <h3>Mise en production &amp; adoption</h3>
+          <p>Tests, supervision, journalisation, documentation et formation de vos équipes pour que l'outil survive au départ du consultant.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROFIL ================= -->
+  <section id="profil">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <span class="eyebrow">Profil</span>
+        <h2>Un parcours court, des produits déjà livrés.</h2>
+        <p class="lead">
+          Double formation scientifique et IA, recherche appliquée en deep learning, et cinq produits conçus,
+          développés et livrés en autonomie.
+        </p>
+      </div>
+
+      <div class="profile-head rv">
+        <img class="avatar" src="photo_evan.jpeg" alt="Portrait d'Evan Rouzaud" width="168" height="168" loading="lazy">
+        <div class="profile-intro">
+          <h3>Evan Rouzaud, freelance en IA appliquée</h3>
+          <p>
+            Je suis en fin de cursus et je lance mon activité de freelance. Mon expérience s'est construite en
+            alternance, pas encore en mission cliente, et je préfère le dire clairement plutôt que de vous laisser
+            le deviner. Ce que j'apporte est vérifiable : <strong>cinq produits que j'ai conçus, développés et livrés
+            de bout en bout, dont deux aujourd'hui en vente</strong>. Vous savez donc précisément à quoi vous attendre
+            avant même le premier échange.
+          </p>
+        </div>
+      </div>
+
+      <div class="about">
+        <div class="timeline rv">
+          <div class="tl-item">
+            <span>Mars 2025 à juin 2026</span>
+            <h4>Alternant IA, cadrage métier, POC et adoption · IM Projet, Courbevoie</h4>
+            <p>
+              Diagnostic terrain : 29 entretiens semi-directifs, sondage interne (131 répondants sur 200),
+              cartographie de 42 scénarios métier et 32 user stories validées. Conception et prototypage d'un agent
+              Excel et d'un chatbot privé avec validation humaine, journaux et supervision. Cinq démonstrations
+              devant la direction générale, l'IT et les métiers, avec estimation des gains et business cases.
+              Animation de deux webinaires IA et de six sessions de formation Copilot.
+            </p>
+          </div>
+          <div class="tl-item">
+            <span>Avril 2024 à août 2024</span>
+            <h4>Chercheur deep learning · XLIM, CNRS, Poitiers</h4>
+            <p>
+              Analyse d'images hyperspectrales, mise en place de métriques de performance et évaluation de modèles.
+              Optimisation des calculs : accélération de 500 % et simplification d'un processus de quatre étapes en une.
+            </p>
+          </div>
+          <div class="tl-item">
+            <span>Juin 2023 à août 2023</span>
+            <h4>Ingénieur optique · Quantum and Nano Optic Lab, Thaïlande</h4>
+            <p>
+              Conception d'un magnétomètre optique de zéro en environnement anglophone. Analyse comparative
+              coûts / performances : réduction de 66 % du coût des lasers, appareil deux fois plus rentable.
+            </p>
+          </div>
+          <div class="tl-item">
+            <span>2025 à 2026</span>
+            <h4>Mastère Manager Transformation Digitale, Data et IA (RNCP 7) · ISCOD</h4>
+            <p>Master IXEO EUR en hautes technologies, électronique et photonique (mention Bien), Université de Limoges.</p>
+          </div>
+        </div>
+
+        <div class="rv">
+          <div class="panel">
+            <h3>Compétences techniques</h3>
+            <ul>
+              <li><strong>IA &amp; agents :</strong> LLM, LangGraph, RAG, évaluation de modèles, embeddings, IA locale</li>
+              <li><strong>Data :</strong> Python (Pandas, NumPy, SciPy), scikit-learn, spaCy, SQL, automatisation</li>
+              <li><strong>Développement :</strong> TypeScript, React, Next.js, Tauri / Rust, Supabase, Stripe, API REST, Docker, Git</li>
+              <li><strong>Office &amp; intégration :</strong> Office.js, add-ins Excel, validation par schéma, tests automatisés</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3>Produit &amp; business</h3>
+            <ul>
+              <li>Analyse fonctionnelle, user stories, priorisation valeur / complexité</li>
+              <li>Calcul de ROI, business cases, pilotage par la valeur</li>
+              <li>Conduite du changement, formation, vulgarisation technique</li>
+              <li>Communication direction : reporting, démonstrations, arbitrages</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3>Langues &amp; certifications</h3>
+            <ul>
+              <li>Français natif · Anglais C1 (TOEIC 945) · Allemand B1</li>
+              <li>IBM Data Analyst · Effective Communication for Today's Leader</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TARIFS ================= -->
+  <section id="tarifs">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <span class="eyebrow">Investissement</span>
+        <h2>Des ordres de grandeur clairs, un devis écrit avant de commencer.</h2>
+        <p class="lead">
+          Je préfère annoncer les montants dès le départ : vous savez tout de suite si nous jouons dans la même
+          catégorie, et nous parlons du projet plutôt que du prix pendant tout l'échange.
+        </p>
+      </div>
+
+      <div class="grid g-2">
+        <div class="price rv">
+          <span class="pj-tag">Journée de travail</span>
+          <b>350 à 500 €</b>
+          <span class="unit">par jour travaillé</span>
+          <p>Pour le cadrage, le développement, l'accompagnement de vos équipes ou un renfort ponctuel sur un projet existant. Le tarif précis dépend de la mission et de sa durée.</p>
+        </div>
+        <div class="price featured rv">
+          <span class="pj-tag">Prototype au forfait</span>
+          <b>à partir de 2 500 €</b>
+          <span class="unit">pour un premier produit démontrable</span>
+          <p>Un POC IA fonctionnel, avec un périmètre défini au départ, livré en 2 à 6 semaines, démontré à vos utilisateurs et accompagné de sa documentation.</p>
+        </div>
+      </div>
+
+      <p class="price-note rv">
+        <strong>Ces montants sont des ordres de grandeur, pas une grille figée.</strong> Si votre budget se situe
+        nettement en dessous, dites-le dès le premier échange : je préfère vous orienter vers une solution plus
+        légère, ou vous conseiller d'attendre le bon moment, plutôt que de promettre un résultat que le budget
+        ne permet pas.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="sec-head center rv">
+        <span class="eyebrow">Questions fréquentes</span>
+        <h2>Ce que vous voulez savoir avant de m'écrire.</h2>
+      </div>
+
+      <div class="faq rv">
+        <details open>
+          <summary>Combien de temps pour un premier prototype utilisable ?</summary>
+          <p>Comptez 2 à 6 semaines selon le périmètre. L'objectif de la première phase est toujours le même : mettre quelque chose de démontrable entre les mains de vos utilisateurs le plus vite possible, puis itérer sur du concret.</p>
+        </details>
+        <details>
+          <summary>Mes données sont sensibles, peuvent-elles rester chez moi ?</summary>
+          <p>Oui, et c'est souvent la bonne approche. Plusieurs de mes projets fonctionnent avec des modèles exécutés localement, sans aucun appel à un service externe : vos documents, tickets ou fichiers clients ne quittent jamais votre infrastructure. Le coût d'usage devient également nul.</p>
+        </details>
+        <details>
+          <summary>À qui appartient le code livré ?</summary>
+          <p>À vous, intégralement. Vous recevez le code source, la documentation et les tests. Aucune dépendance à ma présence pour faire tourner l'outil, et si vous voulez reprendre la main en interne, je forme vos équipes.</p>
+        </details>
+        <details>
+          <summary>Travaillez-vous à distance ?</summary>
+          <p>Oui, à distance depuis la France, avec des clients partout. Je suis mobile pour des temps présents ponctuels (ateliers de cadrage, restitution, formation) en France comme à l'international.</p>
+        </details>
+        <details>
+          <summary>Comment se passe la facturation ?</summary>
+          <p>Deux formats : au forfait par lot de travail quand le périmètre est clair, ou en régie à la journée pour les missions d'accompagnement. Les ordres de grandeur sont indiqués plus haut. Dans les deux cas, un devis écrit est validé avant le démarrage, sans surprise en fin de mission.</p>
+        </details>
+        <details>
+          <summary>Vous débutez en freelance, pourquoi vous faire confiance ?</summary>
+          <p>Parce que ce que je sais faire est déjà visible. Cinq produits existent, fonctionnent, et deux sont commercialisés : vous pouvez les tester, lire leur code ou regarder leurs démonstrations avant de m'écrire. Ma première expérience s'est faite en alternance, chez un client réel, avec de vrais utilisateurs et des démonstrations devant une direction générale. Le reste se joue sur le premier échange : si je ne suis pas la bonne personne pour votre projet, je vous le dirai.</p>
+        </details>
+        <details>
+          <summary>Et si l'IA n'est pas la bonne réponse à mon problème ?</summary>
+          <p>Je le dirai. Sur une mission précédente, après chiffrage, j'ai recommandé l'arrêt d'un projet pour des raisons de budget et de complexité, et la direction a suivi. Un projet IA n'a de sens que s'il produit un gain mesurable ; sinon, autant l'économiser.</p>
+        </details>
+        <details>
+          <summary>Pouvez-vous signer un accord de confidentialité ?</summary>
+          <p>Oui, sans difficulté. Un accord de confidentialité peut être mis en place avant même le premier échange détaillé sur votre contexte.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONTACT ================= -->
+  <section id="contact">
+    <div class="wrap">
+      <div class="cta-box rv">
+        <span class="eyebrow">Passons à l'action</span>
+        <h2>Parlons de votre projet IA. 30 minutes suffisent pour y voir clair.</h2>
+        <p class="lead">
+          Décrivez-moi votre besoin en quelques lignes. Je vous réponds sous 24 heures avec une première lecture
+          honnête : ce qui est faisable, ce qui ne l'est pas, et par où commencer.
+        </p>
+        <div class="cta-links">
+          <a class="btn btn-primary" href="https://cal.com/rouzaud-evan-izeqwf/30min" target="_blank" rel="noopener">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
+            Choisir un créneau de 30 minutes
+          </a>
+          <a class="btn btn-ghost" href="mailto:evanrouzaud@gmail.com?subject=Projet%20IA%20%3A%20demande%20de%20cadrage&amp;body=Bonjour%20Evan%2C%0A%0AContexte%20%3A%20%0ABesoin%20%3A%20%0A%C3%89ch%C3%A9ance%20souhait%C3%A9e%20%3A%20%0A%0AMerci%20%21">Écrire un e-mail</a>
+          <a class="btn btn-ghost" href="https://www.linkedin.com/in/evanrouzaud" target="_blank" rel="noopener">LinkedIn</a>
+          <a class="btn btn-ghost" href="https://github.com/Evan-Rouzaud-git" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <p class="cta-note">
+          Mon agenda en ligne :
+          <a href="https://cal.com/rouzaud-evan-izeqwf/30min" target="_blank" rel="noopener">cal.com/rouzaud-evan-izeqwf/30min</a>
+        </p>
+        <div class="contact-row">
+          <a href="mailto:evanrouzaud@gmail.com">evanrouzaud@gmail.com</a>
+          <a href="tel:+33768587443">+33 7 68 58 74 43</a>
+          <span class="muted">France · à distance · mobile international</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>© <span id="year">2026</span> Evan Rouzaud · freelance en IA appliquée</span>
+    <span>
+      <a href="#projets">Réalisations</a> ·
+      <a href="case-studies.html">Case studies</a> ·
+      <a href="#tarifs">Tarifs</a> ·
+      <a href="https://cal.com/rouzaud-evan-izeqwf/30min" target="_blank" rel="noopener">Réserver un appel</a> ·
+      <a href="https://github.com/Evan-Rouzaud-git" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="https://www.linkedin.com/in/evanrouzaud" target="_blank" rel="noopener">LinkedIn</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+  // année dynamique
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ombre de la barre de navigation au défilement
+  const hdr = document.getElementById('hdr');
+  addEventListener('scroll', () => hdr.classList.toggle('scrolled', scrollY > 12), {passive:true});
+
+  // menu mobile
+  const burger = document.getElementById('burger');
+  const closeMenu = () => {
+    hdr.classList.remove('open');
+    burger.setAttribute('aria-expanded', 'false');
+    burger.setAttribute('aria-label', 'Ouvrir le menu');
+  };
+  burger.addEventListener('click', () => {
+    const open = hdr.classList.toggle('open');
+    burger.setAttribute('aria-expanded', String(open));
+    burger.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+  });
+  document.querySelectorAll('#navLinks a').forEach(a => a.addEventListener('click', closeMenu));
+  addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+
+  // apparition progressive des blocs
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {rootMargin:'0px 0px -8% 0px', threshold:.08});
+  document.querySelectorAll('.rv').forEach(el => io.observe(el));
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "Evan Rouzaud, freelance en IA appliquée",
+  "description": "Conception et développement de produits IA : agents LLM, RAG, IA locale souveraine, machine learning, cadrage et mesure du ROI.",
+  "areaServed": "France et international",
+  "email": "evanrouzaud@gmail.com",
+  "telephone": "+33768587443",
+  "founder": {
+    "@type": "Person",
+    "name": "Evan Rouzaud",
+    "jobTitle": "Freelance en IA appliquée",
+    "sameAs": [
+      "https://github.com/Evan-Rouzaud-git",
+      "https://www.linkedin.com/in/evanrouzaud"
+    ],
+    "knowsLanguage": ["fr", "en", "de"]
+  },
+  "makesOffer": [
+    { "@type": "Offer", "name": "Agents LLM et automatisation" },
+    { "@type": "Offer", "name": "RAG et bases de connaissances" },
+    { "@type": "Offer", "name": "IA locale et souveraine" },
+    { "@type": "Offer", "name": "Data science et machine learning" },
+    { "@type": "Offer", "name": "Cadrage, ROI et adoption" }
+  ]
+}
+</script>
+</body>
+</html>
