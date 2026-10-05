@@ -141,29 +141,27 @@ footer{border-top:1px solid var(--line);padding:34px 0 104px}
 .peel-flap{
   position:absolute;right:0;bottom:0;width:100%;height:100%;pointer-events:none;
   clip-path:polygon(100% 0,0 0,0 100%);
-  background:linear-gradient(315deg,rgba(127,212,255,.75) 0%,#16233e 9%,#0a1224 48%,#05070d 100%);
+  background:linear-gradient(315deg,rgba(94,231,255,.6) 0%,#16213c 9%,#0a1224 46%,#05070d 100%);
   filter:drop-shadow(-14px -14px 30px rgba(0,0,0,.72));
-  animation:flapPull 7s ease-in-out 1.2s infinite
+  transition:clip-path 1.05s cubic-bezier(.22,.85,.25,1),transform 1.05s cubic-bezier(.22,.85,.25,1)
 }
-/* le coin est tiré puis relâché en continu, même sans survol : c'est ce qui attire l'œil */
-@keyframes flapPull{
-  0%,66%,100%{clip-path:polygon(100% 0,0 0,0 100%);transform:translate(0,0)}
-  76%,85%{clip-path:polygon(100% 10%,10% 10%,10% 100%);transform:translate(-10px,-10px)}
-}
+/* chat.js tire la page du dessus toutes les 7 secondes : le coin se replie dans le
+   même mouvement, ce qui découvre l'assistant par la diagonale. */
+.peel.pulling .peel-flap{clip-path:polygon(100% 30%,30% 30%,30% 100%);transform:translate(-16px,-16px)}
+.peel:hover .peel-flap,.peel:focus-within .peel-flap{clip-path:polygon(100% 44%,44% 44%,44% 100%);transform:translate(-12px,-12px)}
 .peel-flap::after{
   content:"";position:absolute;inset:0;
-  background:linear-gradient(315deg,rgba(127,212,255,.85) 0%,transparent 26%);
+  background:linear-gradient(315deg,rgba(127,212,255,.9) 0%,transparent 26%);
   animation:peelGlow 3.5s ease-in-out infinite
 }
-@keyframes peelGlow{0%,100%{opacity:.25}50%{opacity:.85}}
+@keyframes peelGlow{0%,100%{opacity:.3}50%{opacity:.9}}
 @media(max-width:560px){
   .peel{width:100px;height:100px}
   .peel:hover,.peel:focus-within{width:62vw;height:62vw}
 }
 @media(prefers-reduced-motion:reduce){
-  .peel{transition:none}
-  .peel-flap,.peel-flap::after{animation:none}
-  .peel-flap::after{opacity:.4}
+  .peel,.peel-flap{transition:none}
+  .peel-flap::after{animation:none;opacity:.5}
 }
 
 .rv{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}

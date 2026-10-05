@@ -1,204 +1,123 @@
 /*
- * Styles de la page assistant : une vraie page plein écran, pas une fenêtre.
- * Chargé au premier besoin (voir chat/chat-loader.js).
+ * Styles de l'assistant : une page plein écran, posée SOUS le portfolio.
  *
- * Animation d'ouverture : la page est une feuille. Fermée, elle est translatée hors
- * écran vers le coin bas-droit, avec une légère rotation. Ouverte, elle revient à sa
- * place. Aucun clip-path : la feuille reste opaque pendant tout le trajet, donc on ne
- * voit jamais le portfolio à travers. L'ombre portée vers le haut-gauche et le liseré
- * clair sur le bord avant donnent l'impression d'une feuille qu'on tourne.
+ * Principe de l'animation : c'est la page du dessus (le portfolio) qui glisse.
+ * chat.js emballe le contenu du site dans #site-shell, puis déplace ce bloc vers le
+ * haut-gauche : le portfolio s'en va, l'assistant apparaît dessous. Aucun clip-path,
+ * aucun élément translaté depuis hors écran : la page du dessous est déjà en place,
+ * elle est simplement découverte. C'est ce qui rend le mouvement fluide et naturel.
  *
- * Le coin de page plié (bas-droit) est stylé dans index.html et case-studies.html :
- * il doit être visible avant ce fichier.
+ * Répartition de la page :
+ *   .chat-topbar    titre + explication du mode actif + sélecteur, hors conversation
+ *   .chat-surface   la conversation, dans sa propre surface, toute la hauteur restante
+ *   .chat-composer  la saisie, collée en bas, dans sa propre surface
  */
 
 :root{
-  /* sous-site volontairement plus clair et plus bleu que le portfolio */
-  --chat-bg-1:#1b2c4d;
-  --chat-bg-2:#13203c;
-  --chat-bg-3:#0d1730;
-  --chat-line:rgba(157,214,255,.18);
-  --chat-txt:#f2f7ff;
-  --chat-muted:rgba(226,238,255,.72);
-  --chat-blue:#7fd4ff;
+  /* le sous-site : plus clair et plus coloré que le portfolio */
+  --chat-bg-1:#0c1428;
+  --chat-bg-2:#101a33;
+  --chat-line:rgba(158,220,255,.16);
+  --chat-line-hi:rgba(158,220,255,.3);
+  --chat-txt:#eef4ff;
+  --chat-muted:rgba(222,236,255,.66);
+  --chat-blue:#5ee7ff;
+  --chat-violet:#a78bfa;
+  --chat-surface:rgba(4,9,20,.55);
 }
 
 /* ---------------------------------------------------------------
-   La feuille
+   La page du dessous
    --------------------------------------------------------------- */
 .chat-page{
-  position:fixed;inset:0;z-index:70;
+  position:fixed;inset:0;z-index:60;
   display:flex;flex-direction:column;overflow:hidden;
-  visibility:hidden;
-  transform:translate3d(112%,112%,0) rotate(3deg);
-  transition:transform .95s cubic-bezier(.2,.9,.2,1),visibility 0s linear .95s;
-  will-change:transform;
   color:var(--chat-txt);font-family:inherit;font-size:16.5px;line-height:1.62;
-  background:linear-gradient(165deg,var(--chat-bg-1) 0%,var(--chat-bg-2) 52%,var(--chat-bg-3) 100%);
-  box-shadow:-70px -70px 130px rgba(3,6,14,.62),-2px -2px 0 rgba(127,212,255,.55),inset 0 0 0 1px rgba(127,212,255,.12);
-}
-.chat-page.open{
-  visibility:visible;transform:translate3d(0,0,0);
-  transition:transform .95s cubic-bezier(.2,.9,.2,1),visibility 0s linear 0s;
-}
-/* aperçu périodique : le coin tire la feuille, puis la relâche */
-.chat-page.peeking{
-  visibility:visible;pointer-events:none;
-  animation:sheetPeek 2.2s ease-in-out both;
-}
-/* aperçu au survol du coin : on tire un peu plus */
-.peel:hover ~ .chat-page,.peel:focus-within ~ .chat-page{
-  visibility:visible;pointer-events:none;
-  transform:translate3d(66%,66%,0) rotate(2deg);
-  transition:transform .5s cubic-bezier(.2,.8,.25,1),visibility 0s linear 0s;
-}
-@keyframes sheetPeek{
-  0%{transform:translate3d(112%,112%,0) rotate(3deg)}
-  38%,60%{transform:translate3d(62%,62%,0) rotate(2deg)}
-  100%{transform:translate3d(112%,112%,0) rotate(3deg)}
-}
-@media(prefers-reduced-motion:reduce){
-  .chat-page{transition:transform .2s linear,visibility 0s linear .2s}
-  .chat-page.peeking{animation:none}
+  background:linear-gradient(180deg,var(--chat-bg-1) 0%,var(--chat-bg-2) 46%,#0a1122 100%)
 }
 
-/* ---------- fond animé : lignes bleu clair qui dérivent ---------- */
-.chat-glow,.chat-lines,.chat-lines-2{
-  position:absolute;z-index:0;pointer-events:none;inset:0
+/* aurores : trois nappes de couleur qui dérivent lentement */
+.chat-aurora{position:absolute;inset:-20%;z-index:0;pointer-events:none;filter:blur(10px)}
+.chat-aurora i{position:absolute;display:block;border-radius:50%;opacity:.5}
+.chat-aurora i:nth-child(1){
+  width:62vw;height:62vw;left:52%;top:-18%;
+  background:radial-gradient(circle,rgba(94,231,255,.34),transparent 68%);
+  animation:drift1 30s ease-in-out infinite alternate
 }
-.chat-glow{
-  background:
-    radial-gradient(900px 700px at 78% 4%, rgba(127,212,255,.28), transparent 66%),
-    radial-gradient(820px 720px at 4% 98%, rgba(167,139,250,.22), transparent 70%)
+.chat-aurora i:nth-child(2){
+  width:58vw;height:58vw;left:-14%;top:38%;
+  background:radial-gradient(circle,rgba(167,139,250,.32),transparent 68%);
+  animation:drift2 38s ease-in-out infinite alternate
 }
-.chat-lines{
-  inset:-25%;opacity:.75;
-  background-image:
-    linear-gradient(rgba(127,212,255,.16) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(127,212,255,.16) 1px, transparent 1px);
-  background-size:58px 58px;
-  animation:linesDrift 34s linear infinite;
-  -webkit-mask-image:radial-gradient(circle at 70% 30%, #000 0%, transparent 78%);
-  mask-image:radial-gradient(circle at 70% 30%, #000 0%, transparent 78%)
+.chat-aurora i:nth-child(3){
+  width:48vw;height:48vw;left:26%;top:62%;
+  background:radial-gradient(circle,rgba(45,212,191,.24),transparent 70%);
+  animation:drift3 44s ease-in-out infinite alternate
 }
-.chat-lines-2{
-  inset:-25%;opacity:.5;
-  background-image:
-    linear-gradient(rgba(210,235,255,.14) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(210,235,255,.14) 1px, transparent 1px);
-  background-size:174px 174px;
-  animation:linesDrift 62s linear infinite reverse
+.chat-aurora::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(4,8,18,.35),transparent 30%,rgba(4,8,18,.5))
 }
-@keyframes linesDrift{to{transform:translate3d(-58px,-58px,0)}}
-@media(prefers-reduced-motion:reduce){.chat-lines,.chat-lines-2{animation:none}}
+@keyframes drift1{to{transform:translate3d(-8%,10%,0) scale(1.15)}}
+@keyframes drift2{to{transform:translate3d(10%,-8%,0) scale(1.12)}}
+@keyframes drift3{to{transform:translate3d(-6%,-10%,0) scale(1.18)}}
+@media(prefers-reduced-motion:reduce){.chat-aurora i{animation:none}}
 
 /* ---------------------------------------------------------------
-   En-tête
+   Barre du haut : contrôles et explication du mode, hors conversation
    --------------------------------------------------------------- */
-.chat-head{
-  position:relative;z-index:2;display:flex;align-items:center;gap:16px;
-  padding:16px clamp(20px,4vw,64px) 16px 160px;
-  border-bottom:1px solid var(--chat-line);
-  background:linear-gradient(180deg,rgba(127,212,255,.1),transparent)
+.chat-topbar{
+  position:relative;z-index:3;display:flex;align-items:flex-start;gap:18px;
+  padding:clamp(14px,2vw,22px) clamp(16px,3vw,34px) 12px
 }
-.chat-head-title{flex:1;min-width:0;display:flex;align-items:center;gap:12px}
+.chat-id{flex:1;min-width:0;display:flex;align-items:center;gap:12px}
 .chat-signal{width:10px;height:10px;border-radius:50%;flex:0 0 auto;background:#6cf3b0;box-shadow:0 0 0 6px rgba(108,243,176,.16)}
-.chat-title{font-weight:700;font-size:17px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chat-title small{display:block;font-size:12.4px;font-weight:500;color:var(--chat-muted)}
+.chat-id-text{min-width:0}
+.chat-title{font-weight:750;font-size:17px;letter-spacing:-.01em}
+.chat-note{margin-top:3px;font-size:13.4px;color:var(--chat-muted)}
 .chat-modes{
   display:flex;gap:3px;padding:4px;border-radius:999px;flex:0 0 auto;
-  background:rgba(4,10,22,.55);border:1px solid var(--chat-line)
+  background:rgba(4,9,20,.6);border:1px solid var(--chat-line);backdrop-filter:blur(8px)
 }
 .chat-mode{
-  padding:9px 18px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-family:inherit;
+  padding:10px 18px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-family:inherit;
   color:var(--chat-muted);font-size:13.6px;font-weight:650;line-height:1.2;white-space:nowrap;
   transition:background .18s,color .18s,box-shadow .18s
 }
-.chat-mode[aria-pressed="true"]{background:linear-gradient(135deg,var(--chat-blue),#a78bfa);color:#06121c;box-shadow:0 6px 20px rgba(127,212,255,.3)}
+.chat-mode[aria-pressed="true"]{background:linear-gradient(135deg,var(--chat-blue),var(--chat-violet));color:#06121c;box-shadow:0 6px 20px rgba(94,231,255,.28)}
 .chat-mode:focus-visible{outline:2px solid var(--chat-blue);outline-offset:2px}
-@media(max-width:760px){
-  .chat-head{padding:12px 16px 12px 112px;gap:10px}
-  .chat-mode{padding:8px 12px;font-size:12.6px}
-  .chat-title small{display:none}
-}
 
 /* ---------------------------------------------------------------
-   Coin qui ramène au portfolio, en haut à gauche : une feuille qu'on rabat
+   La conversation : sa propre surface, toute la hauteur restante
    --------------------------------------------------------------- */
-.unpeel{
-  position:absolute;left:0;top:0;z-index:5;width:140px;height:140px;padding:0;border:0;
-  background:none;cursor:pointer;transition:width .38s cubic-bezier(.2,.8,.25,1),height .38s cubic-bezier(.2,.8,.25,1)
+.chat-surface{
+  position:relative;z-index:2;flex:1;min-height:0;
+  display:flex;flex-direction:column;overflow:hidden;
+  margin:0 clamp(12px,2.4vw,30px);
+  border:1px solid var(--chat-line);border-bottom:0;
+  border-radius:22px 22px 0 0;
+  background:var(--chat-surface);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05)
 }
-.unpeel:hover,.unpeel:focus-visible{width:210px;height:210px}
-.unpeel:focus-visible{outline:2px solid var(--chat-blue);outline-offset:-6px}
-.unpeel-flap{
-  position:absolute;left:0;top:0;width:100%;height:100%;
-  clip-path:polygon(0 0,100% 0,0 100%);
-  background:linear-gradient(135deg,rgba(127,212,255,.6) 0%,#1b2c4d 15%,#0f1b34 58%,#0a1224 100%);
-  filter:drop-shadow(12px 12px 26px rgba(3,6,14,.55));
-  transition:clip-path .38s cubic-bezier(.2,.8,.25,1)
-}
-.unpeel:hover .unpeel-flap,.unpeel:focus-visible .unpeel-flap{clip-path:polygon(0 0,100% 6%,6% 100%)}
-.unpeel-hint{
-  position:absolute;left:16px;top:15px;display:flex;align-items:center;gap:9px;
-  font-size:12.6px;font-weight:650;color:var(--chat-txt);pointer-events:none;white-space:nowrap
-}
-.unpeel-hint svg{width:17px;height:17px;color:var(--chat-blue);flex:0 0 auto}
-@media(max-width:760px){.unpeel{width:104px;height:104px}.unpeel:hover,.unpeel:focus-visible{width:150px;height:150px}.unpeel-hint span{display:none}}
-
-/* ---------------------------------------------------------------
-   Corps : colonne large, respiration verticale
-   --------------------------------------------------------------- */
 .chat-body{
-  position:relative;z-index:1;flex:1;overflow-y:auto;
-  width:100%;max-width:min(1080px,100%);margin:0 auto;
-  padding:clamp(26px,3.4vw,44px) clamp(20px,4vw,44px) 14px;
+  flex:1;min-height:0;overflow-y:auto;
+  width:100%;max-width:min(1180px,100%);margin:0 auto;
+  padding:22px clamp(18px,3vw,34px) 26px;
   display:flex;flex-direction:column;gap:14px
 }
 .chat-body::-webkit-scrollbar{width:11px}
-.chat-body::-webkit-scrollbar-thumb{background:rgba(157,214,255,.28);border-radius:8px}
+.chat-body::-webkit-scrollbar-thumb{background:rgba(158,220,255,.24);border-radius:8px}
 
-/* carte de bienvenue : explique la démarche et les deux modes */
-.chat-welcome{
-  align-self:stretch;border:1px solid var(--chat-line);border-radius:20px;
-  padding:clamp(22px,3vw,34px);
-  background:linear-gradient(160deg,rgba(127,212,255,.12),rgba(167,139,250,.06) 70%,transparent);
-  box-shadow:0 20px 50px rgba(3,6,14,.28)
-}
-.chat-welcome h2{font-size:clamp(21px,2.6vw,29px);font-weight:750;letter-spacing:-.02em;margin:0 0 12px;max-width:26ch}
-.chat-welcome p{color:var(--chat-muted);font-size:16px;margin:0;max-width:78ch}
-.chat-welcome p + p{margin-top:12px}
-.welcome-modes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
-@media(max-width:820px){.welcome-modes{grid-template-columns:1fr}}
-.mode-card{
-  display:flex;flex-direction:column;gap:8px;align-items:flex-start;text-align:left;
-  border:1px solid var(--chat-line);border-radius:16px;padding:18px 20px;cursor:pointer;font-family:inherit;
-  background:rgba(6,12,26,.42);color:var(--chat-txt);transition:border-color .22s,background .22s,transform .22s
-}
-.mode-card:hover{transform:translateY(-2px)}
-.mode-card b{font-size:15.6px;font-weight:700;display:flex;align-items:center;gap:9px}
-.mode-card span{font-size:14.4px;color:var(--chat-muted)}
-.mode-card .mode-icon{
-  width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:15px;
-  border:1px solid var(--chat-line);background:rgba(255,255,255,.06)
-}
-.mode-card.rules[aria-pressed="true"]{border-color:rgba(127,212,255,.7);background:rgba(127,212,255,.13)}
-.mode-card.ai[aria-pressed="true"]{border-color:rgba(167,139,250,.7);background:rgba(167,139,250,.14)}
-.mode-card:focus-visible{outline:2px solid var(--chat-blue);outline-offset:2px}
-.mode-card .mode-state{font-size:12.4px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--chat-blue);display:none}
-.mode-card[aria-pressed="true"] .mode-state{display:block}
-
-/* messages */
-.chat-msg{max-width:78%;padding:15px 20px;border-radius:18px;font-size:16.4px;white-space:pre-wrap;overflow-wrap:anywhere}
+.chat-msg{max-width:76%;padding:14px 19px;border-radius:17px;font-size:16.3px;white-space:pre-wrap;overflow-wrap:anywhere}
 .chat-msg.bot{
-  align-self:flex-start;background:rgba(6,12,26,.55);
+  align-self:flex-start;background:rgba(255,255,255,.055);
   border:1px solid var(--chat-line);border-bottom-left-radius:6px
 }
 .chat-msg.user{
-  align-self:flex-end;background:rgba(127,212,255,.18);
-  border:1px solid rgba(127,212,255,.42);border-bottom-right-radius:6px
+  align-self:flex-end;background:rgba(94,231,255,.16);
+  border:1px solid rgba(94,231,255,.4);border-bottom-right-radius:6px
 }
-.chat-msg.system{align-self:center;max-width:100%;text-align:center;font-size:13.4px;color:var(--chat-muted);background:transparent;border:0;padding:2px 6px}
+.chat-msg.system{align-self:center;max-width:100%;text-align:center;font-size:13.2px;color:var(--chat-muted);background:transparent;border:0;padding:2px 6px}
 .chat-cursor::after{
   content:"";display:inline-block;width:8px;height:17px;margin-left:3px;vertical-align:-2px;
   background:var(--chat-blue);animation:chatBlink 1s steps(2,start) infinite
@@ -208,7 +127,7 @@
 .chat-source{margin-top:9px;font-size:12.4px;color:var(--chat-muted);display:flex;align-items:flex-start;gap:7px}
 .chat-source::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--chat-blue);flex:0 0 auto;margin-top:7px}
 
-.chat-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.chat-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:13px}
 .chat-action{
   padding:11px 19px;border-radius:999px;font-size:14.6px;font-weight:650;text-decoration:none;cursor:pointer;
   border:1px solid transparent;font-family:inherit;display:inline-flex;align-items:center;gap:8px;
@@ -217,20 +136,20 @@
 a.chat-action,a.chat-action:visited{text-decoration:none}
 .chat-action.primary,a.chat-action.primary,a.chat-action.primary:visited{
   background:var(--chat-blue);
-  background:linear-gradient(135deg,var(--chat-blue),#a78bfa);
+  background:linear-gradient(135deg,var(--chat-blue),var(--chat-violet));
   color:#06121c
 }
 .chat-action.ghost{background:rgba(255,255,255,.07);border-color:var(--chat-line);color:var(--chat-txt)}
 .chat-action:hover{filter:brightness(1.07)}
 .chat-action:focus-visible{outline:2px solid var(--chat-blue);outline-offset:2px}
 
-.chat-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.chat-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
 .chat-chip{
   padding:11px 18px;border-radius:999px;border:1px solid var(--chat-line);
-  background:rgba(255,255,255,.06);color:var(--chat-txt);font-size:14.6px;font-family:inherit;cursor:pointer;
+  background:rgba(255,255,255,.06);color:var(--chat-txt);font-size:14.5px;font-family:inherit;cursor:pointer;
   transition:border-color .2s,background .2s
 }
-.chat-chip:hover{border-color:var(--chat-blue);background:rgba(127,212,255,.14)}
+.chat-chip:hover{border-color:var(--chat-blue);background:rgba(94,231,255,.14)}
 .chat-chip:focus-visible{outline:2px solid var(--chat-blue);outline-offset:2px}
 
 .chat-typing{display:flex;gap:5px;align-items:center;padding:4px 2px}
@@ -241,37 +160,94 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
 
 .chat-load-text{margin-bottom:3px}
 .chat-progress{margin-top:10px;height:6px;border-radius:999px;background:rgba(3,8,18,.5);overflow:hidden}
-.chat-progress i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--chat-blue),#a78bfa);transition:width .3s}
+.chat-progress i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--chat-blue),var(--chat-violet));transition:width .3s}
 
 @media(prefers-reduced-motion:reduce){.chat-typing i,.chat-cursor::after{animation:none}}
 
 /* ---------------------------------------------------------------
-   Pied : barre de saisie large
+   Coin haut-gauche : on rabat la feuille pour revenir au portfolio.
+   Aucun texte, juste le coin.
    --------------------------------------------------------------- */
-.chat-foot{
-  position:relative;z-index:2;border-top:1px solid var(--chat-line);
-  background:linear-gradient(0deg,rgba(127,212,255,.1),transparent);
-  padding:16px clamp(20px,4vw,44px) 18px
+.unpeel{
+  position:fixed;left:0;top:0;z-index:75;width:138px;height:138px;padding:0;border:0;
+  background:none;cursor:pointer;
+  transition:width .4s cubic-bezier(.2,.8,.25,1),height .4s cubic-bezier(.2,.8,.25,1)
 }
-.chat-form{display:flex;gap:12px;align-items:center;width:100%;max-width:min(1080px,100%);margin:0 auto}
+.unpeel:hover,.unpeel:focus-visible{width:220px;height:220px}
+.unpeel:focus-visible{outline:2px solid var(--chat-blue);outline-offset:-6px;border-radius:0 0 26px 0}
+.unpeel-flap{
+  position:absolute;left:0;top:0;width:100%;height:100%;
+  clip-path:polygon(0 0,100% 0,0 100%);
+  background:linear-gradient(135deg,rgba(94,231,255,.55) 0%,#16213c 16%,#0b1224 58%,#070c1a 100%);
+  filter:drop-shadow(14px 14px 30px rgba(2,5,12,.6));
+  transition:clip-path .4s cubic-bezier(.2,.8,.25,1);
+  animation:unpeelBreath 5s ease-in-out infinite
+}
+/* le coin respire doucement : il montre qu'il veut se rabattre */
+@keyframes unpeelBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+.unpeel:hover .unpeel-flap,.unpeel:focus-visible .unpeel-flap{clip-path:polygon(0 0,100% 8%,8% 100%);animation:none}
+@media(prefers-reduced-motion:reduce){.unpeel-flap{animation:none}}
+@media(max-width:760px){.unpeel{width:106px;height:106px}.unpeel:hover,.unpeel:focus-visible{width:158px;height:158px}}
+
+/* ---------------------------------------------------------------
+   La saisie, collée en bas, dans sa propre surface
+   --------------------------------------------------------------- */
+.chat-composer{position:relative;z-index:3;padding:12px clamp(12px,2.4vw,30px) clamp(14px,2vw,22px)}
+.chat-form{
+  display:flex;align-items:center;gap:10px;width:100%;max-width:min(1180px,100%);margin:0 auto;
+  padding:8px 8px 8px 20px;border-radius:20px;
+  border:1px solid var(--chat-line-hi);background:rgba(6,11,24,.86);
+  box-shadow:0 18px 50px rgba(2,5,12,.5),inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter:blur(10px)
+}
+.chat-form:focus-within{border-color:rgba(94,231,255,.6);box-shadow:0 18px 50px rgba(2,5,12,.5),0 0 0 4px rgba(94,231,255,.14)}
 .chat-input{
-  flex:1;min-width:0;padding:17px 20px;border-radius:16px;font-size:16.5px;font-family:inherit;
-  background:rgba(3,8,18,.55);border:1px solid var(--chat-line);color:var(--chat-txt)
+  flex:1;min-width:0;padding:15px 0;border:0;background:transparent;
+  font-size:16.6px;font-family:inherit;color:var(--chat-txt)
 }
-.chat-input::placeholder{color:rgba(226,238,255,.55)}
-.chat-input:focus{outline:none;border-color:var(--chat-blue);box-shadow:0 0 0 5px rgba(127,212,255,.18)}
+.chat-input::placeholder{color:rgba(222,236,255,.5)}
+.chat-input:focus{outline:none}
 .chat-input:disabled{opacity:.55}
 .chat-send{
-  width:58px;height:58px;border-radius:16px;border:0;cursor:pointer;flex:0 0 auto;
-  background:linear-gradient(135deg,var(--chat-blue),#a78bfa);color:#06121c;display:grid;place-items:center
+  width:52px;height:52px;border-radius:15px;border:0;cursor:pointer;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--chat-blue),var(--chat-violet));color:#06121c;display:grid;place-items:center
 }
 .chat-send:disabled{opacity:.5;cursor:not-allowed}
 .chat-send:focus-visible{outline:2px solid var(--chat-blue);outline-offset:2px}
 .chat-legal{
-  width:100%;max-width:min(1080px,100%);margin:12px auto 0;
-  font-size:12.8px;color:var(--chat-muted);line-height:1.45;text-align:center
+  width:100%;max-width:min(1180px,100%);margin:11px auto 0;
+  font-size:12.6px;color:var(--chat-muted);line-height:1.45;text-align:center
 }
 @media(max-width:560px){.chat-legal{text-align:left}}
 
-/* le portfolio ne défile plus pendant que la page assistant est ouverte */
+/* ---------------------------------------------------------------
+   Le portfolio : c'est lui qui glisse pour découvrir l'assistant.
+   #site-shell est créé par chat.js autour du contenu du site.
+   --------------------------------------------------------------- */
+#site-shell{
+  position:relative;z-index:70;min-height:100vh;
+  /* pas de transform au repos : aucun contenant créé, donc l'en-tête collant et les
+     éléments fixes du portfolio restent normaux. La transition part de "none". */
+  transform:none;
+  transition:transform 1.05s cubic-bezier(.22,.85,.25,1),box-shadow 1.05s ease;
+  background:
+    radial-gradient(700px 500px at 12% -5%, rgba(94,231,255,.16), transparent 65%),
+    radial-gradient(800px 600px at 92% 8%, rgba(167,139,250,.16), transparent 62%),
+    radial-gradient(900px 700px at 50% 105%, rgba(95,240,168,.08), transparent 60%),
+    linear-gradient(180deg,#05070d,#070a13 60%,#05070d)
+}
+/* liseré clair et ombre sur le bord qui se déplace, pour lire la feuille */
+#site-shell::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  box-shadow:26px 26px 80px rgba(2,5,12,.55), 1px 1px 0 rgba(158,220,255,.28)
+}
+/* aperçu périodique : la page du dessus s'entrouvre puis se referme */
+body.chat-peek #site-shell{transform:translate3d(-32%,-32%,0) rotate(-1.2deg)}
+/* survol du coin : elle s'entrouvre un peu plus */
+body:has(.peel:hover) #site-shell,body:has(.peel:focus-within) #site-shell{transform:translate3d(-24%,-24%,0) rotate(-1deg)}
+/* ouverte : elle sort complètement */
+body.chat-pulled #site-shell{transform:translate3d(-106%,-106%,0) rotate(-3deg)}
+@media(prefers-reduced-motion:reduce){#site-shell{transition:transform .2s linear}}
+
+/* le portfolio ne défile plus pendant que l'assistant est ouvert */
 .chat-lock{overflow:hidden}

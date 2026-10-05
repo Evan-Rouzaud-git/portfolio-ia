@@ -35,7 +35,8 @@ window.CHAT_DATA = {
     modelFastSize: "250 Mo"
   },
 
-  /* Suggestions cliquables affichées sous la carte de bienvenue */
+  /* Premier message de la conversation, puis suggestions cliquables */
+  intro: "Bonjour, c'est le chatbot d'Evan. Posez votre question sur son profil, ses projets, sa méthode ou ses tarifs : je réponds uniquement à partir du contenu de ce portfolio.",
   placeholder: "Écrivez votre question...",
   suggestions: [
     "Quels sont vos tarifs ?",
@@ -43,14 +44,10 @@ window.CHAT_DATA = {
     "Vous êtes disponible quand ?"
   ],
 
-  /* Texte de la carte de bienvenue : présente la démarche et les deux modes */
-  guide: {
-    title: "Un assistant qui répond à partir de ce portfolio",
-    pitch: "Il n'invente pas : il cherche dans les sections de ce site, cite la section utilisée, et dit clairement quand il ne sait pas. C'est exactement la méthode appliquée aux projets d'Evan, en version miniature et visible.",
-    rulesLabel: "Mode règles",
-    rules: "Réponse immédiate, préparée à l'avance. Aucun téléchargement, aucune donnée qui bouge.",
-    aiLabel: "Mode IA locale",
-    ai: "Un petit modèle de langage tourne dans votre navigateur pour reformuler la réponse. Téléchargé une seule fois, puis mis en cache."
+  /* Explication du mode actif, affichée dans la barre du haut, hors conversation */
+  modeNotes: {
+    rules: "Mode règles : réponse préparée à l'avance, affichée immédiatement, sans rien télécharger.",
+    ai: "Mode IA locale : un petit modèle de langage tourne dans votre navigateur. Rien n'est envoyé à un serveur."
   },
 
   /* Aucune règle ne correspond : on propose un menu et le contact direct */
