@@ -22,20 +22,22 @@ window.CHAT_DATA = {
     github: "https://github.com/Evan-Rouzaud-git",
     linkedin: "https://www.linkedin.com/in/evanrouzaud",
     caseStudies: "case-studies.html",
-    /* Modèle du mode IA. Liste complète : https://github.com/mlc-ai/web-llm#-prebuilt-models */
+    /* Modele par defaut du mode IA : petit, multilingue, bon en francais.
+       Liste complete : https://github.com/mlc-ai/web-llm#-prebuilt-models */
     model: "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
-    modelSize: "environ 350 Mo"
+    modelSize: "350 Mo",
+    /* Version ultra-rapide, proposee en option (plus petite, anglais d'origine) */
+    modelFast: "SmolLM2-360M-Instruct-q4f16_1-MLC",
+    modelFastSize: "250 Mo"
   },
 
   /* Message d'accueil et suggestions cliquables */
-  intro: "Bonjour, je suis l'assistant du portfolio d'Evan. Posez votre question sur son profil, ses services, ses projets, sa méthode ou ses tarifs.",
+  intro: "Bonjour ! Posez votre question : profil, services, projets, méthode ou tarifs.",
   placeholder: "Écrivez votre question...",
   suggestions: [
     "Quels sont vos tarifs ?",
-    "Sur quels projets avez-vous travaillé ?",
-    "Comment travaillez-vous ?",
-    "Êtes-vous disponible ?",
-    "Prendre rendez-vous"
+    "Vos projets ?",
+    "Comment travaillez-vous ?"
   ],
 
   /* Réponse quand aucune règle ne correspond (mode règles) */

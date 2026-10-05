@@ -6,17 +6,16 @@
  *
  * MODE IA : petit modèle de langage exécuté dans le navigateur du visiteur via WebGPU
  *   et la bibliothèque WebLLM. Aucun serveur, aucune clé API, aucun coût.
- *   Le modèle est téléchargé au premier lancement puis mis en cache par le navigateur.
  *
- * Choix d'architecture (le plus simple qui fonctionne sur GitHub Pages) :
- *   - une recherche par mots-clés joue le rôle de routeur : elle sélectionne les sections
- *     du portfolio pertinentes. Le modèle ne répond qu'à partir de ces extraits, ce qui
- *     limite fortement les réponses inventées. C'est volontairement une version miniature
- *     de ce que fait un RAG, cohérente avec le discours du site.
- *   - WebLLM est importé dynamiquement (import()), uniquement quand le visiteur choisit
- *     le mode IA : le chargement initial de la page n'est pas alourdi.
- *   - Aucun historique de conversation n'est envoyé au modèle : chaque question est
- *     traitée indépendamment, ce qui rend les réponses reproductibles.
+ * Choix techniques, pensés pour la rapidité et la simplicité sur GitHub Pages :
+ *   - la recherche par mots-clés sert de routeur et sélectionne deux extraits courts :
+ *     le modèle reçoit très peu de texte à lire, donc il commence à répondre vite.
+ *   - la réponse est générée EN FLUX (streaming) : le texte apparaît mot après mot,
+ *     ce qui rend l'attente beaucoup plus supportable qu'un bloc qui arrive d'un coup.
+ *   - resetChat() avant chaque question : sans cela, l'historique s'accumule dans le
+ *     moteur et chaque réponse devient plus lente que la précédente.
+ *   - max_tokens volontairement bas : une réponse de portfolio n'a pas besoin de plus.
+ *   - WebLLM est importé dynamiquement, uniquement si le visiteur active le mode IA.
  */
 
 (function () {
@@ -27,6 +26,7 @@
 
   var CFG = DATA.config;
   var STORE_MODE = "chat-mode";
+  var STORE_MODEL = "chat-model";
   var STORE_CACHED = "chat-model-cached";
   var REFUS = "Je réponds uniquement à partir de ce portfolio. Pour toute autre question, écrivez-moi directement à " + CFG.email + ".";
 
@@ -52,13 +52,14 @@
   /* Intentions qui déclenchent un bouton de prise de rendez-vous */
   var CONTACT_WORDS = ["rendez", "rdv", "appel", "appeler", "reserv", "réserv", "creneau", "créneau", "contact", "devis", "discuter", "parler", "echang", "échange", "dispo", "cal.com"];
 
-  var el = {};                 // éléments du DOM
-  var history = [];            // questions déjà posées (pour les suggestions)
+  var el = {};
   var state = {
     mode: localStorage.getItem(STORE_MODE) === "ai" ? "ai" : "rules",
+    model: localStorage.getItem(STORE_MODEL) || CFG.model,
     engine: null,
     engineStatus: "idle",      // idle | loading | ready | unsupported | error
     busy: false,
+    loading: null,
     opened: false
   };
 
@@ -81,8 +82,16 @@
   }
 
   function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : s; return d.innerHTML; }
-
   function scrollDown() { el.body.scrollTop = el.body.scrollHeight; }
+
+  /* Coupe un extrait à la fin d'une phrase : moins de texte à lire pour le modèle,
+     donc premier mot affiché plus vite. */
+  function shorten(text, max) {
+    if (text.length <= max) return text;
+    var cut = text.slice(0, max);
+    var stop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
+    return (stop > max * 0.5 ? cut.slice(0, stop + 1) : cut.slice(0, max).trim() + "...");
+  }
 
   /* ------------------------------------------------------------------
    * Sélection des règles (mode règles) et des sections (mode IA)
@@ -106,12 +115,8 @@
     return ranked.length && ranked[0].score >= 3 ? ranked[0].rule : null;
   }
 
-  /*
-   * Recherche des sections du portfolio les plus proches de la question.
-   * Les mots-clés des règles qui correspondent servent à élargir la requête
-   * (si le visiteur écrit "combien ça coûte", les mots-clés de la règle
-   * "tarifs" apportent "budget", "forfait", "journée", etc.).
-   */
+  /* Recherche des sections du portfolio les plus proches de la question.
+     Les mots-clés des règles qui correspondent servent à élargir la requête. */
   function retrieve(question, limit) {
     var ranked = scoreRules(question).slice(0, 3);
     var words = tokens(question);
@@ -127,48 +132,60 @@
       words.forEach(function (w) {
         if (title.indexOf(w) !== -1) score += 4;
         var idx = text.indexOf(w);
-        if (idx !== -1) score += text.indexOf(w, idx + 1) !== -1 ? 2 : 1; // terme présent deux fois : plus pertinent
+        if (idx !== -1) score += text.indexOf(w, idx + 1) !== -1 ? 2 : 1;
       });
       return { section: section, score: score };
     }).filter(function (s) { return s.score > 0; })
       .sort(function (a, b) { return b.score - a.score; });
 
-    return scored.slice(0, limit || 3).map(function (s) { return s.section; });
+    return scored.slice(0, limit || 2).map(function (s) { return s.section; });
   }
 
   /* ------------------------------------------------------------------
    * Rendu des messages
    * ------------------------------------------------------------------ */
+  function actionRow(keys) {
+    var row = document.createElement("div");
+    row.className = "chat-actions";
+    keys.forEach(function (key) {
+      var l = LINKS[key];
+      if (!l) return;
+      var a = document.createElement("a");
+      a.className = "chat-action " + (l.primary ? "primary" : "ghost");
+      a.href = l.href;
+      a.textContent = l.label;
+      if (l.external) { a.target = "_blank"; a.rel = "noopener"; }
+      row.appendChild(a);
+    });
+    return row;
+  }
+
   function addMsg(role, text, opts) {
     opts = opts || {};
     var wrap = document.createElement("div");
     wrap.className = "chat-msg " + role;
-    if (role === "bot" && opts.html) wrap.innerHTML = text; else wrap.textContent = text;
-
+    wrap.textContent = text;
     if (opts.source) {
       var src = document.createElement("div");
       src.className = "chat-source";
       src.textContent = opts.source;
       wrap.appendChild(src);
     }
-    if (opts.links && opts.links.length) {
-      var row = document.createElement("div");
-      row.className = "chat-actions";
-      opts.links.forEach(function (key) {
-        var l = LINKS[key];
-        if (!l) return;
-        var a = document.createElement("a");
-        a.className = "chat-action " + (l.primary ? "primary" : "ghost");
-        a.href = l.href;
-        a.textContent = l.label;
-        if (l.external) { a.target = "_blank"; a.rel = "noopener"; }
-        row.appendChild(a);
-      });
-      wrap.appendChild(row);
-    }
+    if (opts.links && opts.links.length) wrap.appendChild(actionRow(opts.links));
     el.body.appendChild(wrap);
     scrollDown();
     return wrap;
+  }
+
+  /* Bulle vide qui se remplit au fil de la génération */
+  function addStreamBubble() {
+    var wrap = document.createElement("div");
+    wrap.className = "chat-msg bot chat-cursor";
+    var span = document.createElement("span");
+    wrap.appendChild(span);
+    el.body.appendChild(wrap);
+    scrollDown();
+    return { wrap: wrap, span: span };
   }
 
   function addTyping() {
@@ -196,13 +213,9 @@
     scrollDown();
   }
 
-  function showSystem(text) {
-    var d = document.createElement("div");
-    d.className = "chat-msg system";
-    d.textContent = text;
-    el.body.appendChild(d);
-    scrollDown();
-    return d;
+  function wantsContact(question) {
+    var q = norm(question);
+    return CONTACT_WORDS.some(function (w) { return q.indexOf(norm(w)) !== -1; });
   }
 
   /* ------------------------------------------------------------------
@@ -210,41 +223,29 @@
    * ------------------------------------------------------------------ */
   function answerRules(question) {
     var rule = bestRule(question);
-    var links;
     if (rule) {
-      links = (rule.links || []).slice();
-      addMsg("bot", rule.answer, { source: "Source : " + rule.source, links: links });
-    } else {
-      addMsg("bot", DATA.fallback.answer, { links: DATA.fallback.links });
+      addMsg("bot", rule.answer, { source: "Source : " + rule.source, links: rule.links || [] });
+      return;
     }
-    if (wantsContact(question) && (!links || links.indexOf("cal") === -1)) {
-      addMsg("bot", "Pour avancer, rien de plus simple : un créneau de 30 minutes dans l'agenda, ou un e-mail si vous préférez écrire.", { links: ["cal", "email"] });
-    }
-  }
-
-  function wantsContact(question) {
-    var q = norm(question);
-    return CONTACT_WORDS.some(function (w) { return q.indexOf(norm(w)) !== -1; });
+    addMsg("bot", DATA.fallback.answer, { links: DATA.fallback.links });
   }
 
   /* ------------------------------------------------------------------
    * Mode IA
    * ------------------------------------------------------------------ */
-  function webgpuAvailable() {
-    return typeof navigator !== "undefined" && !!navigator.gpu;
-  }
+  function webgpuAvailable() { return typeof navigator !== "undefined" && !!navigator.gpu; }
 
-  function setEngineNotice(html, progress) {
+  function setLoadingNotice(progress, text) {
     if (!el.notice) {
       el.notice = document.createElement("div");
       el.notice.className = "chat-msg system";
+      el.notice.innerHTML = '<div class="chat-load-text"></div><div class="chat-progress"><i></i></div>';
       el.body.appendChild(el.notice);
     }
-    el.notice.innerHTML = html + (progress == null ? "" :
-      '<div class="chat-progress"><i style="width:' + Math.round(progress * 100) + '%"></i></div>');
+    el.notice.querySelector(".chat-load-text").textContent = text;
+    el.notice.querySelector(".chat-progress i").style.width = Math.round((progress || 0) * 100) + "%";
     scrollDown();
   }
-
   function clearNotice() { if (el.notice) { el.notice.remove(); el.notice = null; } }
 
   function loadWebLLM() {
@@ -256,6 +257,8 @@
     return attempt();
   }
 
+  function modelLabel(model) { return model === CFG.modelFast ? "ultra-rapide" : "standard"; }
+
   function loadEngine() {
     if (state.engineStatus === "ready") return Promise.resolve(state.engine);
     if (state.loading) return state.loading;
@@ -263,36 +266,36 @@
     state.engineStatus = "loading";
     el.input.disabled = true;
     el.send.disabled = true;
-    var cached = localStorage.getItem(STORE_CACHED) === "1";
-    setEngineNotice(cached
-      ? "Chargement du modèle depuis le cache de votre navigateur."
-      : "Téléchargement du modèle " + CFG.model + " (" + CFG.modelSize + "). Il sera mis en cache par votre navigateur.", 0);
+    var cached = localStorage.getItem(STORE_CACHED) === state.model;
+    setLoadingNotice(0, cached
+      ? "Chargement du modèle depuis le cache du navigateur."
+      : "Téléchargement du modèle (" + (state.model === CFG.modelFast ? CFG.modelFastSize : CFG.modelSize) + "), une seule fois.");
 
     state.loading = loadWebLLM()
       .then(function (webllm) {
-        return webllm.CreateMLCEngine(CFG.model, {
+        return webllm.CreateMLCEngine(state.model, {
           initProgressCallback: function (p) {
-            setEngineNotice(cached ? "Chargement du modèle depuis le cache." : "Téléchargement du modèle (" + CFG.modelSize + ").",
-              typeof p.progress === "number" ? p.progress : 0);
+            setLoadingNotice(p && typeof p.progress === "number" ? p.progress : 0,
+              cached ? "Chargement du modèle depuis le cache du navigateur."
+                     : "Téléchargement du modèle (" + (state.model === CFG.modelFast ? CFG.modelFastSize : CFG.modelSize) + "), une seule fois.");
           }
         });
       })
       .then(function (engine) {
         state.engine = engine;
         state.engineStatus = "ready";
-        localStorage.setItem(STORE_CACHED, "1");
+        localStorage.setItem(STORE_CACHED, state.model);
         clearNotice();
         el.input.disabled = false;
         el.send.disabled = false;
-        showSystem("Mode IA activé. Le modèle tourne sur votre machine : aucune donnée ne quitte votre navigateur.");
         return engine;
       })
       .catch(function (err) {
         console.warn("[chat] chargement du modèle impossible", err);
         state.engineStatus = "error";
-        state.loading = null; // permet de réessayer (par exemple après une coupure réseau)
+        state.loading = null; // permet de réessayer après une coupure réseau
         clearNotice();
-        showSystem("Le modèle local n'a pas pu être chargé (réseau ou mémoire insuffisante). Le mode règles reste disponible et répond aux mêmes sujets.");
+        addMsg("bot", "Le modèle local n'a pas pu être chargé. Le mode règles répond aux mêmes questions, instantanément.", { links: ["cal", "email"] });
         setMode("rules");
         return null;
       });
@@ -300,41 +303,71 @@
   }
 
   function answerAI(question) {
-    var sections = retrieve(question, 3);
+    var sections = retrieve(question, 2);
     if (!sections.length) {
       addMsg("bot", REFUS, { links: ["email", "cal"] });
       return Promise.resolve();
     }
 
     var context = sections.map(function (s) {
-      return "[Section " + s.title + "]\n" + s.text;
+      return "[" + s.title + "] " + shorten(s.text, 420);
     }).join("\n\n");
 
-    var system = "Tu es l'assistant du portfolio d'Evan Rouzaud, freelance en IA appliquée : cadrage, pilotage et développement de projets IA. " +
-      "Tu réponds UNIQUEMENT à partir des extraits fournis, jamais depuis tes connaissances générales. " +
-      "Règles : réponds en français, 3 phrases maximum, ton sobre et concret, pas de promesse ni de chiffre inventé. " +
-      "Cite la section utilisée à la fin, entre parenthèses, sous la forme (selon la section Tarifs). " +
-      "Si les extraits ne permettent pas de répondre, réponds exactement : \"" + REFUS + "\"";
+    var system = "Tu es l'assistant du portfolio d'Evan Rouzaud, freelance en IA appliquée : cadrage, pilotage et " +
+      "développement de projets IA. Réponds uniquement avec les informations des extraits fournis, jamais avec tes " +
+      "connaissances générales. En français, 2 phrases maximum, ton sobre et concret, aucun chiffre inventé. Termine " +
+      "par la source entre parenthèses, par exemple (selon la section Tarifs). Si les extraits ne suffisent pas, " +
+      "réponds exactement : \"" + REFUS + "\"";
 
-    var user = "Extraits du portfolio :\n\n" + context + "\n\nQuestion du visiteur : " + question;
+    var messages = [
+      { role: "system", content: system },
+      { role: "user", content: "Extraits du portfolio :\n\n" + context + "\n\nQuestion du visiteur : " + question }
+    ];
 
-    var typing = addTyping();
-    return state.engine.chat.completions.create({
-      messages: [{ role: "system", content: system }, { role: "user", content: user }],
-      temperature: 0.2,
-      max_tokens: 260,
-      stream: false
-    }).then(function (reply) {
-      typing.remove();
-      var text = (reply.choices && reply.choices[0] && reply.choices[0].message.content || "").trim();
-      if (!text) text = REFUS;
-      var links = wantsContact(question) ? ["cal", "email"] : [];
-      addMsg("bot", text, { source: "Sections consultées : " + sections.map(function (s) { return s.title; }).join(", "), links: links });
-    }).catch(function (err) {
-      typing.remove();
-      console.warn("[chat] génération impossible", err);
-      addMsg("bot", "La génération locale a échoué. Vous pouvez réessayer, ou basculer en mode règles qui répond instantanément.", { links: ["cal", "email"] });
-    });
+    var bubble = addStreamBubble();
+    var text = "";
+
+    // Historique remis à zéro : sans cela le contexte grossit à chaque question et le
+    // moteur ralentit progressivement.
+    return Promise.resolve()
+      .then(function () {
+        if (state.engine && typeof state.engine.resetChat === "function") return state.engine.resetChat();
+      })
+      .then(function () {
+        return state.engine.chat.completions.create({
+          messages: messages,
+          temperature: 0.2,
+          max_tokens: 120,
+          stream: true
+        });
+      })
+      .then(function (chunks) {
+        return (async function () {
+          for await (var chunk of chunks) {
+            var choice = chunk.choices && chunk.choices[0];
+            var delta = choice && choice.delta && choice.delta.content;
+            if (delta) { text += delta; bubble.span.textContent = text; scrollDown(); }
+          }
+        })();
+      })
+      .then(function () {
+        bubble.wrap.classList.remove("chat-cursor");
+        if (!text.trim()) bubble.span.textContent = REFUS;
+        var src = document.createElement("div");
+        src.className = "chat-source";
+        src.textContent = "Sections consultées : " + sections.map(function (s) { return s.title; }).join(", ");
+        bubble.wrap.appendChild(src);
+        if (wantsContact(question)) bubble.wrap.appendChild(actionRow(["cal", "email"]));
+        scrollDown();
+      })
+      .catch(function (err) {
+        console.warn("[chat] génération impossible", err);
+        bubble.wrap.classList.remove("chat-cursor");
+        if (!text.trim()) {
+          bubble.span.textContent = "La génération locale a échoué. Réessayez, ou passez en mode règles qui répond instantanément.";
+          bubble.wrap.appendChild(actionRow(["cal", "email"]));
+        }
+      });
   }
 
   /* ------------------------------------------------------------------
@@ -346,36 +379,29 @@
     clearNotice();
     addMsg("user", question);
     el.input.value = "";
-    history.push(question);
 
     if (state.mode === "rules") { answerRules(question); return; }
 
     if (state.engineStatus === "unsupported") {
-      addMsg("bot", "Ce navigateur ne prend pas en charge WebGPU, nécessaire pour faire tourner le modèle en local. Le mode règles répond aux mêmes questions, instantanément.", { links: ["cal", "email"] });
+      addMsg("bot", "Ce navigateur ne prend pas en charge WebGPU : le mode IA ne peut pas tourner ici. Le mode règles répond aux mêmes questions.", { links: ["cal", "email"] });
       return;
     }
     state.busy = true;
     el.send.disabled = true;
     loadEngine().then(function (engine) {
-      if (!engine) { state.busy = false; el.send.disabled = false; return answerRules(question); }
-      return answerAI(question).then(function () {
-        state.busy = false;
-        el.send.disabled = false;
-        el.input.focus();
-      });
+      var done = function () { state.busy = false; el.send.disabled = false; el.input.focus(); };
+      if (!engine) { done(); answerRules(question); return; }
+      answerAI(question).then(done);
     });
   }
 
   /* ------------------------------------------------------------------
-   * Bascule entre les deux modes
+   * Bascule de mode : un seul endroit dans l'interface, en haut de la fenêtre
    * ------------------------------------------------------------------ */
   function refreshModeUI() {
     var isRules = state.mode === "rules";
     el.modeRules.setAttribute("aria-pressed", String(isRules));
     el.modeAI.setAttribute("aria-pressed", String(!isRules));
-    el.hint.innerHTML = isRules
-      ? "<strong>Mode règles.</strong> Réponses préparées, instantanées, sans téléchargement."
-      : "<strong>Mode IA.</strong> Un petit modèle de langage tourne sur votre machine (WebGPU). Plus riche, mais le premier lancement télécharge " + CFG.modelSize + ".";
   }
 
   function setMode(mode) {
@@ -384,37 +410,53 @@
     refreshModeUI();
   }
 
+  function askModelChoice() {
+    var box = document.createElement("div");
+    box.className = "chat-msg bot";
+    var p = document.createElement("div");
+    p.textContent = "Le mode IA télécharge un petit modèle, une seule fois, et le fait tourner sur votre machine. Rien n'est envoyé à un serveur.";
+    box.appendChild(p);
+
+    var row = document.createElement("div");
+    row.className = "chat-actions";
+
+    var standard = document.createElement("button");
+    standard.type = "button";
+    standard.className = "chat-action primary";
+    standard.textContent = "Activer (" + CFG.modelSize + ")";
+    standard.addEventListener("click", function () { box.remove(); startModel(CFG.model); });
+
+    var fast = document.createElement("button");
+    fast.type = "button";
+    fast.className = "chat-action ghost";
+    fast.textContent = "Version ultra-rapide (" + CFG.modelFastSize + ")";
+    fast.addEventListener("click", function () { box.remove(); startModel(CFG.modelFast); });
+
+    row.appendChild(standard);
+    row.appendChild(fast);
+    box.appendChild(row);
+    el.body.appendChild(box);
+    scrollDown();
+  }
+
+  function startModel(model) {
+    state.model = model;
+    localStorage.setItem(STORE_MODEL, model);
+    loadEngine().then(function () { el.input.focus(); });
+  }
+
   function switchToAI() {
     setMode("ai");
     if (!webgpuAvailable()) {
       state.engineStatus = "unsupported";
-      showSystem("Ce navigateur ne prend pas en charge WebGPU. Le mode IA nécessite Chrome, Edge ou un navigateur récent sur ordinateur. Le mode règles reste disponible et répond aux mêmes sujets.");
+      addMsg("bot", "Ce navigateur ne prend pas en charge WebGPU : le mode IA ne peut pas tourner ici. Le mode règles répond aux mêmes questions.", { links: ["cal", "email"] });
       setMode("rules");
       return;
     }
-    if (state.engineStatus === "ready") {
-      showSystem("Mode IA déjà chargé.");
-      return;
-    }
-    var confirmBox = document.createElement("div");
-    confirmBox.className = "chat-msg bot";
-    confirmBox.innerHTML = "<div>Le mode IA télécharge un modèle de " + esc(CFG.modelSize) +
-      " et le fait tourner <strong>sur votre machine</strong>, via WebGPU. Aucune donnée n'est envoyée à un serveur.</div>";
-    var row = document.createElement("div");
-    row.className = "chat-actions";
-    var go = document.createElement("button");
-    go.type = "button"; go.className = "chat-action primary"; go.textContent = "Télécharger et activer";
-    var no = document.createElement("button");
-    no.type = "button"; no.className = "chat-action ghost"; no.textContent = "Rester en mode règles";
-    go.addEventListener("click", function () {
-      confirmBox.remove();
-      loadEngine().then(function (engine) { if (engine) el.input.focus(); });
-    });
-    no.addEventListener("click", function () { confirmBox.remove(); setMode("rules"); });
-    row.appendChild(go); row.appendChild(no);
-    confirmBox.appendChild(row);
-    el.body.appendChild(confirmBox);
-    scrollDown();
+    if (state.engineStatus === "ready" || state.engineStatus === "loading") return;
+    // Modèle déjà téléchargé lors d'une visite précédente : on charge sans redemander.
+    if (localStorage.getItem(STORE_CACHED) === state.model) { loadEngine(); return; }
+    askModelChoice();
   }
 
   /* ------------------------------------------------------------------
@@ -429,28 +471,23 @@
     panel.setAttribute("aria-labelledby", "chat-title");
     panel.innerHTML = [
       '<div class="chat-head">',
-      '  <div class="chat-head-top">',
-      '    <div class="chat-title" id="chat-title">Assistant du portfolio<small>Evan Rouzaud, freelance en IA appliquée</small></div>',
-      '    <button type="button" class="chat-close" id="chat-close" aria-label="Fermer le chat">&#10005;</button>',
+      '  <span class="chat-title" id="chat-title">Assistant du portfolio</span>',
+      '  <div class="chat-modes" role="group" aria-label="Mode de réponse">',
+      '    <button type="button" class="chat-mode" id="chat-mode-rules" aria-pressed="true">Règles</button>',
+      '    <button type="button" class="chat-mode" id="chat-mode-ai" aria-pressed="false">IA locale</button>',
       '  </div>',
-      '  <div class="chat-modes" role="group" aria-label="Mode de réponse du chatbot">',
-      '    <button type="button" class="chat-mode" id="chat-mode-rules" aria-pressed="true">Mode règles</button>',
-      '    <button type="button" class="chat-mode" id="chat-mode-ai" aria-pressed="false">Mode IA locale</button>',
-      '  </div>',
-      '  <p class="chat-hint" id="chat-hint"></p>',
+      '  <button type="button" class="chat-close" id="chat-close" aria-label="Fermer le chat">&#10005;</button>',
       '</div>',
       '<div class="chat-body" id="chat-body" role="log" aria-live="polite" aria-relevant="additions text"></div>',
       '<div class="chat-foot">',
       '  <form class="chat-form" id="chat-form">',
-      '    <label for="chat-input" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Votre question</label>',
+      '    <label for="chat-input" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Votre question</label>',
       '    <input class="chat-input" id="chat-input" type="text" autocomplete="off" placeholder="' + esc(DATA.placeholder) + '">',
       '    <button class="chat-send" id="chat-send" type="submit" aria-label="Envoyer la question">',
       '      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 20.5 21 12 3 3.5 3 10l12 2-12 2z"/></svg>',
       '    </button>',
       '  </form>',
-      '  <p class="chat-legal">Mode IA : le modèle est exécuté dans votre navigateur, rien n\'est envoyé à un serveur. ',
-      '  <a href="' + CFG.calUrl + '" target="_blank" rel="noopener">Réserver un appel</a> ou ',
-      '  <a href="mailto:' + CFG.email + '">écrire un e-mail</a>.</p>',
+      '  <p class="chat-legal">Mode IA : le modèle est exécuté dans votre navigateur, rien n\'est envoyé à un serveur.</p>',
       '</div>'
     ].join("");
 
@@ -458,7 +495,6 @@
     el.body = panel.querySelector("#chat-body");
     el.input = panel.querySelector("#chat-input");
     el.send = panel.querySelector("#chat-send");
-    el.hint = panel.querySelector("#chat-hint");
     el.modeRules = panel.querySelector("#chat-mode-rules");
     el.modeAI = panel.querySelector("#chat-mode-ai");
     el.close = panel.querySelector("#chat-close");
@@ -469,7 +505,7 @@
       e.preventDefault();
       ask(el.input.value);
     });
-    el.modeRules.addEventListener("click", function () { setMode("rules"); showSystem("Mode règles activé : réponses préparées et instantanées."); });
+    el.modeRules.addEventListener("click", function () { setMode("rules"); el.input.focus(); });
     el.modeAI.addEventListener("click", switchToAI);
     el.close.addEventListener("click", close);
 
@@ -481,7 +517,7 @@
   /* ------------------------------------------------------------------
    * Ouverture / fermeture
    * ------------------------------------------------------------------ */
-  function open() {
+  function open(question) {
     if (!state.opened) {
       state.opened = true;
       el.panel.classList.add("open");
@@ -492,7 +528,7 @@
       }
     }
     refreshModeUI();
-    el.input.focus();
+    if (question) ask(question); else el.input.focus();
   }
 
   function close() {
@@ -515,8 +551,16 @@
     el.launcher.addEventListener("click", function () {
       if (state.opened) close(); else open();
     });
-    // Le clic qui a déclenché le chargement des fichiers doit aussi ouvrir le chat.
-    if (el.launcher.dataset.pendingOpen === "1") { delete el.launcher.dataset.pendingOpen; open(); }
+
+    window.openChatAssistant = open;
+
+    // Un clic sur un bouton de la page (section Assistant) doit aussi ouvrir la fenêtre,
+    // et poser directement la question proposée si le bouton en contient une.
+    if (el.launcher.dataset.pendingOpen) {
+      var pending = el.launcher.dataset.pendingOpen;
+      delete el.launcher.dataset.pendingOpen;
+      open(pending === "1" ? null : pending);
+    }
     window.__chatReady = true;
   }
 

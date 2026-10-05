@@ -126,16 +126,21 @@ footer{border-top:1px solid var(--line);padding:34px 0}
 .foot a:hover{color:var(--txt)}
 
 /* ---------- bouton du chatbot ----------
-   Styles minimaux définis ici pour que le bouton soit correctement placé avant le
+   Styles minimaux définis ici pour que la pastille soit correctement placée avant le
    chargement différé de chat/chat.css (voir chat/chat-loader.js). */
 #chat-launcher{
-  position:fixed;right:22px;bottom:22px;z-index:60;width:58px;height:58px;border-radius:50%;
-  border:1px solid rgba(255,255,255,.18);cursor:pointer;padding:0;display:grid;place-items:center;
+  position:fixed;right:24px;bottom:24px;z-index:60;display:inline-flex;align-items:center;gap:9px;
+  padding:13px 20px 13px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.22);cursor:pointer;
   background:linear-gradient(135deg,var(--cyan),var(--violet));color:#04121a;
-  box-shadow:0 14px 34px rgba(0,0,0,.45),0 0 0 8px rgba(94,231,255,.07)
+  font-family:inherit;font-size:15px;font-weight:650;line-height:1;letter-spacing:-.01em;
+  box-shadow:0 14px 34px rgba(0,0,0,.45)
 }
-#chat-launcher svg{width:26px;height:26px}
-@media(max-width:560px){#chat-launcher{right:16px;bottom:16px;width:54px;height:54px}}
+#chat-launcher svg{width:21px;height:21px;flex:0 0 auto}
+#chat-launcher:hover{transform:translateY(-2px);filter:brightness(1.06)}
+@media(max-width:560px){
+  #chat-launcher{right:16px;bottom:16px;padding:13px;gap:0}
+  #chat-launcher .chat-launcher-label{display:none}
+}
 
 .rv{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
 .rv.in{opacity:1;transform:none}
@@ -599,14 +604,15 @@ footer{border-top:1px solid var(--line);padding:34px 0}
 </footer>
 
 <!-- ================= CHATBOT ================= -->
-<!-- Bouton d'ouverture. Le reste du chat (styles, données, moteur de règles, modèle IA)
-     n'est chargé qu'au premier survol ou clic : voir chat/chat-loader.js -->
+<!-- Pastille d'ouverture, visible en permanence. Le reste du chat (styles, données,
+     moteur de règles, modèle IA) n'est chargé qu'au premier survol ou clic :
+     voir chat/chat-loader.js -->
 <button type="button" id="chat-launcher" class="chat-launcher"
         aria-label="Ouvrir l'assistant du portfolio" aria-expanded="false" aria-controls="chat-panel">
-  <span class="chat-badge" aria-hidden="true"></span>
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H8l-4 3v-5.4A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5z"/>
   </svg>
+  <span class="chat-launcher-label">Une question ?</span>
 </button>
 <script src="chat/chat-loader.js" defer></script>
 

@@ -318,16 +318,58 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
 .foot a:hover{color:var(--txt)}
 
 /* ---------- bouton du chatbot ----------
-   Styles minimaux définis ici pour que le bouton soit correctement placé avant le
+   Styles minimaux définis ici pour que la pastille soit correctement placée avant le
    chargement différé de chat/chat.css (voir chat/chat-loader.js). */
 #chat-launcher{
-  position:fixed;right:22px;bottom:22px;z-index:60;width:58px;height:58px;border-radius:50%;
-  border:1px solid rgba(255,255,255,.18);cursor:pointer;padding:0;display:grid;place-items:center;
+  position:fixed;right:24px;bottom:24px;z-index:60;display:inline-flex;align-items:center;gap:9px;
+  padding:13px 20px 13px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.22);cursor:pointer;
   background:linear-gradient(135deg,var(--cyan),var(--violet));color:#04121a;
-  box-shadow:0 14px 34px rgba(0,0,0,.45),0 0 0 8px rgba(94,231,255,.07)
+  font-family:inherit;font-size:15px;font-weight:650;line-height:1;letter-spacing:-.01em;
+  box-shadow:0 14px 34px rgba(0,0,0,.45)
 }
-#chat-launcher svg{width:26px;height:26px}
-@media(max-width:560px){#chat-launcher{right:16px;bottom:16px;width:54px;height:54px}}
+#chat-launcher svg{width:21px;height:21px;flex:0 0 auto}
+#chat-launcher:hover{transform:translateY(-2px);filter:brightness(1.06)}
+@media(max-width:560px){
+  #chat-launcher{right:16px;bottom:16px;padding:13px;gap:0}
+  #chat-launcher .chat-launcher-label{display:none}
+}
+
+/* ---------- section Assistant (intégrée à la page) ---------- */
+.assistant{
+  display:grid;grid-template-columns:1.1fr .9fr;gap:34px;align-items:center;
+  border:1px solid var(--line);border-radius:24px;padding:clamp(26px,3.6vw,42px);background:var(--card)
+}
+@media(max-width:880px){.assistant{grid-template-columns:1fr;gap:26px}}
+.assistant h2{font-size:clamp(23px,3vw,32px);margin:14px 0 12px}
+.assistant p{color:var(--muted);font-size:15.8px}
+.assistant-modes{display:flex;flex-direction:column;gap:12px;margin:20px 0 0}
+.assistant-mode{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:var(--muted)}
+.assistant-mode b{color:var(--txt);font-weight:650}
+.assistant-mode .dot{
+  width:9px;height:9px;border-radius:50%;margin-top:7px;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--cyan),var(--violet))
+}
+.assistant-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.assistant-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.assistant-chips button{
+  padding:9px 15px;border-radius:999px;border:1px solid var(--line-hi);background:rgba(255,255,255,.03);
+  color:var(--txt);font-family:inherit;font-size:13.8px;cursor:pointer;transition:border-color .2s,background .2s
+}
+.assistant-chips button:hover{border-color:var(--cyan);background:rgba(94,231,255,.08)}
+.assistant-chips button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.assistant-visual{
+  border:1px solid var(--line);border-radius:18px;padding:20px;background:#070a12;
+  display:flex;flex-direction:column;gap:12px;font-size:14.5px
+}
+.assistant-visual .bubble-user{
+  align-self:flex-end;max-width:85%;padding:10px 14px;border-radius:14px;border-bottom-right-radius:6px;
+  background:rgba(94,231,255,.13);border:1px solid rgba(94,231,255,.28)
+}
+.assistant-visual .bubble-bot{
+  align-self:flex-start;max-width:90%;padding:10px 14px;border-radius:14px;border-bottom-left-radius:6px;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);color:#cdd7ee
+}
+.assistant-visual .bubble-src{font-size:11.5px;color:var(--muted);margin-top:7px}
 
 /* ---------- reveal ---------- */
 .rv{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
@@ -969,6 +1011,55 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
     </div>
   </section>
 
+  <!-- ================= ASSISTANT ================= -->
+  <section id="assistant">
+    <div class="wrap">
+      <div class="assistant rv">
+        <div>
+          <span class="eyebrow">Assistant du portfolio</span>
+          <h2>Une question ? Demandez directement.</h2>
+          <p>
+            L'assistant connaît le contenu de cette page : profil, services, projets, méthode, tarifs et
+            disponibilité. Il propose deux façons de répondre, et c'est vous qui choisissez.
+          </p>
+          <div class="assistant-modes">
+            <div class="assistant-mode">
+              <span class="dot" aria-hidden="true"></span>
+              <span><b>Mode règles.</b> Réponses préparées, instantanées, rien à télécharger.</span>
+            </div>
+            <div class="assistant-mode">
+              <span class="dot" aria-hidden="true"></span>
+              <span><b>Mode IA locale.</b> Un petit modèle de langage tourne dans votre navigateur, sur votre machine.
+              Plus riche, mais le premier lancement télécharge le modèle une seule fois.</span>
+            </div>
+          </div>
+          <div class="assistant-actions">
+            <button type="button" class="btn btn-primary" data-chat-open>Ouvrir l'assistant</button>
+            <a class="btn btn-ghost" href="https://cal.com/rouzaud-evan-izeqwf/30min" target="_blank" rel="noopener">Réserver 30 minutes</a>
+          </div>
+          <div class="assistant-chips">
+            <button type="button" data-chat-open="Quels sont vos tarifs ?">Quels sont vos tarifs ?</button>
+            <button type="button" data-chat-open="Sur quels projets avez-vous travaillé ?">Vos projets ?</button>
+            <button type="button" data-chat-open="Comment travaillez-vous ?">Comment travaillez-vous ?</button>
+          </div>
+        </div>
+        <div class="assistant-visual" aria-hidden="true">
+          <div class="bubble-user">Quels sont vos tarifs ?</div>
+          <div class="bubble-bot">
+            350 à 500 € par jour, ou à partir de 2 500 € pour un prototype au forfait. Un devis écrit est validé
+            avant de commencer.
+            <div class="bubble-src">Source : section Tarifs</div>
+          </div>
+          <div class="bubble-user">Vous êtes disponible ?</div>
+          <div class="bubble-bot">
+            Oui, immédiatement. Le premier échange de 30 minutes est gratuit.
+            <div class="bubble-src">Source : section Disponibilité</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= CONTACT ================= -->
   <section id="contact">
     <div class="wrap">
@@ -1018,14 +1109,15 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
 </footer>
 
 <!-- ================= CHATBOT ================= -->
-<!-- Bouton d'ouverture. Le reste du chat (styles, données, moteur de règles, modèle IA)
-     n'est chargé qu'au premier survol ou clic : voir chat/chat-loader.js -->
+<!-- Pastille d'ouverture, visible en permanence. Le reste du chat (styles, données,
+     moteur de règles, modèle IA) n'est chargé qu'au premier survol ou clic :
+     voir chat/chat-loader.js -->
 <button type="button" id="chat-launcher" class="chat-launcher"
         aria-label="Ouvrir l'assistant du portfolio" aria-expanded="false" aria-controls="chat-panel">
-  <span class="chat-badge" aria-hidden="true"></span>
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H8l-4 3v-5.4A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5z"/>
   </svg>
+  <span class="chat-launcher-label">Une question ?</span>
 </button>
 <script src="chat/chat-loader.js" defer></script>
 
