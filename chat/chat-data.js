@@ -36,7 +36,7 @@ window.CHAT_DATA = {
   },
 
   /* Premier message de la conversation, puis suggestions cliquables */
-  intro: "Bonjour, c'est le chatbot d'Evan. Posez votre question sur son profil, ses projets, sa méthode ou ses tarifs : je réponds uniquement à partir du contenu de ce portfolio.",
+  intro: "Bonjour, je suis le chatbot d'Evan. Posez-moi vos questions, je suis là pour vous aider.",
   placeholder: "Écrivez votre question...",
   suggestions: [
     "Quels sont vos tarifs ?",
@@ -44,15 +44,19 @@ window.CHAT_DATA = {
     "Vous êtes disponible quand ?"
   ],
 
-  /* Les deux modes, expliqués dans la colonne de droite, hors conversation */
+  /* Les deux modes : infobulle du sélecteur (tip) et fiche de la colonne de droite */
   modes: {
     rules: {
-      title: "Mode règles",
-      text: "Réponse préparée à l'avance, affichée immédiatement. Aucun téléchargement, aucune donnée ne quitte la page."
+      title: "Mode Règle",
+      text: "La réponse est préparée à l'avance et s'affiche immédiatement, sans que rien ne soit calculé.",
+      key: "Aucun téléchargement, aucune donnée ne quitte la page.",
+      tip: "Réponse préparée à l'avance, affichée instantanément. Aucun téléchargement."
     },
     ai: {
       title: "Mode IA locale",
-      text: "Un petit modèle de langage reformule la réponse dans votre navigateur. Téléchargé une seule fois (350 Mo), puis mis en cache. Rien n'est envoyé à un serveur."
+      text: "Un petit modèle de langage, exécuté par votre navigateur, reformule la réponse à partir du contenu du portfolio.",
+      key: "Téléchargé une seule fois (350 Mo), puis mis en cache. Rien n'est envoyé à un serveur.",
+      tip: "Petit modèle exécuté dans votre navigateur. Rien n'est envoyé à un serveur."
     }
   },
 

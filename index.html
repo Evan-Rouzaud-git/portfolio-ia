@@ -317,43 +317,25 @@ footer{border-top:1px solid var(--line);padding:34px 0 104px;margin-top:20px}
 .foot a{text-decoration:none;color:var(--muted)}
 .foot a:hover{color:var(--txt)}
 
-/* ---------- coin de page qui se tourne ----------
-   Écrit ici et non dans chat/chat.css : le coin doit être visible avant le chargement
-   différé du chat. Le rabat est un triangle sombre (la page du portfolio) posé sur le
-   coin ; sous lui, la page assistant, plus claire, apparaît. Au survol, le rabat
-   s'ouvre. Au clic, chat.js fait tourner la page entière depuis ce coin. */
-.peel{
-  position:fixed;right:0;bottom:0;z-index:80;width:118px;height:118px;pointer-events:none;
-  transition:width .45s cubic-bezier(.2,.8,.25,1),height .45s cubic-bezier(.2,.8,.25,1)
+/* ---------- bouton du coin ----------
+   Écrit ici et non dans chat/chat.css : il doit être visible avant le chargement
+   différé du chat. Couleur d'accent, jamais de noir. Discret mais identifiable. */
+.peel{position:fixed;right:18px;bottom:18px;z-index:80}
+.peel-btn{
+  display:inline-flex;align-items:center;gap:9px;padding:12px 18px 12px 15px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit;
+  background:linear-gradient(135deg,var(--cyan),var(--violet));color:#04121a;
+  font-size:14.4px;font-weight:700;line-height:1;letter-spacing:-.01em;
+  box-shadow:0 8px 22px rgba(0,0,0,.3);
+  transition:transform .2s ease,filter .2s ease
 }
-.peel:hover,.peel:focus-within{width:min(48vw,430px);height:min(48vw,430px)}
-.peel.hidden{display:none}
-.peel-btn{position:absolute;inset:0;padding:0;border:0;background:none;cursor:pointer;pointer-events:auto}
-.peel-btn:focus-visible{outline:2px solid var(--cyan);outline-offset:-6px;border-radius:26px}
-.peel-flap{
-  position:absolute;right:0;bottom:0;width:100%;height:100%;pointer-events:none;
-  clip-path:polygon(100% 0,0 0,0 100%);
-  background:linear-gradient(315deg,rgba(94,231,255,.6) 0%,#16213c 9%,#0a1224 46%,#05070d 100%);
-  filter:drop-shadow(-14px -14px 30px rgba(0,0,0,.72));
-  transition:clip-path .7s cubic-bezier(.22,.85,.25,1),transform .7s cubic-bezier(.22,.85,.25,1)
-}
-/* chat.js tire la page du dessus toutes les 7 secondes : le coin se replie dans le
-   même mouvement, ce qui découvre l'assistant par la diagonale. */
-.peel.pulling .peel-flap{clip-path:polygon(100% 30%,30% 30%,30% 100%);transform:translate(-16px,-16px)}
-.peel:hover .peel-flap,.peel:focus-within .peel-flap{clip-path:polygon(100% 44%,44% 44%,44% 100%);transform:translate(-12px,-12px)}
-.peel-flap::after{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(315deg,rgba(127,212,255,.9) 0%,transparent 26%);
-  animation:peelGlow 3.5s ease-in-out infinite
-}
-@keyframes peelGlow{0%,100%{opacity:.3}50%{opacity:.9}}
+.peel-btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.peel-btn:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.peel-btn svg{width:19px;height:19px;flex:0 0 auto}
 @media(max-width:560px){
-  .peel{width:100px;height:100px}
-  .peel:hover,.peel:focus-within{width:62vw;height:62vw}
-}
-@media(prefers-reduced-motion:reduce){
-  .peel,.peel-flap{transition:none}
-  .peel-flap::after{animation:none;opacity:.5}
+  .peel{right:14px;bottom:14px}
+  .peel-label{display:none}
+  .peel-btn{padding:13px;border-radius:50%}
 }
 
 /* ---------- section Assistant (intégrée à la page) ---------- */
@@ -1131,15 +1113,18 @@ footer{border-top:1px solid var(--line);padding:34px 0 104px;margin-top:20px}
   </div>
 </footer>
 
-<!-- ================= ASSISTANT : COIN DE PAGE ================= -->
-<!-- Un coin de page plié, sans texte ni bulle. Au survol il s'ouvre et laisse voir la
-     page assistant (plus claire) en dessous ; au clic, la page se tourne entièrement
-     du coin bas-droit vers le haut-gauche. Le moteur du chat est chargé par
-     chat/chat-loader.js, l'interface est construite par chat.js. -->
+<!-- ================= ASSISTANT : BOUTON DU COIN ================= -->
+<!-- Bouton discret en bas à droite : il ouvre l'assistant, et le referme s'il est déjà
+     ouvert. Le moteur du chat est chargé par chat/chat-loader.js, l'interface est
+     construite par chat.js. -->
 <div class="peel" id="peel">
   <button type="button" id="chat-launcher" class="peel-btn"
-          aria-label="Ouvrir l'assistant du portfolio" aria-expanded="false" aria-controls="chat-page"></button>
-  <span class="peel-flap" aria-hidden="true"></span>
+          aria-label="Ouvrir l'assistant du portfolio" aria-expanded="false" aria-controls="chat-page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H8l-4 3v-5.4A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5z"/>
+    </svg>
+    <span class="peel-label">Assistant</span>
+  </button>
 </div>
 <script src="chat/chat-loader.js" defer></script>
 

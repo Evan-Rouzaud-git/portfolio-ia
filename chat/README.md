@@ -26,44 +26,49 @@ Conséquences : les questions courantes reçoivent toujours une réponse, et le 
 
 ## Où l'assistant apparaît sur le site
 
-L'assistant est une **page plein écran** posée au-dessus du portfolio, et l'animation tient en une seule propriété : le `transform`.
+L'assistant est une **page plein écran posée au-dessus du portfolio**. C'est elle qui s'ouvre, le portfolio ne bouge jamais : il est simplement masqué puis démasqué.
 
-- **Caché** : `scale(.62)` et opacité 0, l'origine étant le coin bas-droit (`transform-origin: 100% 100%`).
-- **Aperçu** : `scale(.42)`, avec coins arrondis et grande ombre : la page assistant devient une carte vivante dans le coin. C'est ce qu'on voit **au survol du coin** et lors du **rappel périodique toutes les 7 secondes**.
-- **Ouvert** : `scale(1)`, plein écran. Le passage d'un état à l'autre est une interpolation continue sur la même propriété, donc le mouvement est fluide et ne peut pas produire de bord découpé ni de zone transparente.
+**Animation** : uniquement `transform` et `opacity`, sur un élément `position:fixed; inset:0; 100vw x 100vh` présent dès le premier frame.
 
-Fermer, c'est exactement l'inverse : la page se replie vers le coin. Aucun `clip-path`, aucun élément translaté depuis hors écran.
+- fermé : `scale(.72) translate3d(1.5%, 2.5%, 0)`, opacité 0
+- ouvert : `transform:none`, opacité 1
+- 520 ms, `cubic-bezier(.22, 1, .36, 1)`, sans rebond ni dépassement
+- origine : `transform-origin: 100% 100%`, le coin bas-droit
+- `will-change: transform, opacity`
+- `prefers-reduced-motion` : fondu simple, plus de mise à l'échelle
 
-Le coin de page, en bas à droite, est l'affordance : il se replie dans le même mouvement que l'aperçu (`chat.js` ajoute `pulling`), avec un liseré cyan qui pulse. Le retour se fait par le **coin de feuille en haut à gauche**, sans texte, qui respire doucement et s'ouvre au survol. `Echap` fonctionne aussi.
+Aucun `clip-path`, aucune largeur, hauteur ou position animée : il n'y a donc aucun bord découpé et aucune bande noire possible. La fermeture est exactement la même transition à l'envers.
 
-Le fond est plus clair et plus coloré que le portfolio, avec **trois nappes de couleur qui dérivent lentement** (cyan, violet, turquoise). Aucune trame.
+**Le bouton du coin**, en bas à droite, est un bouton d'accent (dégradé cyan vers violet) avec une icône et le mot « Assistant » (icône seule sur mobile). Il **ouvre et referme** l'assistant, et reste visible par-dessus la page. La touche `Echap` ferme aussi. Il n'y a plus de coin de retour en haut à gauche, ni aucun texte de ce genre. Aucune animation périodique : le coin est fixe.
 
 Le portfolio devient inerte pendant que l'assistant est ouvert (`inert`), et son défilement est bloqué.
 
+Une section « Assistant du portfolio » reste présente dans `index.html`, avant le contact : ses boutons portent `data-chat-open` (avec la question en valeur si besoin), le chargeur les reconnaît, ouvre la page et envoie la question.
+
 ## Contenu de la page assistant
 
-La page occupe tout l'écran, du haut en bas, en trois lignes :
+L'écran est découpé en trois zones, sur toute la hauteur :
 
-- **`.chat-topbar`** : le titre et le sélecteur de mode, sur une seule ligne, tout en haut à droite. Hors conversation.
-- **`.chat-main`** : la conversation à gauche, et **`.chat-side`**, la colonne de droite qui contient **l'explication des deux modes** (texte dans `chat-data.js`, objet `modes`), chacune dans une carte cliquable avec sa couleur : règles en bleu clair, IA locale en violet. Un bouton de prise de rendez-vous et une note de périmètre ferment la colonne. Sur mobile, la colonne passe au-dessus de la conversation, en deux cartes côte à côte.
-- **`.chat-composer`** : la barre de saisie, dernière ligne de la page.
+- **`.chat-head`** : une barre fine, fond légèrement plus clair que l'historique. Le titre à gauche, et **le sélecteur de mode collé au coin haut-droit** (11 px de marge). Chaque option a une pastille `?` qui ouvre une infobulle au survol **et** au focus clavier, en texte sombre sur fond clair.
+- **`.chat-main`** : l'historique à gauche, dans une **colonne de lecture centrée de 820 px** comme les interfaces de chat classiques, avec un fond légèrement différent du header. À droite, une **colonne de 300 px** qui explique les deux modes : titre court, deux lignes, et la différence clé sur une puce à filet. Elle défile indépendamment et met en évidence le mode actif. Sous 960 px de large, elle passe au-dessus de la conversation en deux cartes.
+- **`.chat-composer`** : la saisie, ancrée en bas, sur un fond légèrement plus clair avec un filet de séparation, alignée sur la colonne de lecture.
 
-Le premier message de la conversation est le texte `intro` de `chat-data.js`, suivi de trois questions cliquables. Aucune explication de mode dans la conversation.
+Le premier message est le texte `intro` de `chat-data.js` : « Bonjour, je suis le chatbot d'Evan. Posez-moi vos questions, je suis là pour vous aider. » Aucune explication de mode dans la conversation.
 
 ## Fichiers
 
 ```
 chat/
   chat-loader.js   Chargeur. Seul fichier chargé avec la page (defer, moins de 2 Ko).
-  chat.css         Styles de la page, du fond animé, de la colonne de droite et des deux coins.
-  chat-data.js     Contenu : 51 règles, 16 sections, message d'accueil, textes des deux modes.
+  chat.css         Styles de la page, du sélecteur, des trois zones et de la colonne droite.
+  chat-data.js     Contenu : 51 règles, 16 sections, message d'accueil, fiches des deux modes.
   chat.js          Interface, moteur de correspondance, recherche, génération locale.
   README.md        Ce document.
 ```
 
-Les styles du coin bas-droit sont écrits dans `index.html` et `case-studies.html` : ils doivent être visibles avant le chargement différé de `chat.css`.
+Le bouton du coin est stylé dans `index.html` et `case-studies.html` : il doit être visible avant le chargement différé de `chat.css`.
 
-**Chargement** : `chat.css`, `chat-data.js` et `chat.js` sont chargés immédiatement au survol ou au clic, et sinon en différé 2,2 secondes après la fin du chargement de la page. Ce délai permet au rappel périodique de fonctionner sans interaction. Le modèle de langage (WebLLM) reste chargé uniquement si le visiteur active le mode IA.
+**Chargement** : `chat.css`, `chat-data.js` et `chat.js` ne sont chargés qu'au premier besoin (survol ou clic sur le bouton, ou clic sur un bouton `data-chat-open`). Le reste de la page n'attend rien. Le modèle de langage (WebLLM) reste chargé uniquement si le visiteur active le mode IA.
 
 ## Modifier les réponses
 
