@@ -26,34 +26,42 @@ Conséquences : les questions courantes reçoivent toujours une réponse, et le 
 
 ## Où l'assistant apparaît sur le site
 
-Il n'y a plus de fenêtre flottante : **l'assistant est une page plein écran**, révélée comme une feuille qu'on tourne.
+Il n'y a plus de fenêtre flottante : **l'assistant est une page plein écran**, révélée comme une feuille qu'on tire depuis le coin.
 
-- **Au repos** : un coin de page plié, en bas à droite, sans texte ni bulle. Un liseré lumineux le long de la pliure pulse doucement.
-- **Au survol** (ou au focus clavier) : le rabat s'ouvre en grand et laisse voir la page assistant en dessous, plus claire que le portfolio, avec sa trame et ses halos.
-- **Toutes les 14 secondes**, si le visiteur ne touche à rien, le coin se soulève tout seul pendant deux secondes puis se referme. C'est ce qui rend l'assistant visible même pour quelqu'un qui ne survole jamais le coin.
-- **Au clic** : la page se tourne entièrement, du coin bas-droit vers le coin haut-gauche, avec une bande lumineuse qui balaie l'écran pendant la rotation. Le portfolio passe dessous, la page assistant prend tout l'écran.
-- **Pour fermer** : le bouton « Retour au portfolio » en haut à gauche, ou la touche `Echap`. La rotation se joue en sens inverse.
+- **Au repos** : un coin de page plié, en bas à droite, sans texte ni bulle. Un liseré bleu clair pulse le long de la pliure.
+- **En continu** : toutes les 7 secondes, le coin est tiré puis relâché (animation `flapPull`), et la feuille glisse dans le même mouvement pour laisser voir la page assistant par la diagonale. C'est ce qui rend l'assistant visible même sans interaction.
+- **Au survol** (ou au focus clavier) : le rabat s'ouvre en grand et la feuille se tire plus loin.
+- **Au clic** : la feuille glisse depuis le coin bas-droit jusqu'à couvrir l'écran, avec une légère rotation qui se redresse à l'arrivée. Le portfolio passe dessous.
+- **Pour revenir** : un **coin de feuille en haut à gauche**, qui s'ouvre au survol comme celui du bas et se rabat au clic. La touche `Echap` fonctionne aussi.
 
-L'effet est en CSS pur : un `clip-path` à cinq points interpolé en deux temps (la diagonale monte, puis l'angle haut-gauche se remplit), plus un dégradé qui balaie l'écran. Aucune librairie d'animation.
+L'animation est en CSS pur : la feuille est simplement translatée hors écran (`translate3d(112%,112%,0) rotate(3deg)`) et revient à `translate3d(0,0,0)`. **Aucun `clip-path`** : la feuille reste opaque pendant tout le trajet, donc on ne voit jamais le portfolio au travers. L'ombre portée vers le haut-gauche et le liseré clair sur le bord avant donnent l'impression d'une feuille qu'on tourne.
 
-Le portfolio devient inerte pendant que la page est ouverte (`inert`), et le défilement de la page d'origine est bloqué.
+Le fond de la page assistant est volontairement plus clair et plus bleu que le portfolio (`#1b2c4d` vers `#0d1730`), avec deux couches de lignes bleu clair qui dérivent lentement et deux halos. La rupture est nette dès que le coin se soulève.
+
+Le portfolio devient inerte pendant que la page est ouverte (`inert`), et son défilement est bloqué.
 
 Une section « Assistant du portfolio » reste présente dans `index.html`, avant le contact : elle explique les deux modes et propose trois questions cliquables. Ses boutons portent `data-chat-open` (avec la question en valeur si besoin) : le chargeur les reconnaît, ouvre la page et envoie la question.
+
+## Contenu de la page assistant
+
+- **Une carte de bienvenue** (textes dans `chat-data.js`, objet `guide`) qui explique la démarche et présente **les deux modes côte à côte**, chacun avec sa propre couleur : « Mode règles » en bleu clair, « Mode IA locale » en violet, avec un état « mode actif » visible.
+- **Le sélecteur de mode dans l'en-tête**, synchronisé avec les deux cartes.
+- **Une colonne de lecture large** : 1080 px maximum, avec le champ de saisie sur toute cette largeur.
 
 ## Fichiers
 
 ```
 chat/
   chat-loader.js   Chargeur. Seul fichier chargé avec la page (defer, moins de 2 Ko).
-  chat.css         Styles de la page assistant, du rabat et des animations.
-  chat-data.js     Contenu : 51 règles de réponse et 16 sections de connaissances.
+  chat.css         Styles de la feuille, du fond animé, des deux coins et des cartes de mode.
+  chat-data.js     Contenu : 51 règles de réponse, 16 sections de connaissances, textes de bienvenue.
   chat.js          Interface, moteur de correspondance, recherche, génération locale.
   README.md        Ce document.
 ```
 
-Les styles du coin de page sont écrits dans `index.html` et `case-studies.html` : ils doivent être visibles avant le chargement différé de `chat.css`.
+Les styles du coin bas-droit sont écrits dans `index.html` et `case-studies.html` : ils doivent être visibles avant le chargement différé de `chat.css`.
 
-**Chargement** : `chat.css`, `chat-data.js` et `chat.js` sont chargés immédiatement au survol ou au clic, et sinon en différé 2,2 secondes après la fin du chargement de la page. Ce délai permet à l'aperçu périodique du coin de fonctionner sans interaction. Le modèle de langage (WebLLM) reste chargé uniquement si le visiteur active le mode IA.
+**Chargement** : `chat.css`, `chat-data.js` et `chat.js` sont chargés immédiatement au survol ou au clic, et sinon en différé 2,2 secondes après la fin du chargement de la page. Ce délai permet à l'aperçu périodique de fonctionner sans interaction. Le modèle de langage (WebLLM) reste chargé uniquement si le visiteur active le mode IA.
 
 ## Modifier les réponses
 

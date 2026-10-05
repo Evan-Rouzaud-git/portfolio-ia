@@ -30,7 +30,6 @@
   var STORE_MODE = "chat-mode";
   var STORE_MODEL = "chat-model";
   var STORE_CACHED = "chat-model-cached";
-  var STORE_GUIDE = "chat-guide-seen";
   var REFUS = "Je réponds uniquement à partir de ce portfolio. Pour toute autre question, écrivez-moi directement à " + CFG.email + ".";
   var REFUS_RE = /uniquement (a|à) partir de ce portfolio/i;
 
@@ -241,28 +240,6 @@
     return w;
   }
 
-  /* Explication des deux modes, affichée une seule fois */
-  function showGuide() {
-    var card = document.createElement("div");
-    card.className = "chat-guide";
-    card.innerHTML =
-      '<b>' + esc(DATA.guide.title) + '</b>' +
-      '<span><em>Règles</em> ' + esc(DATA.guide.rules.replace(/^Mode règles\s*:\s*/i, "")) + '</span>' +
-      '<span><em>IA locale</em> ' + esc(DATA.guide.ai.replace(/^Mode IA locale\s*:\s*/i, "")) + '</span>';
-    var ok = document.createElement("button");
-    ok.type = "button";
-    ok.className = "chat-chip";
-    ok.textContent = DATA.guide.ok;
-    ok.addEventListener("click", function () {
-      localStorage.setItem(STORE_GUIDE, "1");
-      card.remove();
-      el.input.focus();
-    });
-    card.appendChild(ok);
-    el.body.appendChild(card);
-    scrollDown();
-  }
-
   /* ------------------------------------------------------------------
    * Mode règles
    * ------------------------------------------------------------------ */
@@ -427,9 +404,6 @@
   function ask(question) {
     question = (question || "").trim();
     if (!question || state.busy) return;
-    if (!localStorage.getItem(STORE_GUIDE)) localStorage.setItem(STORE_GUIDE, "1");
-    var guide = el.body.querySelector(".chat-guide");
-    if (guide) guide.remove();
     clearNotice();
     addMsg("user", question);
     el.input.value = "";
@@ -456,6 +430,8 @@
     var isRules = state.mode === "rules";
     el.modeRules.setAttribute("aria-pressed", String(isRules));
     el.modeAI.setAttribute("aria-pressed", String(!isRules));
+    if (el.cardRules) el.cardRules.setAttribute("aria-pressed", String(isRules));
+    if (el.cardAI) el.cardAI.setAttribute("aria-pressed", String(!isRules));
   }
 
   function setMode(mode) {
@@ -524,11 +500,20 @@
     page.setAttribute("aria-labelledby", "chat-title");
     page.setAttribute("aria-hidden", "true");
     page.innerHTML = [
+      '<div class="chat-glow" aria-hidden="true"></div>',
+      '<div class="chat-lines" aria-hidden="true"></div>',
+      '<div class="chat-lines-2" aria-hidden="true"></div>',
+
+      // Coin haut-gauche : on rabat la feuille pour revenir au portfolio.
+      '<button type="button" class="unpeel" id="chat-close" aria-label="Revenir au portfolio">',
+      '  <span class="unpeel-flap" aria-hidden="true"></span>',
+      '  <span class="unpeel-hint" aria-hidden="true">',
+      '    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>',
+      '    <span>Revenir au portfolio</span>',
+      '  </span>',
+      '</button>',
+
       '<div class="chat-head">',
-      '  <button type="button" class="chat-back" id="chat-close" aria-label="Fermer l\'assistant et revenir au portfolio">',
-      '    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>',
-      '    <span>Retour au portfolio</span>',
-      '  </button>',
       '  <span class="chat-head-title">',
       '    <span class="chat-signal" aria-hidden="true"></span>',
       '    <span class="chat-title" id="chat-title">Assistant du portfolio<small>Evan Rouzaud, freelance en IA appliquée</small></span>',
@@ -544,7 +529,7 @@
       '    <label for="chat-input" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Votre question</label>',
       '    <input class="chat-input" id="chat-input" type="text" autocomplete="off" placeholder="' + esc(DATA.placeholder) + '">',
       '    <button class="chat-send" id="chat-send" type="submit" aria-label="Envoyer la question">',
-      '      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 20.5 21 12 3 3.5 3 10l12 2-12 2z"/></svg>',
+      '      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 20.5 21 12 3 3.5 3 10l12 2-12 2z"/></svg>',
       '    </button>',
       '  </form>',
       '  <p class="chat-legal">Mode IA : le modèle est exécuté dans votre navigateur, rien n\'est envoyé à un serveur.</p>',
@@ -558,14 +543,10 @@
     el.modeRules = page.querySelector("#chat-mode-rules");
     el.modeAI = page.querySelector("#chat-mode-ai");
     el.close = page.querySelector("#chat-close");
-
-    // Bande lumineuse qui balaie l'écran pendant que la page se tourne.
-    el.sweep = document.createElement("div");
-    el.sweep.className = "curl-sweep";
-    el.sweep.setAttribute("aria-hidden", "true");
+    el.cardRules = null;
+    el.cardAI = null;
 
     document.body.appendChild(page);
-    document.body.appendChild(el.sweep);
 
     page.querySelector("#chat-form").addEventListener("submit", function (e) {
       e.preventDefault();
@@ -582,13 +563,36 @@
     document.addEventListener("pointerdown", touch, { passive: true });
   }
 
-  /* Lance l'animation de la bande lumineuse. Forcer un reflow permet de rejouer
-     l'animation même si elle vient de se terminer. */
-  function runSweep(kind) {
-    if (!el.sweep) return;
-    el.sweep.className = "curl-sweep";
-    void el.sweep.offsetWidth;
-    el.sweep.className = "curl-sweep run" + (kind ? " " + kind : "");
+  /* Carte de bienvenue : présente la démarche et les deux modes, avec les mêmes
+     boutons de bascule que l'en-tête. */
+  function welcome() {
+    var g = DATA.guide;
+    var box = document.createElement("div");
+    box.className = "chat-welcome";
+    box.innerHTML =
+      '<h2>' + esc(g.title) + '</h2>' +
+      '<p>' + esc(g.pitch) + '</p>' +
+      '<div class="welcome-modes">' +
+      '  <button type="button" class="mode-card rules" id="mode-card-rules" aria-pressed="true">' +
+      '    <span class="mode-state">Mode actif</span>' +
+      '    <b><span class="mode-icon" aria-hidden="true">⚡</span>' + esc(g.rulesLabel) + '</b>' +
+      '    <span>' + esc(g.rules) + '</span>' +
+      '  </button>' +
+      '  <button type="button" class="mode-card ai" id="mode-card-ai" aria-pressed="false">' +
+      '    <span class="mode-state">Mode actif</span>' +
+      '    <b><span class="mode-icon" aria-hidden="true">🧠</span>' + esc(g.aiLabel) + '</b>' +
+      '    <span>' + esc(g.ai) + '</span>' +
+      '  </button>' +
+      '</div>';
+    el.body.appendChild(box);
+
+    el.cardRules = box.querySelector("#mode-card-rules");
+    el.cardAI = box.querySelector("#mode-card-ai");
+    el.cardRules.addEventListener("click", function () { setMode("rules"); el.input.focus(); });
+    el.cardAI.addEventListener("click", switchToAI);
+
+    el.body.appendChild(topicRow(DATA.suggestions.map(function (s) { return { label: s, question: s }; })));
+    scrollDown();
   }
 
   /* Le portfolio devient inerte pendant que la page assistant est ouverte :
@@ -607,19 +611,13 @@
     var peel = document.getElementById("peel");
     if (peel) peel.classList.add("hidden");
     if (el.launcher) el.launcher.setAttribute("aria-expanded", "true");
-    el.page.classList.remove("closing", "peeking");
+    el.page.classList.remove("peeking");
     el.page.classList.add("open");
     el.page.setAttribute("aria-hidden", "false");
-    runSweep("");
     document.body.classList.add("chat-lock");
     setInert(true);
 
-    if (!el.body.childElementCount) {
-      if (!localStorage.getItem(STORE_GUIDE)) showGuide();
-      addMsg("bot", DATA.intro);
-      el.body.appendChild(topicRow(DATA.suggestions.map(function (s) { return { label: s, question: s }; })));
-      scrollDown();
-    }
+    if (!el.body.childElementCount) welcome();
     refreshModeUI();
     if (question) ask(question); else el.input.focus();
   }
@@ -629,34 +627,35 @@
     state.opened = false;
     touch();
     el.page.classList.remove("open", "peeking");
-    el.page.classList.add("closing");
     el.page.setAttribute("aria-hidden", "true");
-    runSweep("back");
     document.body.classList.remove("chat-lock");
     setInert(false);
-    var peel = document.getElementById("peel");
-    if (peel) peel.classList.remove("hidden");
+    // Le coin réapparaît quand la feuille a fini de sortir, sinon un survol au coin
+    // interromprait l'animation de fermeture.
+    setTimeout(function () {
+      var peel = document.getElementById("peel");
+      if (peel) peel.classList.remove("hidden");
+    }, 700);
     if (el.launcher) {
       el.launcher.setAttribute("aria-expanded", "false");
       el.launcher.focus();
     }
-    setTimeout(function () { el.page.classList.remove("closing"); }, 820);
   }
 
-  /* Aperçu périodique : le coin se soulève tout seul, puis se referme.
-     Ignoré si la page est ouverte, si un aperçu est en cours, si l'onglet est
-     caché, ou si le visiteur vient d'agir sur la page. */
+  /* Aperçu périodique : le coin tire la feuille, puis la relâche. Ignoré si la page
+     est ouverte, si un aperçu est en cours, si l'onglet est caché, ou si le visiteur
+     vient d'agir. */
   function peek() {
     if (state.opened || state.peeking) return;
     if (document.hidden) return;
-    if (Date.now() - (state.lastAction || 0) < 8000) return;
+    if (Date.now() - (state.lastAction || 0) < 3000) return;
     state.peeking = true;
     el.page.classList.add("peeking");
-    runSweep("peek");
     setTimeout(function () {
       el.page.classList.remove("peeking");
       state.peeking = false;
-    }, 2100);
+      state.lastAction = Date.now();
+    }, 2250);
   }
 
   function init() {
@@ -680,9 +679,9 @@
     window.openChatAssistant = open;
     window.__chatReady = true;
 
-    // Aperçu du sous-site à intervalle régulier, sans action du visiteur.
-    setTimeout(peek, 6000);
-    setInterval(peek, 14000);
+    // Aperçu du sous-site : le coin tire la feuille toutes les 7 secondes.
+    setTimeout(peek, 2500);
+    setInterval(peek, 7000);
   }
 
   /* Exposé uniquement pour vérifier le moteur de correspondance en dehors du navigateur

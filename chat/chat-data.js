@@ -35,8 +35,7 @@ window.CHAT_DATA = {
     modelFastSize: "250 Mo"
   },
 
-  /* Accueil et suggestions cliquables */
-  intro: "Bonjour ! Posez votre question : tarifs, disponibilité, méthode, projets ou compétences.",
+  /* Suggestions cliquables affichées sous la carte de bienvenue */
   placeholder: "Écrivez votre question...",
   suggestions: [
     "Quels sont vos tarifs ?",
@@ -44,12 +43,14 @@ window.CHAT_DATA = {
     "Vous êtes disponible quand ?"
   ],
 
-  /* Explication des deux modes, affichée une fois puis masquable */
+  /* Texte de la carte de bienvenue : présente la démarche et les deux modes */
   guide: {
-    title: "Deux façons de répondre",
-    rules: "Mode règles : réponse préparée, immédiate, sans téléchargement.",
-    ai: "Mode IA locale : un petit modèle tourne dans votre navigateur, plus souple, téléchargé une seule fois.",
-    ok: "Compris"
+    title: "Un assistant qui répond à partir de ce portfolio",
+    pitch: "Il n'invente pas : il cherche dans les sections de ce site, cite la section utilisée, et dit clairement quand il ne sait pas. C'est exactement la méthode appliquée aux projets d'Evan, en version miniature et visible.",
+    rulesLabel: "Mode règles",
+    rules: "Réponse immédiate, préparée à l'avance. Aucun téléchargement, aucune donnée qui bouge.",
+    aiLabel: "Mode IA locale",
+    ai: "Un petit modèle de langage tourne dans votre navigateur pour reformuler la réponse. Téléchargé une seule fois, puis mis en cache."
   },
 
   /* Aucune règle ne correspond : on propose un menu et le contact direct */

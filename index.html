@@ -333,22 +333,29 @@ footer{border-top:1px solid var(--line);padding:34px 0 104px;margin-top:20px}
 .peel-flap{
   position:absolute;right:0;bottom:0;width:100%;height:100%;pointer-events:none;
   clip-path:polygon(100% 0,0 0,0 100%);
-  background:linear-gradient(315deg,rgba(94,231,255,.55) 0%,#1b2740 11%,#0a1020 52%,#070a12 100%);
-  filter:drop-shadow(-12px -12px 26px rgba(0,0,0,.62))
+  background:linear-gradient(315deg,rgba(127,212,255,.75) 0%,#16233e 9%,#0a1224 48%,#05070d 100%);
+  filter:drop-shadow(-14px -14px 30px rgba(0,0,0,.72));
+  animation:flapPull 7s ease-in-out 1.2s infinite
+}
+/* le coin est tiré puis relâché en continu, même sans survol : c'est ce qui attire l'œil */
+@keyframes flapPull{
+  0%,66%,100%{clip-path:polygon(100% 0,0 0,0 100%);transform:translate(0,0)}
+  76%,85%{clip-path:polygon(100% 10%,10% 10%,10% 100%);transform:translate(-10px,-10px)}
 }
 .peel-flap::after{
   content:"";position:absolute;inset:0;
-  background:linear-gradient(315deg,rgba(94,231,255,.7) 0%,transparent 28%);
-  animation:peelGlow 5s ease-in-out 2s infinite
+  background:linear-gradient(315deg,rgba(127,212,255,.85) 0%,transparent 26%);
+  animation:peelGlow 3.5s ease-in-out infinite
 }
-@keyframes peelGlow{0%,100%{opacity:.18}50%{opacity:.62}}
+@keyframes peelGlow{0%,100%{opacity:.25}50%{opacity:.85}}
 @media(max-width:560px){
   .peel{width:100px;height:100px}
   .peel:hover,.peel:focus-within{width:62vw;height:62vw}
 }
 @media(prefers-reduced-motion:reduce){
   .peel{transition:none}
-  .peel-flap::after{animation:none;opacity:.4}
+  .peel-flap,.peel-flap::after{animation:none}
+  .peel-flap::after{opacity:.4}
 }
 
 /* ---------- section Assistant (intégrée à la page) ---------- */
