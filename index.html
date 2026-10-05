@@ -177,6 +177,10 @@ header.open .burger span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
 
 /* ---------- sections ---------- */
 section{padding:clamp(40px,5vw,68px) 0;position:relative}
+/* sous-bloc regroupé dans une section : même rythme vertical, un cran plus serré */
+.sub{padding-top:clamp(34px,4.4vw,58px)}
+/* les ancres ne doivent pas se cacher sous la barre collante */
+#services,#pourqui,#projets,#profil,#methode,#faq,#tarifs,#assistant,#contact{scroll-margin-top:88px}
 .sec-head{max-width:70ch;margin-bottom:32px}
 .sec-head h2{margin:16px 0 14px}
 .sec-head.center{margin-left:auto;margin-right:auto;text-align:center}
@@ -437,21 +441,19 @@ footer{border-top:1px solid var(--line);padding:28px 0 88px;margin-top:14px}
   <div class="wrap nav">
     <a class="brand" href="#top"><span class="dot">E</span> Evan Rouzaud <span class="muted" style="font-weight:500">· IA appliquée</span></a>
     <nav class="nav-links" id="navLinks">
-      <a href="#pourqui">Pour qui</a>
-      <a href="#services">Services</a>
-      <a href="#projets">Réalisations</a>
+      <a href="#services">Ce que je fais</a>
       <div class="nav-drop">
-        <a href="case-studies.html">Case studies</a>
+        <a href="#projets">Case studies</a>
         <div class="nav-drop-menu">
           <a href="case-studies.html#insight">InSight<span>Application de bureau, en vente</span></a>
           <a href="case-studies.html#lead-list-qa">Lead List QA<span>SaaS livré en une semaine</span></a>
           <a href="case-studies.html#business-analyst">AI Business Analyst Workbench<span>Analyse de tickets hors ligne</span></a>
+          <a href="#projets">Voir les 5 projets<span>Démonstrations vidéo incluses</span></a>
         </div>
       </div>
-      <a href="#methode">Méthode</a>
-      <a href="#profil">Profil</a>
+      <a href="#profil">À propos</a>
       <a href="#tarifs">Tarifs</a>
-      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
     </nav>
     <div class="nav-right">
       <a class="nav-cta" href="https://cal.com/rouzaud-evan-izeqwf/30min" target="_blank" rel="noopener">Réserver un appel</a>
@@ -481,7 +483,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 88px;margin-top:14px}
         <a class="btn btn-ghost" href="#projets">Voir les 5 produits livrés</a>
       </div>
       <p class="hero-note">
-        Premier échange gratuit de 30 minutes, réponse sous 24 h. Vous pouvez aussi
+        Disponible immédiatement. Premier échange gratuit de 30 minutes, réponse sous 24 h. Vous pouvez aussi
         <a href="https://cal.com/rouzaud-evan-izeqwf/30min" target="_blank" rel="noopener">choisir directement un créneau</a>
         dans mon agenda. France et international, à distance.
       </p>
@@ -495,49 +497,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 88px;margin-top:14px}
     </div>
   </section>
 
-  <!-- ================= POUR QUI ================= -->
-  <section id="pourqui">
-    <div class="wrap">
-      <div class="sec-head rv">
-        <span class="eyebrow">Pour qui je travaille</span>
-        <h2>Vous vous reconnaissez ?</h2>
-        <p class="lead">
-          Je suis utile là où le besoin est concret, le budget réel et les données sensibles. J'interviens aussi
-          quand il manque quelqu'un pour faire le lien entre le métier, l'IT et la direction. Si votre situation
-          ressemble à l'une de ces six, nous gagnerons du temps tous les deux.
-        </p>
-      </div>
-
-      <div class="grid g-2">
-        <article class="who rv">
-          <h3><span aria-hidden="true">🚀</span> Startups et jeunes entreprises</h3>
-          <p>Vous voulez valider une idée IA avec un premier produit réellement démontrable, sans recruter une équipe complète ni immobiliser vos développeurs pendant des mois.</p>
-        </article>
-        <article class="who rv">
-          <h3><span aria-hidden="true">🏭</span> PME et directions métier</h3>
-          <p>Un processus manuel consomme plusieurs heures chaque semaine : tri de données, rédaction, contrôle qualité. Vous cherchez à l'automatiser avec un gain mesurable et un coût maîtrisé.</p>
-        </article>
-        <article class="who rv">
-          <h3><span aria-hidden="true">🧩</span> Équipes produit et innovation</h3>
-          <p>Vous avez besoin d'un renfort qui code, cadre le besoin et sait parler aux utilisateurs comme à la direction. Un profil qui livre, pas un slide de plus.</p>
-        </article>
-        <article class="who rv">
-          <h3><span aria-hidden="true">🔐</span> Secteurs sensibles à la confidentialité</h3>
-          <p>Santé, juridique, finance, industrie, secteur public : vos données ne peuvent pas partir chez un prestataire. Je construis des solutions qui tournent sur votre infrastructure, sans appel externe.</p>
-        </article>
-        <article class="who rv">
-          <h3><span aria-hidden="true">🎼</span> Organisations sans chef d'orchestre IA</h3>
-          <p>Le besoin IA est identifié, mais personne ne fait le lien entre les métiers, l'IT et la direction. Vous cherchez un interlocuteur unique qui cadre, priorise, documente, pilote et livre. C'est exactement le rôle que j'occupe.</p>
-        </article>
-        <article class="who rv">
-          <h3><span aria-hidden="true">🤝</span> Agences, ESN et cabinets de conseil</h3>
-          <p>Vous cherchez un renfort IA à intégrer sur une mission client : quelqu'un qui tient un atelier avec les métiers sans jargon et qui écrit aussi le code le lendemain. Disponible en appui ponctuel ou sur toute la durée du projet.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= SERVICES ================= -->
+  <!-- ================= CE QUE JE FAIS (services, puis pour qui) ================= -->
   <section id="services">
     <div class="wrap">
       <div class="sec-head rv">
@@ -651,13 +611,54 @@ footer{border-top:1px solid var(--line);padding:28px 0 88px;margin-top:14px}
         </article>
       </div>
     </div>
-  </section>
+  <div id="pourqui" class="sub">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <span class="eyebrow">Pour qui je travaille</span>
+        <h2>Vous vous reconnaissez ?</h2>
+        <p class="lead">
+          Je suis utile là où le besoin est concret, le budget réel et les données sensibles. J'interviens aussi
+          quand il manque quelqu'un pour faire le lien entre le métier, l'IT et la direction. Si votre situation
+          ressemble à l'une de ces six, nous gagnerons du temps tous les deux.
+        </p>
+      </div>
+
+      <div class="grid g-2">
+        <article class="who rv">
+          <h3><span aria-hidden="true">🚀</span> Startups et jeunes entreprises</h3>
+          <p>Vous voulez valider une idée IA avec un premier produit réellement démontrable, sans recruter une équipe complète ni immobiliser vos développeurs pendant des mois.</p>
+        </article>
+        <article class="who rv">
+          <h3><span aria-hidden="true">🏭</span> PME et directions métier</h3>
+          <p>Un processus manuel consomme plusieurs heures chaque semaine : tri de données, rédaction, contrôle qualité. Vous cherchez à l'automatiser avec un gain mesurable et un coût maîtrisé.</p>
+        </article>
+        <article class="who rv">
+          <h3><span aria-hidden="true">🧩</span> Équipes produit et innovation</h3>
+          <p>Vous avez besoin d'un renfort qui code, cadre le besoin et sait parler aux utilisateurs comme à la direction. Un profil qui livre, pas un slide de plus.</p>
+        </article>
+        <article class="who rv">
+          <h3><span aria-hidden="true">🔐</span> Secteurs sensibles à la confidentialité</h3>
+          <p>Santé, juridique, finance, industrie, secteur public : vos données ne peuvent pas partir chez un prestataire. Je construis des solutions qui tournent sur votre infrastructure, sans appel externe.</p>
+        </article>
+        <article class="who rv">
+          <h3><span aria-hidden="true">🎼</span> Organisations sans chef d'orchestre IA</h3>
+          <p>Le besoin IA est identifié, mais personne ne fait le lien entre les métiers, l'IT et la direction. Vous cherchez un interlocuteur unique qui cadre, priorise, documente, pilote et livre. C'est exactement le rôle que j'occupe.</p>
+        </article>
+        <article class="who rv">
+          <h3><span aria-hidden="true">🤝</span> Agences, ESN et cabinets de conseil</h3>
+          <p>Vous cherchez un renfort IA à intégrer sur une mission client : quelqu'un qui tient un atelier avec les métiers sans jargon et qui écrit aussi le code le lendemain. Disponible en appui ponctuel ou sur toute la durée du projet.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+
+      </section>
 
   <!-- ================= PROJETS ================= -->
   <section id="projets">
     <div class="wrap">
       <div class="sec-head rv">
-        <span class="eyebrow">Réalisations</span>
+        <span class="eyebrow">Case studies</span>
         <h2>Cinq produits livrés, cinq problèmes résolus.</h2>
         <p class="lead">
           Cinq projets, cinq problèmes réels, et une démonstration vidéo pour chacun. Chaque réalisation se
@@ -848,43 +849,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 88px;margin-top:14px}
     </div>
   </section>
 
-  <!-- ================= METHODE ================= -->
-  <section id="methode">
-    <div class="wrap">
-      <div class="sec-head rv">
-        <span class="eyebrow">Comment nous travaillons ensemble</span>
-        <h2>Un déroulé simple, des points de décision clairs.</h2>
-        <p class="lead">
-          Pas de tunnel de plusieurs mois. Vous voyez quelque chose qui fonctionne très vite, et vous décidez
-          à chaque étape de continuer, d'ajuster ou d'arrêter.
-        </p>
-      </div>
-      <div class="steps">
-        <div class="step rv">
-          <h3>Échange de cadrage</h3>
-          <p>30 minutes pour comprendre votre besoin, vos contraintes et ce qui compte vraiment. Nous identifions aussi les parties prenantes à associer : métier, IT et direction. Vous repartez avec une première lecture, gratuitement.</p>
-        </div>
-        <div class="step rv">
-          <h3>Cadrage, backlog &amp; priorisation</h3>
-          <p>Entretiens utilisateurs, cartographie des scénarios, backlog organisé et priorisation par la valeur et la complexité. Le besoin métier est traduit en solution technique, avec une roadmap par jalons et un business case à l'appui.</p>
-        </div>
-        <div class="step rv">
-          <h3>Prototype en 2 à 6 semaines</h3>
-          <p>Une version démontrable rapidement, pilotée par jalons avec un point de décision à chaque étape : on continue, on ajuste ou on arrête. Les arbitrages sont écrits, et le code vous appartient dès la livraison.</p>
-        </div>
-        <div class="step rv">
-          <h3>Production &amp; transmission</h3>
-          <p>Tests, supervision et journalisation, puis documentation et formation de vos équipes. L'outil doit continuer de vivre et de progresser sans dépendre de ma présence.</p>
-        </div>
-      </div>
-      <p class="steps-note rv">
-        Chaque étape se termine par un livrable écrit : note de cadrage, backlog priorisé, démonstration, documentation.
-        Vous n'avez jamais besoin d'une réunion pour savoir où en est le projet, ni pourquoi une décision a été prise.
-      </p>
-    </div>
-  </section>
-
-  <!-- ================= PROFIL ================= -->
+  <!-- ================= À PROPOS (profil, méthode, questions fréquentes) ================= -->
   <section id="profil">
     <div class="wrap">
       <div class="sec-head rv">
@@ -981,46 +946,42 @@ footer{border-top:1px solid var(--line);padding:28px 0 88px;margin-top:14px}
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- ================= TARIFS ================= -->
-  <section id="tarifs">
+  <div id="methode" class="sub">
     <div class="wrap">
       <div class="sec-head rv">
-        <span class="eyebrow">Investissement</span>
-        <h2>Des ordres de grandeur clairs, un devis écrit avant de commencer.</h2>
+        <span class="eyebrow">Comment nous travaillons ensemble</span>
+        <h2>Un déroulé simple, des points de décision clairs.</h2>
         <p class="lead">
-          Je préfère annoncer les montants dès le départ : vous savez tout de suite si nous jouons dans la même
-          catégorie, et nous parlons du projet plutôt que du prix pendant tout l'échange.
+          Pas de tunnel de plusieurs mois. Vous voyez quelque chose qui fonctionne très vite, et vous décidez
+          à chaque étape de continuer, d'ajuster ou d'arrêter.
         </p>
       </div>
-
-      <div class="grid g-2">
-        <div class="price rv">
-          <span class="pj-tag">Journée de travail</span>
-          <b>350 à 500 €</b>
-          <span class="unit">par jour travaillé</span>
-          <p>Pour le cadrage, le développement, l'accompagnement de vos équipes ou un renfort ponctuel sur un projet existant. Le tarif précis dépend de la mission et de sa durée.</p>
+      <div class="steps">
+        <div class="step rv">
+          <h3>Échange de cadrage</h3>
+          <p>30 minutes pour comprendre votre besoin, vos contraintes et ce qui compte vraiment. Nous identifions aussi les parties prenantes à associer : métier, IT et direction. Vous repartez avec une première lecture, gratuitement.</p>
         </div>
-        <div class="price featured rv">
-          <span class="pj-tag">Prototype au forfait</span>
-          <b>à partir de 2 500 €</b>
-          <span class="unit">pour un premier produit démontrable</span>
-          <p>Un POC IA fonctionnel, avec un périmètre défini au départ, livré en 2 à 6 semaines, démontré à vos utilisateurs et accompagné de sa documentation.</p>
+        <div class="step rv">
+          <h3>Cadrage, backlog &amp; priorisation</h3>
+          <p>Entretiens utilisateurs, cartographie des scénarios, backlog organisé et priorisation par la valeur et la complexité. Le besoin métier est traduit en solution technique, avec une roadmap par jalons et un business case à l'appui.</p>
+        </div>
+        <div class="step rv">
+          <h3>Prototype en 2 à 6 semaines</h3>
+          <p>Une version démontrable rapidement, pilotée par jalons avec un point de décision à chaque étape : on continue, on ajuste ou on arrête. Les arbitrages sont écrits, et le code vous appartient dès la livraison.</p>
+        </div>
+        <div class="step rv">
+          <h3>Production &amp; transmission</h3>
+          <p>Tests, supervision et journalisation, puis documentation et formation de vos équipes. L'outil doit continuer de vivre et de progresser sans dépendre de ma présence.</p>
         </div>
       </div>
-
-      <p class="price-note rv">
-        <strong>Ces montants sont des ordres de grandeur, pas une grille figée.</strong> Si votre budget se situe
-        nettement en dessous, dites-le dès le premier échange : je préfère vous orienter vers une solution plus
-        légère, ou vous conseiller d'attendre le bon moment, plutôt que de promettre un résultat que le budget
-        ne permet pas.
+      <p class="steps-note rv">
+        Chaque étape se termine par un livrable écrit : note de cadrage, backlog priorisé, démonstration, documentation.
+        Vous n'avez jamais besoin d'une réunion pour savoir où en est le projet, ni pourquoi une décision a été prise.
       </p>
     </div>
-  </section>
+  </div>
 
-  <!-- ================= FAQ ================= -->
-  <section id="faq">
+<div id="faq" class="sub">
     <div class="wrap">
       <div class="sec-head center rv">
         <span class="eyebrow">Questions fréquentes</span>
@@ -1066,10 +1027,49 @@ footer{border-top:1px solid var(--line);padding:28px 0 88px;margin-top:14px}
         </details>
       </div>
     </div>
+  </div>
+
+      </section>
+
+  <!-- ================= TARIFS ================= -->
+  <section id="tarifs">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <span class="eyebrow">Investissement</span>
+        <h2>Des ordres de grandeur clairs, un devis écrit avant de commencer.</h2>
+        <p class="lead">
+          Je préfère annoncer les montants dès le départ : vous savez tout de suite si nous jouons dans la même
+          catégorie, et nous parlons du projet plutôt que du prix pendant tout l'échange.
+        </p>
+      </div>
+
+      <div class="grid g-2">
+        <div class="price rv">
+          <span class="pj-tag">Journée de travail</span>
+          <b>350 à 500 €</b>
+          <span class="unit">par jour travaillé</span>
+          <p>Pour le cadrage, le développement, l'accompagnement de vos équipes ou un renfort ponctuel sur un projet existant. Le tarif précis dépend de la mission et de sa durée.</p>
+        </div>
+        <div class="price featured rv">
+          <span class="pj-tag">Prototype au forfait</span>
+          <b>à partir de 2 500 €</b>
+          <span class="unit">pour un premier produit démontrable</span>
+          <p>Un POC IA fonctionnel, avec un périmètre défini au départ, livré en 2 à 6 semaines, démontré à vos utilisateurs et accompagné de sa documentation.</p>
+        </div>
+      </div>
+
+      <p class="price-note rv">
+        <strong>Ces montants sont des ordres de grandeur, pas une grille figée.</strong> Si votre budget se situe
+        nettement en dessous, dites-le dès le premier échange : je préfère vous orienter vers une solution plus
+        légère, ou vous conseiller d'attendre le bon moment, plutôt que de promettre un résultat que le budget
+        ne permet pas.
+      </p>
+    </div>
   </section>
 
-  <!-- ================= PORTFOLIO INTERACTIF ================= -->
-  <section id="assistant">
+  <!-- ================= CONTACT (portfolio interactif, prise de contact) ================= -->
+  <section id="contact">
+    <div id="assistant" class="sub">
     <div class="wrap">
       <div class="assistant rv">
         <div>
@@ -1116,10 +1116,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 88px;margin-top:14px}
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- ================= CONTACT ================= -->
-  <section id="contact">
+  </div>
     <div class="wrap">
       <div class="cta-box rv">
         <span class="eyebrow">Passons à l'action</span>
@@ -1156,7 +1153,7 @@ footer{border-top:1px solid var(--line);padding:28px 0 88px;margin-top:14px}
   <div class="wrap foot">
     <span>© <span id="year">2026</span> Evan Rouzaud · freelance en IA appliquée</span>
     <span>
-      <a href="#projets">Réalisations</a> ·
+      <a href="#services">Ce que je fais</a> ·
       <a href="case-studies.html">Case studies</a> ·
       <a href="#tarifs">Tarifs</a> ·
       <a href="https://cal.com/rouzaud-evan-izeqwf/30min" target="_blank" rel="noopener">Réserver un appel</a> ·

@@ -132,6 +132,8 @@ header.open .burger span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
 
 /* ---------- case study ---------- */
 .cs{padding:clamp(34px,4.4vw,58px) 0;border-top:1px solid var(--line)}
+/* les ancres ne doivent pas se cacher sous la barre collante */
+#insight,#lead-list-qa,#business-analyst{scroll-margin-top:88px}
 .cs-head{max-width:74ch;margin-bottom:30px}
 .cs-head .tag{display:inline-block;font-size:12px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:999px;border:1px solid var(--line-hi);color:var(--muted);margin-bottom:18px}
 .cs-head h2{font-size:clamp(26px,3.4vw,38px);font-weight:720;margin-bottom:16px}
@@ -237,21 +239,19 @@ footer{border-top:1px solid var(--line);padding:28px 0 88px}
   <div class="wrap nav">
     <a class="brand" href="index.html"><span class="dot">E</span> Evan Rouzaud <span class="muted" style="font-weight:500">· IA appliquée</span></a>
     <nav class="nav-links" id="navLinks">
-      <a href="index.html#pourqui">Pour qui</a>
-      <a href="index.html#services">Services</a>
-      <a href="index.html#projets">Réalisations</a>
+      <a href="index.html#services">Ce que je fais</a>
       <div class="nav-drop is-current">
         <a href="case-studies.html">Case studies</a>
         <div class="nav-drop-menu">
           <a href="case-studies.html#insight">InSight<span>Application de bureau, en vente</span></a>
           <a href="case-studies.html#lead-list-qa">Lead List QA<span>SaaS livré en une semaine</span></a>
           <a href="case-studies.html#business-analyst">AI Business Analyst Workbench<span>Analyse de tickets hors ligne</span></a>
+          <a href="index.html#projets">Voir les 5 projets<span>Démonstrations vidéo incluses</span></a>
         </div>
       </div>
-      <a href="index.html#methode">Méthode</a>
-      <a href="index.html#profil">Profil</a>
+      <a href="index.html#profil">À propos</a>
       <a href="index.html#tarifs">Tarifs</a>
-      <a href="index.html#faq">FAQ</a>
+      <a href="index.html#contact">Contact</a>
     </nav>
     <div class="nav-right">
       <a class="nav-cta" href="https://cal.com/rouzaud-evan-izeqwf/30min" target="_blank" rel="noopener">Réserver un appel</a>
