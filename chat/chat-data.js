@@ -346,7 +346,7 @@ window.CHAT_DATA = {
     },
     {
       id: "ia_locale",
-      keywords: ["local", "locale", "confidentiel", "confidentialite", "confidentialité", "donnees sensibles", "données sensibles", "sont sensibles", "mes donnees", "mes données", "chez moi", "donnees confidentielles", "données confidentielles", "prive", "privé", "souverain", "souverainete", "souveraineté", "on premise", "on-premise", "hors ligne", "sans internet"],
+      keywords: ["local", "locale", "confidentiel", "confidentialite", "confidentialité", "donnees sensibles", "données sensibles", "sont sensibles", "chez moi", "donnees restent", "données restent", "donnees confidentielles", "données confidentielles", "prive", "privé", "souverain", "souverainete", "souveraineté", "on premise", "on-premise", "hors ligne", "sans internet"],
       answer: "Plusieurs projets fonctionnent avec des modèles exécutés localement, sans aucun appel à un service externe : les documents, tickets ou fichiers clients ne quittent jamais votre infrastructure, et le coût d'usage devient nul. C'est la bonne approche dès que les données sont sensibles ou réglementées.",
       links: ["case"],
       source: "Services"
