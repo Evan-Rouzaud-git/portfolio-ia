@@ -120,26 +120,80 @@ header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rg
 .cta-box p{margin:20px auto 0;color:var(--muted);max-width:56ch}
 .cta-links{display:flex;flex-wrap:wrap;gap:13px;justify-content:center;margin-top:32px}
 
-footer{border-top:1px solid var(--line);padding:34px 0}
+footer{border-top:1px solid var(--line);padding:34px 0 104px}
 .foot{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;font-size:14px;color:var(--muted)}
 .foot a{text-decoration:none;color:var(--muted)}
 .foot a:hover{color:var(--txt)}
 
-/* ---------- bouton du chatbot ----------
-   Styles minimaux définis ici pour que la pastille soit correctement placée avant le
-   chargement différé de chat/chat.css (voir chat/chat-loader.js). */
-#chat-launcher{
-  position:fixed;right:24px;bottom:24px;z-index:60;display:inline-flex;align-items:center;gap:9px;
-  padding:13px 20px 13px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.22);cursor:pointer;
-  background:linear-gradient(135deg,var(--cyan),var(--violet));color:#04121a;
-  font-family:inherit;font-size:15px;font-weight:650;line-height:1;letter-spacing:-.01em;
-  box-shadow:0 14px 34px rgba(0,0,0,.45)
+/* ---------- coin de page qui se décolle ----------
+   Ces styles sont écrits ici et non dans chat/chat.css : le coin doit être visible
+   avant le chargement différé du chat (voir chat/chat-loader.js).
+   Principe : un carré dans le coin, coupé en deux par la diagonale. La moitié haute
+   est le papier plié (le rabat), la moitié basse est ce qu'on découvre dessous.
+   Au survol, le carré grandit : le rabat s'ouvre et l'assistant apparaît. */
+.peel{
+  position:fixed;right:0;bottom:0;z-index:60;width:92px;height:92px;pointer-events:none;
+  transition:width .42s cubic-bezier(.2,.8,.25,1),height .42s cubic-bezier(.2,.8,.25,1)
 }
-#chat-launcher svg{width:21px;height:21px;flex:0 0 auto}
-#chat-launcher:hover{transform:translateY(-2px);filter:brightness(1.06)}
+.peel:hover,.peel:focus-within{width:238px;height:238px}
+.peel-btn{
+  position:absolute;inset:0;padding:0;border:0;background:none;cursor:pointer;
+  pointer-events:auto;font-family:inherit
+}
+.peel-btn:focus-visible{outline:2px solid var(--cyan);outline-offset:-6px;border-radius:22px}
+.peel-app{
+  position:absolute;right:0;bottom:0;width:100%;height:100%;
+  clip-path:polygon(100% 0,100% 100%,0 100%);
+  background:linear-gradient(160deg,#0b1120,#070a12 72%);
+  box-shadow:-24px -24px 60px rgba(0,0,0,.6),inset 0 0 60px rgba(94,231,255,.08);
+  display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;
+  gap:6px;padding:0 18px 20px 0;text-align:right;
+  opacity:0;transition:opacity .32s ease .06s
+}
+.peel:hover .peel-app,.peel:focus-within .peel-app{opacity:1}
+.peel-app::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(240px 160px at 100% 100%,rgba(94,231,255,.2),transparent 72%),
+    radial-gradient(200px 160px at 0 0,rgba(167,139,250,.14),transparent 72%)
+}
+.peel-app-title{position:relative;font-size:13.4px;font-weight:700;color:var(--txt);letter-spacing:-.01em}
+.peel-app-line{position:relative;font-size:11.6px;color:var(--muted);line-height:1.35}
+.peel-app-line b{color:var(--cyan);font-weight:650}
+.peel-app-cta{
+  position:relative;margin-top:6px;padding:8px 15px;border-radius:999px;font-size:12.4px;font-weight:700;
+  color:#06121c;background:linear-gradient(135deg,var(--cyan),var(--violet));
+  box-shadow:0 6px 18px rgba(94,231,255,.25)
+}
+.peel-flap{
+  position:absolute;right:0;bottom:0;width:100%;height:100%;
+  clip-path:polygon(100% 0,0 0,0 100%);
+  background:linear-gradient(315deg,rgba(94,231,255,.34) 0%,#0e1526 16%,#0a0f1c 58%,#070a12 100%);
+  filter:drop-shadow(-8px -8px 16px rgba(0,0,0,.5))
+}
+.peel-flap-inner{
+  position:absolute;left:13px;top:12px;display:flex;flex-direction:column;gap:6px;
+  align-items:flex-start;color:var(--txt);
+  transition:opacity .25s ease
+}
+.peel-flap-inner svg{width:20px;height:20px;color:var(--cyan)}
+.peel-flap-label{font-size:11.5px;font-weight:650;color:var(--muted);white-space:nowrap}
+.peel:hover .peel-flap-label,.peel:focus-within .peel-flap-label{opacity:0}
+.peel-flap::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(315deg,rgba(94,231,255,.5) 0%,transparent 34%);
+  animation:peelGlow 4.5s ease-in-out 1.5s infinite
+}
+@keyframes peelGlow{0%,100%{opacity:.25}50%{opacity:.75}}
 @media(max-width:560px){
-  #chat-launcher{right:16px;bottom:16px;padding:13px;gap:0}
-  #chat-launcher .chat-launcher-label{display:none}
+  .peel{width:84px;height:84px}
+  .peel:hover,.peel:focus-within{width:210px;height:210px}
+  .peel-app{padding:0 14px 16px 0}
+  .peel-app-line{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .peel,.peel-app,.peel-flap-inner{transition:none}
+  .peel-flap::after{animation:none;opacity:.5}
 }
 
 .rv{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
@@ -603,17 +657,29 @@ footer{border-top:1px solid var(--line);padding:34px 0}
   </div>
 </footer>
 
-<!-- ================= CHATBOT ================= -->
-<!-- Pastille d'ouverture, visible en permanence. Le reste du chat (styles, données,
-     moteur de règles, modèle IA) n'est chargé qu'au premier survol ou clic :
+<!-- ================= ASSISTANT : COIN DE PAGE ================= -->
+<!-- Le coin se décolle au survol et laisse apparaître l'assistant. Le moteur du chat
+     (styles, données, règles, modèle IA) n'est chargé qu'au premier survol ou clic :
      voir chat/chat-loader.js -->
-<button type="button" id="chat-launcher" class="chat-launcher"
-        aria-label="Ouvrir l'assistant du portfolio" aria-expanded="false" aria-controls="chat-panel">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H8l-4 3v-5.4A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5z"/>
-  </svg>
-  <span class="chat-launcher-label">Une question ?</span>
-</button>
+<div class="peel" id="peel">
+  <button type="button" id="chat-launcher" class="peel-btn"
+          aria-label="Ouvrir l'assistant du portfolio" aria-expanded="false" aria-controls="chat-panel">
+    <span class="peel-app" aria-hidden="true">
+      <span class="peel-app-title">Assistant du portfolio</span>
+      <span class="peel-app-line"><b>Règles</b> : réponse immédiate, préparée à l'avance</span>
+      <span class="peel-app-line"><b>IA locale</b> : petit modèle dans votre navigateur</span>
+      <span class="peel-app-cta">Ouvrir l'assistant</span>
+    </span>
+    <span class="peel-flap" aria-hidden="true">
+      <span class="peel-flap-inner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H8l-4 3v-5.4A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5z"/>
+        </svg>
+        <span class="peel-flap-label">Une question ?</span>
+      </span>
+    </span>
+  </button>
+</div>
 <script src="chat/chat-loader.js" defer></script>
 
 <script>

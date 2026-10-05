@@ -1,21 +1,23 @@
 /*
- * Chatbot du portfolio : deux modes.
+ * Chatbot du portfolio : deux modes, expliqués dans l'interface.
  *
- * MODE RÈGLES : analyse des mots-clés de la question, réponse préparée (chat-data.js).
- *   Aucun réseau, aucune dépendance, réponse instantanée.
+ * MODE RÈGLES : les mots-clés de la question sont comparés au catalogue de réponses
+ *   préparées (chat-data.js). Réponse immédiate, aucun réseau, aucune dépendance.
  *
- * MODE IA : petit modèle de langage exécuté dans le navigateur du visiteur via WebGPU
- *   et la bibliothèque WebLLM. Aucun serveur, aucune clé API, aucun coût.
+ * MODE IA LOCALE : un petit modèle de langage tourne dans le navigateur du visiteur
+ *   (WebGPU + WebLLM). Aucun serveur, aucune clé API, aucun coût.
  *
- * Choix techniques, pensés pour la rapidité et la simplicité sur GitHub Pages :
- *   - la recherche par mots-clés sert de routeur et sélectionne deux extraits courts :
- *     le modèle reçoit très peu de texte à lire, donc il commence à répondre vite.
- *   - la réponse est générée EN FLUX (streaming) : le texte apparaît mot après mot,
- *     ce qui rend l'attente beaucoup plus supportable qu'un bloc qui arrive d'un coup.
- *   - resetChat() avant chaque question : sans cela, l'historique s'accumule dans le
- *     moteur et chaque réponse devient plus lente que la précédente.
- *   - max_tokens volontairement bas : une réponse de portfolio n'a pas besoin de plus.
- *   - WebLLM est importé dynamiquement, uniquement si le visiteur active le mode IA.
+ * Principe de fonctionnement du mode IA, volontairement simple et robuste :
+ *   1. les règles servent de routeur et fournissent une RÉPONSE OFFICIELLE, déjà juste ;
+ *   2. deux sections de connaissances viennent la compléter ;
+ *   3. le modèle a pour seule mission de REFORMULER cette réponse officielle.
+ * C'est ce qui évite les refus à tort : on ne demande jamais au modèle de décider s'il
+ * sait répondre, puisque la réponse est préparée en amont. S'il n'y a aucune matière,
+ * le refus est rédigé par le site, sans faire tourner le modèle.
+ *
+ * Vitesse : réponse en flux (streaming), contexte court (deux extraits de 420 caractères),
+ * resetChat() avant chaque question pour que l'historique ne s'accumule pas, et
+ * max_tokens limité à 120.
  */
 
 (function () {
@@ -28,14 +30,15 @@
   var STORE_MODE = "chat-mode";
   var STORE_MODEL = "chat-model";
   var STORE_CACHED = "chat-model-cached";
+  var STORE_GUIDE = "chat-guide-seen";
   var REFUS = "Je réponds uniquement à partir de ce portfolio. Pour toute autre question, écrivez-moi directement à " + CFG.email + ".";
+  var REFUS_RE = /uniquement (a|à) partir de ce portfolio/i;
 
   var MODELS = [
     "https://esm.run/@mlc-ai/web-llm@0.2.85",
     "https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.85/+esm"
   ];
 
-  /* Liens proposés sous les réponses */
   var LINKS = {
     cal: { label: "Réserver 30 minutes", href: CFG.calUrl, primary: true, external: true },
     email: { label: "Écrire un e-mail", href: "mailto:" + CFG.email, primary: false },
@@ -49,8 +52,18 @@
     github_goutte: { label: "Code de Goutte d'Eau", href: "https://github.com/Evan-Rouzaud-git/Projet-goutte-eau", primary: false, external: true }
   };
 
-  /* Intentions qui déclenchent un bouton de prise de rendez-vous */
-  var CONTACT_WORDS = ["rendez", "rdv", "appel", "appeler", "reserv", "réserv", "creneau", "créneau", "contact", "devis", "discuter", "parler", "echang", "échange", "dispo", "cal.com"];
+  /* Questions proposées quand aucune règle ne correspond */
+  var TOPICS = [
+    { label: "Tarifs", question: "Quels sont vos tarifs ?" },
+    { label: "Disponibilité", question: "Êtes-vous disponible ?" },
+    { label: "Méthode et pilotage", question: "Comment travaillez-vous ?" },
+    { label: "Projets", question: "Sur quels projets avez-vous travaillé ?" },
+    { label: "Compétences", question: "Quelles sont vos compétences techniques ?" },
+    { label: "IA locale et données", question: "Comment gérez-vous les données sensibles ?" },
+    { label: "Profil hybride", question: "Vous cherchez un profil technique ou un chef de projet ?" }
+  ];
+
+  var CONTACT_WORDS = ["rendez", "rdv", "appel", "appeler", "reserv", "réserv", "creneau", "créneau", "contact", "devis", "discuter", "parler", "echang", "échange", "cal.com"];
 
   var el = {};
   var state = {
@@ -64,7 +77,7 @@
   };
 
   /* ------------------------------------------------------------------
-   * Utilitaires
+   * Normalisation et correspondance
    * ------------------------------------------------------------------ */
   function norm(s) {
     return (s || "").toString().toLowerCase()
@@ -72,20 +85,29 @@
       .replace(/[^a-z0-9' ]+/g, " ")
       .replace(/\s+/g, " ").trim();
   }
-  var STOP = ("le la les un une des du de d a au aux et ou ou est sont etre avoir je tu il elle on nous vous ils elles " +
-    "que qui quoi dont ou quand comment pourquoi quel quelle quels quelles ce cet cette ces mon ma mes ton ta tes son sa ses " +
+
+  /* Réduit les pluriels, pour que "tarif" et "tarifs" se répondent entre eux.
+     Appliqué des deux côtés de la comparaison. On ne retire qu'un "s" ou un "x" final :
+     retirer "es" transformerait "centres" en "centr" et casserait la correspondance.
+     Seuil à 5 lettres pour ne pas toucher aux mots courts ("mois" ne doit pas devenir "moi"). */
+  function fold(s) {
+    return norm(s).split(" ").map(function (w) {
+      return w.length > 4 ? w.replace(/(s|x)$/, "") : w;
+    }).join(" ");
+  }
+
+  var STOP = ("le la les un une des du de d a au aux et ou est sont etre avoir je tu il elle on nous vous ils elles " +
+    "que qui quoi dont quand comment pourquoi quel quelle quels quelles ce cet cette ces mon ma mes ton ta tes son sa ses " +
     "votre vos leur leurs pour par sur dans avec sans plus moins tres peu bien fait faire peux peut pouvez pouvoir veux vouloir " +
     "y en se ne pas oui non moi toi lui eux aussi alors donc mais si comme tout tous toute toutes meme").split(" ");
 
   function tokens(s) {
-    return norm(s).split(" ").filter(function (t) { return t.length >= 4 && STOP.indexOf(t) === -1; });
+    return fold(s).split(" ").filter(function (t) { return t.length >= 4 && STOP.indexOf(t) === -1; });
   }
 
   function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : s; return d.innerHTML; }
   function scrollDown() { el.body.scrollTop = el.body.scrollHeight; }
 
-  /* Coupe un extrait à la fin d'une phrase : moins de texte à lire pour le modèle,
-     donc premier mot affiché plus vite. */
   function shorten(text, max) {
     if (text.length <= max) return text;
     var cut = text.slice(0, max);
@@ -94,16 +116,18 @@
   }
 
   /* ------------------------------------------------------------------
-   * Sélection des règles (mode règles) et des sections (mode IA)
+   * Routeur : règles et sections
    * ------------------------------------------------------------------ */
   function scoreRules(question) {
-    var q = norm(question);
+    var q = fold(question);
     var out = [];
     DATA.rules.forEach(function (rule) {
       var score = 0;
+      var seen = {}; // un même mot-clé ne compte qu'une fois, même écrit au singulier et au pluriel
       rule.keywords.forEach(function (k) {
-        var kn = norm(k);
-        if (kn && q.indexOf(kn) !== -1) score += kn.length; // les expressions longues pèsent plus lourd
+        var kn = fold(k);
+        if (!kn || seen[kn]) return;
+        if (q.indexOf(kn) !== -1) { seen[kn] = 1; score += kn.length; }
       });
       if (score > 0) out.push({ rule: rule, score: score });
     });
@@ -115,8 +139,6 @@
     return ranked.length && ranked[0].score >= 3 ? ranked[0].rule : null;
   }
 
-  /* Recherche des sections du portfolio les plus proches de la question.
-     Les mots-clés des règles qui correspondent servent à élargir la requête. */
   function retrieve(question, limit) {
     var ranked = scoreRules(question).slice(0, 3);
     var words = tokens(question);
@@ -128,7 +150,7 @@
     if (!words.length) return [];
 
     var scored = DATA.knowledge.map(function (section) {
-      var title = norm(section.title), text = norm(section.text), score = 0;
+      var title = fold(section.title), text = fold(section.text), score = 0;
       words.forEach(function (w) {
         if (title.indexOf(w) !== -1) score += 4;
         var idx = text.indexOf(w);
@@ -141,8 +163,13 @@
     return scored.slice(0, limit || 2).map(function (s) { return s.section; });
   }
 
+  function wantsContact(question) {
+    var q = fold(question);
+    return CONTACT_WORDS.some(function (w) { return q.indexOf(fold(w)) !== -1; });
+  }
+
   /* ------------------------------------------------------------------
-   * Rendu des messages
+   * Rendu
    * ------------------------------------------------------------------ */
   function actionRow(keys) {
     var row = document.createElement("div");
@@ -160,6 +187,23 @@
     return row;
   }
 
+  /* Suggestions cliquables (menu de secours ou suggestions d'accueil) */
+  function topicRow(topics) {
+    var box = document.createElement("div");
+    box.className = "chat-chips";
+    topics.forEach(function (t) {
+      var label = typeof t === "string" ? t : t.label;
+      var question = typeof t === "string" ? t : t.question;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chat-chip";
+      b.textContent = label;
+      b.addEventListener("click", function () { box.remove(); ask(question); });
+      box.appendChild(b);
+    });
+    return box;
+  }
+
   function addMsg(role, text, opts) {
     opts = opts || {};
     var wrap = document.createElement("div");
@@ -172,12 +216,12 @@
       wrap.appendChild(src);
     }
     if (opts.links && opts.links.length) wrap.appendChild(actionRow(opts.links));
+    if (opts.chips && opts.chips.length) wrap.appendChild(topicRow(opts.chips));
     el.body.appendChild(wrap);
     scrollDown();
     return wrap;
   }
 
-  /* Bulle vide qui se remplit au fil de la génération */
   function addStreamBubble() {
     var wrap = document.createElement("div");
     wrap.className = "chat-msg bot chat-cursor";
@@ -197,25 +241,26 @@
     return w;
   }
 
-  function showSuggestions() {
-    if (el.body.querySelector(".chat-chips")) return;
-    var box = document.createElement("div");
-    box.className = "chat-chips";
-    DATA.suggestions.forEach(function (s) {
-      var b = document.createElement("button");
-      b.type = "button";
-      b.className = "chat-chip";
-      b.textContent = s;
-      b.addEventListener("click", function () { box.remove(); ask(s); });
-      box.appendChild(b);
+  /* Explication des deux modes, affichée une seule fois */
+  function showGuide() {
+    var card = document.createElement("div");
+    card.className = "chat-guide";
+    card.innerHTML =
+      '<b>' + esc(DATA.guide.title) + '</b>' +
+      '<span><em>Règles</em> ' + esc(DATA.guide.rules.replace(/^Mode règles\s*:\s*/i, "")) + '</span>' +
+      '<span><em>IA locale</em> ' + esc(DATA.guide.ai.replace(/^Mode IA locale\s*:\s*/i, "")) + '</span>';
+    var ok = document.createElement("button");
+    ok.type = "button";
+    ok.className = "chat-chip";
+    ok.textContent = DATA.guide.ok;
+    ok.addEventListener("click", function () {
+      localStorage.setItem(STORE_GUIDE, "1");
+      card.remove();
+      el.input.focus();
     });
-    el.body.appendChild(box);
+    card.appendChild(ok);
+    el.body.appendChild(card);
     scrollDown();
-  }
-
-  function wantsContact(question) {
-    var q = norm(question);
-    return CONTACT_WORDS.some(function (w) { return q.indexOf(norm(w)) !== -1; });
   }
 
   /* ------------------------------------------------------------------
@@ -227,11 +272,11 @@
       addMsg("bot", rule.answer, { source: "Source : " + rule.source, links: rule.links || [] });
       return;
     }
-    addMsg("bot", DATA.fallback.answer, { links: DATA.fallback.links });
+    addMsg("bot", DATA.fallback.answer, { links: DATA.fallback.links, chips: TOPICS.slice(0, 5) });
   }
 
   /* ------------------------------------------------------------------
-   * Mode IA
+   * Mode IA locale
    * ------------------------------------------------------------------ */
   function webgpuAvailable() { return typeof navigator !== "undefined" && !!navigator.gpu; }
 
@@ -257,7 +302,7 @@
     return attempt();
   }
 
-  function modelLabel(model) { return model === CFG.modelFast ? "ultra-rapide" : "standard"; }
+  function modelSize(model) { return model === CFG.modelFast ? CFG.modelFastSize : CFG.modelSize; }
 
   function loadEngine() {
     if (state.engineStatus === "ready") return Promise.resolve(state.engine);
@@ -267,9 +312,8 @@
     el.input.disabled = true;
     el.send.disabled = true;
     var cached = localStorage.getItem(STORE_CACHED) === state.model;
-    setLoadingNotice(0, cached
-      ? "Chargement du modèle depuis le cache du navigateur."
-      : "Téléchargement du modèle (" + (state.model === CFG.modelFast ? CFG.modelFastSize : CFG.modelSize) + "), une seule fois.");
+    setLoadingNotice(0, cached ? "Chargement du modèle depuis le cache du navigateur."
+                              : "Téléchargement du modèle (" + modelSize(state.model) + "), une seule fois.");
 
     state.loading = loadWebLLM()
       .then(function (webllm) {
@@ -277,7 +321,7 @@
           initProgressCallback: function (p) {
             setLoadingNotice(p && typeof p.progress === "number" ? p.progress : 0,
               cached ? "Chargement du modèle depuis le cache du navigateur."
-                     : "Téléchargement du modèle (" + (state.model === CFG.modelFast ? CFG.modelFastSize : CFG.modelSize) + "), une seule fois.");
+                     : "Téléchargement du modèle (" + modelSize(state.model) + "), une seule fois.");
           }
         });
       })
@@ -293,7 +337,7 @@
       .catch(function (err) {
         console.warn("[chat] chargement du modèle impossible", err);
         state.engineStatus = "error";
-        state.loading = null; // permet de réessayer après une coupure réseau
+        state.loading = null;
         clearNotice();
         addMsg("bot", "Le modèle local n'a pas pu être chargé. Le mode règles répond aux mêmes questions, instantanément.", { links: ["cal", "email"] });
         setMode("rules");
@@ -303,32 +347,33 @@
   }
 
   function answerAI(question) {
+    var rule = bestRule(question);
     var sections = retrieve(question, 2);
-    if (!sections.length) {
-      addMsg("bot", REFUS, { links: ["email", "cal"] });
+
+    // Aucune matière : le site rédige le refus, sans faire tourner le modèle.
+    if (!rule && !sections.length) {
+      addMsg("bot", REFUS, { links: ["email", "cal"], chips: TOPICS.slice(0, 5) });
       return Promise.resolve();
     }
 
-    var context = sections.map(function (s) {
-      return "[" + s.title + "] " + shorten(s.text, 420);
-    }).join("\n\n");
+    var official = rule ? rule.answer : shorten(sections[0].text, 420);
+    var extra = sections.map(function (s) { return "[" + s.title + "] " + shorten(s.text, 380); }).join("\n");
 
-    var system = "Tu es l'assistant du portfolio d'Evan Rouzaud, freelance en IA appliquée : cadrage, pilotage et " +
-      "développement de projets IA. Réponds uniquement avec les informations des extraits fournis, jamais avec tes " +
-      "connaissances générales. En français, 2 phrases maximum, ton sobre et concret, aucun chiffre inventé. Termine " +
-      "par la source entre parenthèses, par exemple (selon la section Tarifs). Si les extraits ne suffisent pas, " +
-      "réponds exactement : \"" + REFUS + "\"";
+    var system = "Tu es l'assistant du portfolio d'Evan Rouzaud, freelance en IA appliquée (cadrage, pilotage et " +
+      "développement de projets IA). Tu reformules pour le visiteur la réponse officielle fournie. " +
+      "Utilise uniquement les informations de la réponse officielle et du complément, n'ajoute aucun chiffre, " +
+      "aucune promesse, aucune information extérieure. Réponds en français, deux phrases maximum, ton sobre et naturel, " +
+      "sans jamais parler à la première personne. Termine par la source entre parenthèses, par exemple (selon la section Tarifs).";
 
     var messages = [
       { role: "system", content: system },
-      { role: "user", content: "Extraits du portfolio :\n\n" + context + "\n\nQuestion du visiteur : " + question }
+      { role: "user", content: "Réponse officielle :\n" + official + "\n\nComplément :\n" + extra + "\n\nQuestion du visiteur : " + question }
     ];
 
     var bubble = addStreamBubble();
     var text = "";
+    var source = rule ? "Source : " + rule.source : "Source : " + sections[0].title;
 
-    // Historique remis à zéro : sans cela le contexte grossit à chaque question et le
-    // moteur ralentit progressivement.
     return Promise.resolve()
       .then(function () {
         if (state.engine && typeof state.engine.resetChat === "function") return state.engine.resetChat();
@@ -336,7 +381,7 @@
       .then(function () {
         return state.engine.chat.completions.create({
           messages: messages,
-          temperature: 0.2,
+          temperature: 0.25,
           max_tokens: 120,
           stream: true
         });
@@ -352,10 +397,15 @@
       })
       .then(function () {
         bubble.wrap.classList.remove("chat-cursor");
-        if (!text.trim()) bubble.span.textContent = REFUS;
+        // Filet de sécurité : si le modèle a refusé ou n'a rien produit alors que la
+        // réponse officielle existe, on affiche la réponse officielle telle quelle.
+        if (!text.trim() || REFUS_RE.test(text) || text.trim().length < 12) {
+          text = official;
+          bubble.span.textContent = text;
+        }
         var src = document.createElement("div");
         src.className = "chat-source";
-        src.textContent = "Sections consultées : " + sections.map(function (s) { return s.title; }).join(", ");
+        src.textContent = source;
         bubble.wrap.appendChild(src);
         if (wantsContact(question)) bubble.wrap.appendChild(actionRow(["cal", "email"]));
         scrollDown();
@@ -363,10 +413,11 @@
       .catch(function (err) {
         console.warn("[chat] génération impossible", err);
         bubble.wrap.classList.remove("chat-cursor");
-        if (!text.trim()) {
-          bubble.span.textContent = "La génération locale a échoué. Réessayez, ou passez en mode règles qui répond instantanément.";
-          bubble.wrap.appendChild(actionRow(["cal", "email"]));
-        }
+        bubble.span.textContent = official;
+        var src = document.createElement("div");
+        src.className = "chat-source";
+        src.textContent = source;
+        bubble.wrap.appendChild(src);
       });
   }
 
@@ -376,6 +427,9 @@
   function ask(question) {
     question = (question || "").trim();
     if (!question || state.busy) return;
+    if (!localStorage.getItem(STORE_GUIDE)) localStorage.setItem(STORE_GUIDE, "1");
+    var guide = el.body.querySelector(".chat-guide");
+    if (guide) guide.remove();
     clearNotice();
     addMsg("user", question);
     el.input.value = "";
@@ -396,7 +450,7 @@
   }
 
   /* ------------------------------------------------------------------
-   * Bascule de mode : un seul endroit dans l'interface, en haut de la fenêtre
+   * Bascule de mode
    * ------------------------------------------------------------------ */
   function refreshModeUI() {
     var isRules = state.mode === "rules";
@@ -454,13 +508,12 @@
       return;
     }
     if (state.engineStatus === "ready" || state.engineStatus === "loading") return;
-    // Modèle déjà téléchargé lors d'une visite précédente : on charge sans redemander.
     if (localStorage.getItem(STORE_CACHED) === state.model) { loadEngine(); return; }
     askModelChoice();
   }
 
   /* ------------------------------------------------------------------
-   * Construction de l'interface
+   * Interface
    * ------------------------------------------------------------------ */
   function build() {
     var panel = document.createElement("div");
@@ -471,10 +524,11 @@
     panel.setAttribute("aria-labelledby", "chat-title");
     panel.innerHTML = [
       '<div class="chat-head">',
-      '  <span class="chat-title" id="chat-title">Assistant du portfolio</span>',
+      '  <span class="chat-signal" aria-hidden="true"></span>',
+      '  <span class="chat-title" id="chat-title">Assistant du portfolio<small>Evan Rouzaud</small></span>',
       '  <div class="chat-modes" role="group" aria-label="Mode de réponse">',
-      '    <button type="button" class="chat-mode" id="chat-mode-rules" aria-pressed="true">Règles</button>',
-      '    <button type="button" class="chat-mode" id="chat-mode-ai" aria-pressed="false">IA locale</button>',
+      '    <button type="button" class="chat-mode" id="chat-mode-rules" aria-pressed="true" title="Réponses préparées, immédiates, sans téléchargement">Règles</button>',
+      '    <button type="button" class="chat-mode" id="chat-mode-ai" aria-pressed="false" title="Petit modèle exécuté dans votre navigateur">IA locale</button>',
       '  </div>',
       '  <button type="button" class="chat-close" id="chat-close" aria-label="Fermer le chat">&#10005;</button>',
       '</div>',
@@ -514,17 +568,16 @@
     });
   }
 
-  /* ------------------------------------------------------------------
-   * Ouverture / fermeture
-   * ------------------------------------------------------------------ */
   function open(question) {
     if (!state.opened) {
       state.opened = true;
       el.panel.classList.add("open");
-      el.launcher.setAttribute("aria-expanded", "true");
+      if (el.launcher) el.launcher.setAttribute("aria-expanded", "true");
       if (!el.body.childElementCount) {
+        if (!localStorage.getItem(STORE_GUIDE)) showGuide();
         addMsg("bot", DATA.intro);
-        showSuggestions();
+        el.body.appendChild(topicRow(DATA.suggestions.map(function (s) { return { label: s, question: s }; })));
+        scrollDown();
       }
     }
     refreshModeUI();
@@ -534,35 +587,36 @@
   function close() {
     state.opened = false;
     el.panel.classList.remove("open");
-    el.launcher.setAttribute("aria-expanded", "false");
-    el.launcher.focus();
+    if (el.launcher) {
+      el.launcher.setAttribute("aria-expanded", "false");
+      el.launcher.focus();
+    }
   }
 
-  /* ------------------------------------------------------------------
-   * Démarrage
-   * ------------------------------------------------------------------ */
   function init() {
     el.launcher = document.getElementById("chat-launcher");
-    if (!el.launcher) return;
     build();
     refreshModeUI();
-    el.launcher.setAttribute("aria-expanded", "false");
-    el.launcher.setAttribute("aria-controls", "chat-panel");
-    el.launcher.addEventListener("click", function () {
-      if (state.opened) close(); else open();
-    });
+    if (el.launcher) {
+      el.launcher.setAttribute("aria-expanded", "false");
+      el.launcher.setAttribute("aria-controls", "chat-panel");
+      el.launcher.addEventListener("click", function () {
+        if (state.opened) close(); else open();
+      });
+      if (el.launcher.dataset.pendingOpen) {
+        var pending = el.launcher.dataset.pendingOpen;
+        delete el.launcher.dataset.pendingOpen;
+        open(pending === "1" ? null : pending);
+      }
+    }
 
     window.openChatAssistant = open;
-
-    // Un clic sur un bouton de la page (section Assistant) doit aussi ouvrir la fenêtre,
-    // et poser directement la question proposée si le bouton en contient une.
-    if (el.launcher.dataset.pendingOpen) {
-      var pending = el.launcher.dataset.pendingOpen;
-      delete el.launcher.dataset.pendingOpen;
-      open(pending === "1" ? null : pending);
-    }
     window.__chatReady = true;
   }
+
+  /* Exposé uniquement pour vérifier le moteur de correspondance en dehors du navigateur
+     (voir la commande de test dans le README). Aucun effet sur le fonctionnement du chat. */
+  window.__chatMatch = { norm: norm, fold: fold, tokens: tokens, scoreRules: scoreRules, bestRule: bestRule, retrieve: retrieve };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
