@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Evan Rouzaud | Freelance en IA appliquée : agents LLM, RAG et IA locale</title>
-<meta name="description" content="Freelance en IA appliquée. Je transforme un besoin métier en produit IA utile, mesurable et adopté : agents LLM, RAG, IA 100 % locale, machine learning, cadrage et ROI. Cinq produits livrés de bout en bout.">
+<title>Evan Rouzaud | Cadrage, pilotage et développement de projets IA</title>
+<meta name="description" content="Projets IA de bout en bout : cadrage du besoin, roadmap et priorisation, pilotage par jalons, puis développement (agents LLM, RAG, IA locale, machine learning). Profil hybride pour des rôles de Product Owner IA, chef de projet IA, Solution Architect IA ou ingénieur IA.">
 <meta name="author" content="Evan Rouzaud">
 <meta name="theme-color" content="#05070d">
 <link rel="canonical" href="https://evan-rouzaud-git.github.io/portfolio/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fr_FR">
-<meta property="og:title" content="Evan Rouzaud, freelance en IA appliquée">
-<meta property="og:description" content="Agents LLM, RAG, IA locale souveraine et machine learning. Du cadrage au déploiement, avec des résultats chiffrés.">
+<meta property="og:title" content="Evan Rouzaud | Projets IA : cadrage, pilotage, développement">
+<meta property="og:description" content="Product Owner IA, chef de projet IA, Solution Architect IA ou ingénieur IA : un interlocuteur unique qui cadre le besoin, priorise, pilote et construit la solution.">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230b1020'/><text y='68' x='50' text-anchor='middle' font-size='54' font-family='system-ui' font-weight='700' fill='%2360e6ff'>E</text></svg>">
 
@@ -238,6 +238,7 @@ section{padding:clamp(62px,8vw,104px) 0;position:relative}
 }
 .step h3{font-size:17.5px;margin-bottom:9px}
 .step p{color:var(--muted);font-size:15px}
+.steps-note{margin-top:22px;color:var(--muted);font-size:15.4px;max-width:84ch}
 
 /* ---------- profile ---------- */
 .profile-head{display:flex;align-items:center;gap:28px;flex-wrap:wrap;margin-bottom:46px}
@@ -316,6 +317,18 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
 .foot a{text-decoration:none;color:var(--muted)}
 .foot a:hover{color:var(--txt)}
 
+/* ---------- bouton du chatbot ----------
+   Styles minimaux définis ici pour que le bouton soit correctement placé avant le
+   chargement différé de chat/chat.css (voir chat/chat-loader.js). */
+#chat-launcher{
+  position:fixed;right:22px;bottom:22px;z-index:60;width:58px;height:58px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.18);cursor:pointer;padding:0;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--cyan),var(--violet));color:#04121a;
+  box-shadow:0 14px 34px rgba(0,0,0,.45),0 0 0 8px rgba(94,231,255,.07)
+}
+#chat-launcher svg{width:26px;height:26px}
+@media(max-width:560px){#chat-launcher{right:16px;bottom:16px;width:54px;height:54px}}
+
 /* ---------- reveal ---------- */
 .rv{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
 .rv.in{opacity:1;transform:none}
@@ -355,10 +368,11 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
   <section class="hero">
     <div class="wrap">
       <span class="status"><span class="pulse"></span> Disponible pour missions freelance</span>
-      <h1>Je transforme votre besoin métier en <em>produit IA utile, mesurable et adopté</em>.</h1>
+      <h1>Je cadre, je pilote et je construis vos <em>projets IA</em>, du besoin métier au produit qui tourne.</h1>
       <p class="lead">
-        Freelance en IA appliquée. Agents LLM, RAG, IA 100 % locale et machine learning, du cadrage au
-        déploiement, avec des résultats chiffrés plutôt que des démos qui ne sortent jamais du laboratoire.
+        Freelance en IA appliquée. Je commence par comprendre votre besoin et vos utilisateurs, je priorise ce qui
+        compte, je pilote le projet par jalons, puis je développe la solution : agents LLM, RAG, IA 100 % locale et
+        machine learning. Un seul interlocuteur, du premier atelier au produit en production.
       </p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="https://cal.com/rouzaud-evan-izeqwf/30min" target="_blank" rel="noopener">
@@ -389,8 +403,9 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
         <span class="eyebrow">Pour qui je travaille</span>
         <h2>Vous vous reconnaissez ?</h2>
         <p class="lead">
-          Je suis utile là où le besoin est concret, le budget réel et les données sensibles. Si votre situation
-          ressemble à l'une de ces quatre, nous gagnerons du temps tous les deux.
+          Je suis utile là où le besoin est concret, le budget réel et les données sensibles. J'interviens aussi
+          quand il manque quelqu'un pour faire le lien entre le métier, l'IT et la direction. Si votre situation
+          ressemble à l'une de ces six, nous gagnerons du temps tous les deux.
         </p>
       </div>
 
@@ -411,6 +426,14 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
           <h3><span aria-hidden="true">🔐</span> Secteurs sensibles à la confidentialité</h3>
           <p>Santé, juridique, finance, industrie, secteur public : vos données ne peuvent pas partir chez un prestataire. Je construis des solutions qui tournent sur votre infrastructure, sans appel externe.</p>
         </article>
+        <article class="who rv">
+          <h3><span aria-hidden="true">🎼</span> Organisations sans chef d'orchestre IA</h3>
+          <p>Le besoin IA est identifié, mais personne ne fait le lien entre les métiers, l'IT et la direction. Vous cherchez un interlocuteur unique qui cadre, priorise, documente, pilote et livre. C'est exactement le rôle que j'occupe.</p>
+        </article>
+        <article class="who rv">
+          <h3><span aria-hidden="true">🤝</span> Agences, ESN et cabinets de conseil</h3>
+          <p>Vous cherchez un renfort IA à intégrer sur une mission client : quelqu'un qui tient un atelier avec les métiers sans jargon et qui écrit aussi le code le lendemain. Disponible en appui ponctuel ou sur toute la durée du projet.</p>
+        </article>
       </div>
     </div>
   </section>
@@ -423,12 +446,56 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
         <h2>De l'idée floue au produit qui tourne en production.</h2>
         <p class="lead">
           La plupart des projets IA échouent avant la ligne de code : besoin mal cadré, valeur jamais mesurée,
-          données sensibles envoyées au cloud sans réflexion. Je couvre toute la chaîne : cadrage, prototypage,
-          industrialisation, adoption.
+          données sensibles envoyées au cloud sans réflexion. Je couvre toute la chaîne : cadrage, priorisation,
+          pilotage, développement et adoption. Vous pouvez me confier le projet entier ou seulement une partie.
         </p>
       </div>
 
       <div class="grid g-3">
+        <article class="card rv">
+          <div class="icon" aria-hidden="true">🎯</div>
+          <h3>Cadrage du besoin</h3>
+          <p>Je commence par les utilisateurs, pas par la technologie : entretiens, observation du travail réel, scénarios. Vous repartez avec un périmètre écrit et un critère de succès clair.</p>
+          <ul>
+            <li>Entretiens métier et cartographie des scénarios</li>
+            <li>Besoin métier traduit en solution technique</li>
+            <li>Estimation des gains et business case</li>
+          </ul>
+        </article>
+
+        <article class="card rv">
+          <div class="icon" aria-hidden="true">🗺️</div>
+          <h3>Backlog, roadmap &amp; priorisation</h3>
+          <p>Ce qu'on fait maintenant, ce qu'on reporte, et pourquoi. Un backlog organisé et une priorisation par la valeur et la complexité, lisibles par les métiers comme par les développeurs.</p>
+          <ul>
+            <li>Backlog structuré et user stories</li>
+            <li>Priorisation valeur / complexité</li>
+            <li>Roadmap par jalons et arbitrages assumés</li>
+          </ul>
+        </article>
+
+        <article class="card rv">
+          <div class="icon" aria-hidden="true">🧭</div>
+          <h3>Pilotage de projet IA</h3>
+          <p>Jalons, points de décision, suivi régulier. À chaque étape, vous savez où en est le projet, ce qui a été décidé et ce que cela change pour la suite.</p>
+          <ul>
+            <li>Jalons avec point de décision : continuer, ajuster ou arrêter</li>
+            <li>Arbitrages documentés et assumés</li>
+            <li>Reporting compréhensible par une direction générale</li>
+          </ul>
+        </article>
+
+        <article class="card rv">
+          <div class="icon" aria-hidden="true">🤝</div>
+          <h3>Parties prenantes &amp; adoption</h3>
+          <p>Métier, IT, direction : trois publics, trois langages. J'anime les ateliers, je restitue et je forme, pour que l'outil soit réellement utilisé après la livraison.</p>
+          <ul>
+            <li>Ateliers d'alignement, démonstrations et restitutions</li>
+            <li>Formation des équipes et documentation</li>
+            <li>Conduite du changement et suivi de l'usage</li>
+          </ul>
+        </article>
+
         <article class="card rv">
           <div class="icon" aria-hidden="true">🤖</div>
           <h3>Agents LLM &amp; automatisation</h3>
@@ -470,17 +537,6 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
             <li>Pipelines reproductibles (Pandas, scikit-learn)</li>
             <li>Classification et régression, évaluation honnête</li>
             <li>API REST et interfaces de restitution</li>
-          </ul>
-        </article>
-
-        <article class="card rv">
-          <div class="icon" aria-hidden="true">🎯</div>
-          <h3>Cadrage, ROI &amp; adoption</h3>
-          <p>Je commence par les utilisateurs, pas par la technologie. Vous obtenez un périmètre priorisé par la valeur et un business case défendable.</p>
-          <ul>
-            <li>Entretiens métier et cartographie des scénarios</li>
-            <li>User stories, priorisation valeur / complexité</li>
-            <li>Formation et conduite du changement</li>
           </ul>
         </article>
 
@@ -707,21 +763,25 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
       <div class="steps">
         <div class="step rv">
           <h3>Échange de cadrage</h3>
-          <p>30 minutes pour comprendre votre besoin, vos contraintes et ce qui compte vraiment. Vous repartez avec une première lecture, gratuitement.</p>
+          <p>30 minutes pour comprendre votre besoin, vos contraintes et ce qui compte vraiment. Nous identifions aussi les parties prenantes à associer : métier, IT et direction. Vous repartez avec une première lecture, gratuitement.</p>
         </div>
         <div class="step rv">
-          <h3>Périmètre &amp; valeur</h3>
-          <p>Entretiens utilisateurs, scénarios priorisés par valeur et complexité, estimation des gains. Un périmètre écrit, pas une intention.</p>
+          <h3>Cadrage, backlog &amp; priorisation</h3>
+          <p>Entretiens utilisateurs, cartographie des scénarios, backlog organisé et priorisation par la valeur et la complexité. Le besoin métier est traduit en solution technique, avec une roadmap par jalons et un business case à l'appui.</p>
         </div>
         <div class="step rv">
           <h3>Prototype en 2 à 6 semaines</h3>
-          <p>Une version démontrable rapidement, avec des points d'avancement réguliers. Le code vous appartient dès la livraison.</p>
+          <p>Une version démontrable rapidement, pilotée par jalons avec un point de décision à chaque étape : on continue, on ajuste ou on arrête. Les arbitrages sont écrits, et le code vous appartient dès la livraison.</p>
         </div>
         <div class="step rv">
-          <h3>Mise en production &amp; adoption</h3>
-          <p>Tests, supervision, journalisation, documentation et formation de vos équipes pour que l'outil survive au départ du consultant.</p>
+          <h3>Production &amp; transmission</h3>
+          <p>Tests, supervision et journalisation, puis documentation et formation de vos équipes. L'outil doit continuer de vivre et de progresser sans dépendre de ma présence.</p>
         </div>
       </div>
+      <p class="steps-note rv">
+        Chaque étape se termine par un livrable écrit : note de cadrage, backlog priorisé, démonstration, documentation.
+        Vous n'avez jamais besoin d'une réunion pour savoir où en est le projet, ni pourquoi une décision a été prise.
+      </p>
     </div>
   </section>
 
@@ -733,7 +793,8 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
         <h2>Un parcours court, des produits déjà livrés.</h2>
         <p class="lead">
           Double formation scientifique et IA, recherche appliquée en deep learning, et cinq produits conçus,
-          développés et livrés en autonomie.
+          développés et livrés en autonomie. Un profil qui cadre, pilote et construit, plutôt qu'un profil qui
+          ne fait que coder.
         </p>
       </div>
 
@@ -742,11 +803,13 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
         <div class="profile-intro">
           <h3>Evan Rouzaud, freelance en IA appliquée</h3>
           <p>
-            Je suis en fin de cursus et je lance mon activité de freelance. Mon expérience s'est construite en
-            alternance, pas encore en mission cliente, et je préfère le dire clairement plutôt que de vous laisser
-            le deviner. Ce que j'apporte est vérifiable : <strong>cinq produits que j'ai conçus, développés et livrés
-            de bout en bout, dont deux aujourd'hui en vente</strong>. Vous savez donc précisément à quoi vous attendre
-            avant même le premier échange.
+            Mon profil est hybride par construction : je cadre un projet avec les utilisateurs et la direction, je
+            structure et je priorise un backlog, je pilote par jalons, puis je développe la solution moi-même. Vous
+            pouvez me confier le pilotage, la construction, ou les deux. Je suis en fin de cursus et je lance mon
+            activité de freelance : mon expérience s'est construite en alternance, pas encore en mission cliente, et
+            je préfère le dire clairement plutôt que de vous laisser le deviner. Ce que j'apporte est vérifiable :
+            <strong>cinq produits que j'ai conçus, développés et livrés de bout en bout, dont deux aujourd'hui en
+            vente</strong>. Vous savez donc précisément à quoi vous attendre avant même le premier échange.
           </p>
         </div>
       </div>
@@ -798,12 +861,15 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
             </ul>
           </div>
           <div class="panel">
-            <h3>Produit &amp; business</h3>
+            <h3>Produit, projet &amp; business</h3>
             <ul>
-              <li>Analyse fonctionnelle, user stories, priorisation valeur / complexité</li>
+              <li>Cadrage du besoin, analyse fonctionnelle, backlog et user stories</li>
+              <li>Priorisation valeur / complexité et roadmap par jalons</li>
+              <li>Pilotage de projet : jalons, points de décision, arbitrages documentés</li>
+              <li>Gestion des parties prenantes : métier, IT, direction</li>
               <li>Calcul de ROI, business cases, pilotage par la valeur</li>
-              <li>Conduite du changement, formation, vulgarisation technique</li>
-              <li>Communication direction : reporting, démonstrations, arbitrages</li>
+              <li>Conduite du changement, formation, documentation et transmission</li>
+              <li>Communication direction : reporting, démonstrations, vulgarisation technique</li>
             </ul>
           </div>
           <div class="panel">
@@ -866,6 +932,10 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
         <details open>
           <summary>Combien de temps pour un premier prototype utilisable ?</summary>
           <p>Comptez 2 à 6 semaines selon le périmètre. L'objectif de la première phase est toujours le même : mettre quelque chose de démontrable entre les mains de vos utilisateurs le plus vite possible, puis itérer sur du concret.</p>
+        </details>
+        <details>
+          <summary>Vous cherchez un profil technique ou un profil chef de projet ?</summary>
+          <p>Les deux, et c'est volontaire. Je cadre le besoin avec les utilisateurs et la direction, je structure le backlog, je priorise par la valeur, je pilote par jalons, puis je développe la solution moi-même. Selon votre besoin, j'interviens comme Product Owner IA, chef de projet IA, Solution Architect IA ou ingénieur IA : le même interlocuteur peut couvrir plusieurs de ces rôles, ce qui évite les pertes d'information entre une équipe qui spécifie et une autre qui développe.</p>
         </details>
         <details>
           <summary>Mes données sont sensibles, peuvent-elles rester chez moi ?</summary>
@@ -947,6 +1017,18 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
   </div>
 </footer>
 
+<!-- ================= CHATBOT ================= -->
+<!-- Bouton d'ouverture. Le reste du chat (styles, données, moteur de règles, modèle IA)
+     n'est chargé qu'au premier survol ou clic : voir chat/chat-loader.js -->
+<button type="button" id="chat-launcher" class="chat-launcher"
+        aria-label="Ouvrir l'assistant du portfolio" aria-expanded="false" aria-controls="chat-panel">
+  <span class="chat-badge" aria-hidden="true"></span>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H8l-4 3v-5.4A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5z"/>
+  </svg>
+</button>
+<script src="chat/chat-loader.js" defer></script>
+
 <script>
   // année dynamique
   document.getElementById('year').textContent = new Date().getFullYear();
@@ -981,15 +1063,30 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
 {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
-  "name": "Evan Rouzaud, freelance en IA appliquée",
-  "description": "Conception et développement de produits IA : agents LLM, RAG, IA locale souveraine, machine learning, cadrage et mesure du ROI.",
+  "name": "Evan Rouzaud, cadrage, pilotage et développement de projets IA",
+  "description": "Cadrage du besoin métier, roadmap et priorisation, pilotage de projet par jalons, puis développement : agents LLM, RAG, IA locale souveraine et machine learning. Profil hybride adapté aux rôles de Product Owner IA, chef de projet IA, Solution Architect IA et ingénieur IA.",
   "areaServed": "France et international",
   "email": "evanrouzaud@gmail.com",
   "telephone": "+33768587443",
   "founder": {
     "@type": "Person",
     "name": "Evan Rouzaud",
-    "jobTitle": "Freelance en IA appliquée",
+    "jobTitle": "Freelance en IA appliquée : cadrage, pilotage et développement de projets IA",
+    "knowsAbout": [
+      "Product Owner IA",
+      "Chef de projet IA",
+      "Solution Architect IA",
+      "Ingénieur IA",
+      "Cadrage et analyse du besoin",
+      "Roadmap et priorisation",
+      "Gestion de backlog",
+      "Pilotage de projet et jalons",
+      "Gestion des parties prenantes",
+      "Agents LLM",
+      "RAG",
+      "IA locale et souveraine",
+      "Machine learning"
+    ],
     "sameAs": [
       "https://github.com/Evan-Rouzaud-git",
       "https://www.linkedin.com/in/evanrouzaud"
@@ -997,11 +1094,14 @@ footer{border-top:1px solid var(--line);padding:34px 0;margin-top:20px}
     "knowsLanguage": ["fr", "en", "de"]
   },
   "makesOffer": [
+    { "@type": "Offer", "name": "Cadrage du besoin et analyse fonctionnelle" },
+    { "@type": "Offer", "name": "Structuration, backlog, roadmap et priorisation par la valeur" },
+    { "@type": "Offer", "name": "Pilotage de projet IA : jalons, points de décision, arbitrages" },
+    { "@type": "Offer", "name": "Conduite du changement, formation et adoption" },
     { "@type": "Offer", "name": "Agents LLM et automatisation" },
     { "@type": "Offer", "name": "RAG et bases de connaissances" },
     { "@type": "Offer", "name": "IA locale et souveraine" },
-    { "@type": "Offer", "name": "Data science et machine learning" },
-    { "@type": "Offer", "name": "Cadrage, ROI et adoption" }
+    { "@type": "Offer", "name": "Data science et machine learning" }
   ]
 }
 </script>

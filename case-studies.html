@@ -125,6 +125,18 @@ footer{border-top:1px solid var(--line);padding:34px 0}
 .foot a{text-decoration:none;color:var(--muted)}
 .foot a:hover{color:var(--txt)}
 
+/* ---------- bouton du chatbot ----------
+   Styles minimaux définis ici pour que le bouton soit correctement placé avant le
+   chargement différé de chat/chat.css (voir chat/chat-loader.js). */
+#chat-launcher{
+  position:fixed;right:22px;bottom:22px;z-index:60;width:58px;height:58px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.18);cursor:pointer;padding:0;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--cyan),var(--violet));color:#04121a;
+  box-shadow:0 14px 34px rgba(0,0,0,.45),0 0 0 8px rgba(94,231,255,.07)
+}
+#chat-launcher svg{width:26px;height:26px}
+@media(max-width:560px){#chat-launcher{right:16px;bottom:16px;width:54px;height:54px}}
+
 .rv{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
 .rv.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}.btn:hover{transform:none}}
@@ -585,6 +597,18 @@ footer{border-top:1px solid var(--line);padding:34px 0}
     </span>
   </div>
 </footer>
+
+<!-- ================= CHATBOT ================= -->
+<!-- Bouton d'ouverture. Le reste du chat (styles, données, moteur de règles, modèle IA)
+     n'est chargé qu'au premier survol ou clic : voir chat/chat-loader.js -->
+<button type="button" id="chat-launcher" class="chat-launcher"
+        aria-label="Ouvrir l'assistant du portfolio" aria-expanded="false" aria-controls="chat-panel">
+  <span class="chat-badge" aria-hidden="true"></span>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H8l-4 3v-5.4A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5z"/>
+  </svg>
+</button>
+<script src="chat/chat-loader.js" defer></script>
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
