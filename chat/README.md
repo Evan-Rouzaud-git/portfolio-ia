@@ -24,24 +24,36 @@ Point clé de l'architecture : **on ne demande jamais au modèle de décider s'i
 
 Conséquences : les questions courantes reçoivent toujours une réponse, et le refus n'est prononcé que lorsque le site lui-même ne trouve aucune matière, sans même faire tourner le modèle. Un filet de sécurité remplace en plus toute sortie vide ou ressemblant à un refus par la réponse officielle.
 
-## Où le chat apparaît sur le site
+## Où l'assistant apparaît sur le site
 
-- **Un coin de page qui se décolle**, en bas à droite. Au repos, un petit coin plié avec une icône et le mot « Une question ? ». Au survol (ou au focus clavier), le coin s'ouvre largement et laisse apparaître l'assistant en diagonale, avec les deux modes expliqués et un bouton d'ouverture. L'effet est obtenu avec deux `clip-path` complémentaires et une transition de taille : aucun script d'animation.
-- **Une section « Assistant du portfolio »** dans `index.html`, avant le contact : elle explique les deux modes, montre un aperçu d'échange et propose trois questions cliquables. Un recruteur qui ne remarque pas le coin tombe forcément dessus.
-- Les boutons de cette section portent l'attribut `data-chat-open` (avec la question en valeur si besoin) : le chargeur les reconnaît, ouvre la fenêtre et envoie la question.
+Il n'y a plus de fenêtre flottante : **l'assistant est une page plein écran**, révélée comme une feuille qu'on tourne.
+
+- **Au repos** : un coin de page plié, en bas à droite, sans texte ni bulle. Un liseré lumineux le long de la pliure pulse doucement.
+- **Au survol** (ou au focus clavier) : le rabat s'ouvre en grand et laisse voir la page assistant en dessous, plus claire que le portfolio, avec sa trame et ses halos.
+- **Toutes les 14 secondes**, si le visiteur ne touche à rien, le coin se soulève tout seul pendant deux secondes puis se referme. C'est ce qui rend l'assistant visible même pour quelqu'un qui ne survole jamais le coin.
+- **Au clic** : la page se tourne entièrement, du coin bas-droit vers le coin haut-gauche, avec une bande lumineuse qui balaie l'écran pendant la rotation. Le portfolio passe dessous, la page assistant prend tout l'écran.
+- **Pour fermer** : le bouton « Retour au portfolio » en haut à gauche, ou la touche `Echap`. La rotation se joue en sens inverse.
+
+L'effet est en CSS pur : un `clip-path` à cinq points interpolé en deux temps (la diagonale monte, puis l'angle haut-gauche se remplit), plus un dégradé qui balaie l'écran. Aucune librairie d'animation.
+
+Le portfolio devient inerte pendant que la page est ouverte (`inert`), et le défilement de la page d'origine est bloqué.
+
+Une section « Assistant du portfolio » reste présente dans `index.html`, avant le contact : elle explique les deux modes et propose trois questions cliquables. Ses boutons portent `data-chat-open` (avec la question en valeur si besoin) : le chargeur les reconnaît, ouvre la page et envoie la question.
 
 ## Fichiers
 
 ```
 chat/
   chat-loader.js   Chargeur. Seul fichier chargé avec la page (defer, moins de 2 Ko).
-  chat.css         Styles de la fenêtre de chat.
+  chat.css         Styles de la page assistant, du rabat et des animations.
   chat-data.js     Contenu : 51 règles de réponse et 16 sections de connaissances.
   chat.js          Interface, moteur de correspondance, recherche, génération locale.
   README.md        Ce document.
 ```
 
-Les styles du coin de page sont écrits dans `index.html` et `case-studies.html` : ils doivent être visibles avant le chargement différé de `chat.css`. Les deux pages ne contiennent que le coin de page et l'appel au chargeur.
+Les styles du coin de page sont écrits dans `index.html` et `case-studies.html` : ils doivent être visibles avant le chargement différé de `chat.css`.
+
+**Chargement** : `chat.css`, `chat-data.js` et `chat.js` sont chargés immédiatement au survol ou au clic, et sinon en différé 2,2 secondes après la fin du chargement de la page. Ce délai permet à l'aperçu périodique du coin de fonctionner sans interaction. Le modèle de langage (WebLLM) reste chargé uniquement si le visiteur active le mode IA.
 
 ## Modifier les réponses
 
@@ -100,4 +112,4 @@ python -m http.server 8000
 
 ## Accessibilité
 
-Le coin de page est un vrai bouton avec `aria-expanded` et `aria-controls`, qui s'ouvre au survol comme au focus clavier. La fenêtre est en `role="dialog"` non modale, la zone de messages en `aria-live="polite"`, la fermeture se fait avec `Echap`, le focus va dans le champ à l'ouverture puis revient au bouton à la fermeture, tous les éléments interactifs ont un style `:focus-visible`, et les animations sont désactivées si `prefers-reduced-motion` est actif.
+Le coin de page est un vrai bouton avec `aria-expanded` et `aria-controls`, qui s'ouvre au survol comme au focus clavier. La page assistant est en `role="dialog"` avec `aria-modal="true"` et `aria-hidden` basculé, la zone de messages en `aria-live="polite"`, la fermeture se fait avec `Echap` ou le bouton en haut à gauche, le focus va dans le champ à l'ouverture puis revient au coin à la fermeture, le portfolio est rendu inerte pendant l'ouverture, tous les éléments interactifs ont un style `:focus-visible`, et les animations sont désactivées si `prefers-reduced-motion` est actif.

@@ -1,9 +1,12 @@
 /*
- * Chargeur du chatbot.
- * Seul fichier chargé avec la page (moins de 2 Ko, en defer). Il n'injecte le CSS,
- * les données et le moteur du chat qu'au premier besoin : survol ou clic sur la
- * pastille, ou clic sur un bouton "data-chat-open" placé dans la page.
- * Le modèle de langage n'est importé que si le visiteur active le mode IA.
+ * Chargeur de l'assistant.
+ * Seul fichier chargé avec la page (moins de 2 Ko, en defer). Il injecte le CSS, les
+ * données et le moteur du chat :
+ *   - tout de suite au survol ou au clic sur le coin de page, ou au clic sur un bouton
+ *     "data-chat-open" placé dans la page ;
+ *   - sinon, en différé après le chargement de la page, pour que l'aperçu périodique du
+ *     coin puisse fonctionner même si le visiteur ne touche à rien.
+ * Le modèle de langage (WebLLM) n'est importé que si le visiteur active le mode IA.
  */
 
 (function () {
@@ -12,6 +15,7 @@
   var BASE = "chat/";
   var FILES = ["chat.css", "chat-data.js", "chat.js"];
   var started = false;
+  var IDLE_DELAY = 2200;
 
   function boot() {
     if (started) return;
@@ -31,6 +35,10 @@
       document.head.appendChild(s);
     });
   }
+
+  // Chargement différé : le site est utilisable tout de suite, l'assistant arrive juste après.
+  if (document.readyState === "complete") setTimeout(boot, IDLE_DELAY);
+  else window.addEventListener("load", function () { setTimeout(boot, IDLE_DELAY); });
 
   function triggerFrom(event) {
     var t = event.target;

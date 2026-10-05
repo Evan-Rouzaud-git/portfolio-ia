@@ -513,24 +513,30 @@
   }
 
   /* ------------------------------------------------------------------
-   * Interface
+   * Interface : une page plein écran, pas une fenêtre flottante
    * ------------------------------------------------------------------ */
   function build() {
-    var panel = document.createElement("div");
-    panel.className = "chat-panel";
-    panel.id = "chat-panel";
-    panel.setAttribute("role", "dialog");
-    panel.setAttribute("aria-modal", "false");
-    panel.setAttribute("aria-labelledby", "chat-title");
-    panel.innerHTML = [
+    var page = document.createElement("section");
+    page.className = "chat-page";
+    page.id = "chat-page";
+    page.setAttribute("role", "dialog");
+    page.setAttribute("aria-modal", "true");
+    page.setAttribute("aria-labelledby", "chat-title");
+    page.setAttribute("aria-hidden", "true");
+    page.innerHTML = [
       '<div class="chat-head">',
-      '  <span class="chat-signal" aria-hidden="true"></span>',
-      '  <span class="chat-title" id="chat-title">Assistant du portfolio<small>Evan Rouzaud</small></span>',
+      '  <button type="button" class="chat-back" id="chat-close" aria-label="Fermer l\'assistant et revenir au portfolio">',
+      '    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>',
+      '    <span>Retour au portfolio</span>',
+      '  </button>',
+      '  <span class="chat-head-title">',
+      '    <span class="chat-signal" aria-hidden="true"></span>',
+      '    <span class="chat-title" id="chat-title">Assistant du portfolio<small>Evan Rouzaud, freelance en IA appliquée</small></span>',
+      '  </span>',
       '  <div class="chat-modes" role="group" aria-label="Mode de réponse">',
       '    <button type="button" class="chat-mode" id="chat-mode-rules" aria-pressed="true" title="Réponses préparées, immédiates, sans téléchargement">Règles</button>',
       '    <button type="button" class="chat-mode" id="chat-mode-ai" aria-pressed="false" title="Petit modèle exécuté dans votre navigateur">IA locale</button>',
       '  </div>',
-      '  <button type="button" class="chat-close" id="chat-close" aria-label="Fermer le chat">&#10005;</button>',
       '</div>',
       '<div class="chat-body" id="chat-body" role="log" aria-live="polite" aria-relevant="additions text"></div>',
       '<div class="chat-foot">',
@@ -538,24 +544,30 @@
       '    <label for="chat-input" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Votre question</label>',
       '    <input class="chat-input" id="chat-input" type="text" autocomplete="off" placeholder="' + esc(DATA.placeholder) + '">',
       '    <button class="chat-send" id="chat-send" type="submit" aria-label="Envoyer la question">',
-      '      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 20.5 21 12 3 3.5 3 10l12 2-12 2z"/></svg>',
+      '      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 20.5 21 12 3 3.5 3 10l12 2-12 2z"/></svg>',
       '    </button>',
       '  </form>',
       '  <p class="chat-legal">Mode IA : le modèle est exécuté dans votre navigateur, rien n\'est envoyé à un serveur.</p>',
       '</div>'
     ].join("");
 
-    el.panel = panel;
-    el.body = panel.querySelector("#chat-body");
-    el.input = panel.querySelector("#chat-input");
-    el.send = panel.querySelector("#chat-send");
-    el.modeRules = panel.querySelector("#chat-mode-rules");
-    el.modeAI = panel.querySelector("#chat-mode-ai");
-    el.close = panel.querySelector("#chat-close");
+    el.page = page;
+    el.body = page.querySelector("#chat-body");
+    el.input = page.querySelector("#chat-input");
+    el.send = page.querySelector("#chat-send");
+    el.modeRules = page.querySelector("#chat-mode-rules");
+    el.modeAI = page.querySelector("#chat-mode-ai");
+    el.close = page.querySelector("#chat-close");
 
-    document.body.appendChild(panel);
+    // Bande lumineuse qui balaie l'écran pendant que la page se tourne.
+    el.sweep = document.createElement("div");
+    el.sweep.className = "curl-sweep";
+    el.sweep.setAttribute("aria-hidden", "true");
 
-    panel.querySelector("#chat-form").addEventListener("submit", function (e) {
+    document.body.appendChild(page);
+    document.body.appendChild(el.sweep);
+
+    page.querySelector("#chat-form").addEventListener("submit", function (e) {
       e.preventDefault();
       ask(el.input.value);
     });
@@ -565,41 +577,96 @@
 
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && state.opened) close();
+      touch();
     });
+    document.addEventListener("pointerdown", touch, { passive: true });
   }
 
+  /* Lance l'animation de la bande lumineuse. Forcer un reflow permet de rejouer
+     l'animation même si elle vient de se terminer. */
+  function runSweep(kind) {
+    if (!el.sweep) return;
+    el.sweep.className = "curl-sweep";
+    void el.sweep.offsetWidth;
+    el.sweep.className = "curl-sweep run" + (kind ? " " + kind : "");
+  }
+
+  /* Le portfolio devient inerte pendant que la page assistant est ouverte :
+     plus de tabulation dans la page cachée. */
+  function setInert(on) {
+    var nodes = document.querySelectorAll("body > header, body > main, body > footer");
+    for (var i = 0; i < nodes.length; i++) nodes[i].inert = on;
+  }
+
+  function touch() { state.lastAction = Date.now(); }
+
   function open(question) {
-    if (!state.opened) {
-      state.opened = true;
-      el.panel.classList.add("open");
-      if (el.launcher) el.launcher.setAttribute("aria-expanded", "true");
-      if (!el.body.childElementCount) {
-        if (!localStorage.getItem(STORE_GUIDE)) showGuide();
-        addMsg("bot", DATA.intro);
-        el.body.appendChild(topicRow(DATA.suggestions.map(function (s) { return { label: s, question: s }; })));
-        scrollDown();
-      }
+    if (state.opened) { if (question) ask(question); else el.input.focus(); return; }
+    state.opened = true;
+    touch();
+    var peel = document.getElementById("peel");
+    if (peel) peel.classList.add("hidden");
+    if (el.launcher) el.launcher.setAttribute("aria-expanded", "true");
+    el.page.classList.remove("closing", "peeking");
+    el.page.classList.add("open");
+    el.page.setAttribute("aria-hidden", "false");
+    runSweep("");
+    document.body.classList.add("chat-lock");
+    setInert(true);
+
+    if (!el.body.childElementCount) {
+      if (!localStorage.getItem(STORE_GUIDE)) showGuide();
+      addMsg("bot", DATA.intro);
+      el.body.appendChild(topicRow(DATA.suggestions.map(function (s) { return { label: s, question: s }; })));
+      scrollDown();
     }
     refreshModeUI();
     if (question) ask(question); else el.input.focus();
   }
 
   function close() {
+    if (!state.opened) return;
     state.opened = false;
-    el.panel.classList.remove("open");
+    touch();
+    el.page.classList.remove("open", "peeking");
+    el.page.classList.add("closing");
+    el.page.setAttribute("aria-hidden", "true");
+    runSweep("back");
+    document.body.classList.remove("chat-lock");
+    setInert(false);
+    var peel = document.getElementById("peel");
+    if (peel) peel.classList.remove("hidden");
     if (el.launcher) {
       el.launcher.setAttribute("aria-expanded", "false");
       el.launcher.focus();
     }
+    setTimeout(function () { el.page.classList.remove("closing"); }, 820);
+  }
+
+  /* Aperçu périodique : le coin se soulève tout seul, puis se referme.
+     Ignoré si la page est ouverte, si un aperçu est en cours, si l'onglet est
+     caché, ou si le visiteur vient d'agir sur la page. */
+  function peek() {
+    if (state.opened || state.peeking) return;
+    if (document.hidden) return;
+    if (Date.now() - (state.lastAction || 0) < 8000) return;
+    state.peeking = true;
+    el.page.classList.add("peeking");
+    runSweep("peek");
+    setTimeout(function () {
+      el.page.classList.remove("peeking");
+      state.peeking = false;
+    }, 2100);
   }
 
   function init() {
     el.launcher = document.getElementById("chat-launcher");
     build();
     refreshModeUI();
+    touch();
     if (el.launcher) {
       el.launcher.setAttribute("aria-expanded", "false");
-      el.launcher.setAttribute("aria-controls", "chat-panel");
+      el.launcher.setAttribute("aria-controls", "chat-page");
       el.launcher.addEventListener("click", function () {
         if (state.opened) close(); else open();
       });
@@ -612,6 +679,10 @@
 
     window.openChatAssistant = open;
     window.__chatReady = true;
+
+    // Aperçu du sous-site à intervalle régulier, sans action du visiteur.
+    setTimeout(peek, 6000);
+    setInterval(peek, 14000);
   }
 
   /* Exposé uniquement pour vérifier le moteur de correspondance en dehors du navigateur
