@@ -36,13 +36,20 @@ window.CHAT_DATA = {
   },
 
   /* Premier message de la conversation, puis suggestions cliquables */
-  intro: "Bonjour, je suis le chatbot d'Evan. Posez-moi vos questions, je suis là pour vous aider.",
+  intro: "Bonjour, je suis le portfolio interactif d'Evan. Posez-moi vos questions, je pourrai vous aider.",
   placeholder: "Écrivez votre question...",
   suggestions: [
-    "Pourquoi embaucher Evan ?",
     "Quels sont vos tarifs ?",
-    "Comment travaillez-vous ?"
+    "Comment travaillez-vous ?",
+    "Sur quels projets avez-vous travaillé ?"
   ],
+
+  /* Mention affichée sous la saisie */
+  legal: {
+    disclaimer: "Ces réponses sont générées automatiquement à partir de mon portfolio et peuvent contenir des erreurs.",
+    privacy: "Aucune donnée n'est transmise : tout reste dans votre navigateur.",
+    contact: "Pour aller plus loin, écrivez-moi ou réservez un créneau de 30 minutes."
+  },
 
   /* Les deux modes : titre et explication, affichés dans l'infobulle du sélecteur */
   modes: {
@@ -423,7 +430,8 @@ window.CHAT_DATA = {
       keywords: ["embaucher", "embauche", "pourquoi vous", "pourquoi evan", "pourquoi le choisir", "dois-je", "faut-il vous", "vous choisir", "faire appel a vous", "faire appel à vous", "est-ce que ca vaut", "est-ce que ça vaut", "prendre un freelance", "freelance ou pas", "ca vaut le coup", "vaut le coup", "interet de travailler"],
       answer: "Oui, si trois conditions sont réunies : un besoin IA concret, un budget, et une échéance. Dans ce cas vous avez un interlocuteur unique qui cadre le besoin, priorise, pilote par jalons et développe la solution, avec un premier prototype démontrable en 2 à 6 semaines et un devis écrit avant de commencer. Sinon, commencez par l'échange de 30 minutes : s'il n'est pas la bonne personne ou si ce n'est pas le bon moment, Evan vous le dira franchement.",
       links: ["cal", "case"],
-      source: "Pourquoi Evan"
+      source: "Pourquoi Evan",
+      hideSource: true
     },
     {
       id: "propriete",

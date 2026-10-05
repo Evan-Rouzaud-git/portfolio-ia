@@ -1,6 +1,6 @@
-# Chatbot du portfolio
+# Portfolio interactif
 
-Un assistant à deux modes, entièrement statique, pensé pour GitHub Pages : aucun serveur, aucune clé API, aucun coût.
+Un portfolio interactif à deux modes, entièrement statique, pensé pour GitHub Pages : aucun serveur, aucune clé API, aucun coût.
 
 ## Les deux modes
 

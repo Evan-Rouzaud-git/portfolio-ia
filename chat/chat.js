@@ -246,7 +246,10 @@
   function answerRules(question) {
     var rule = bestRule(question);
     if (rule) {
-      addMsg("bot", rule.answer, { source: "Source : " + rule.source, links: rule.links || [] });
+      addMsg("bot", rule.answer, {
+        source: rule.source && !rule.hideSource ? "Source : " + rule.source : "",
+        links: rule.links || []
+      });
       return;
     }
     addMsg("bot", DATA.fallback.answer, { links: DATA.fallback.links, chips: TOPICS.slice(0, 5) });
@@ -336,7 +339,7 @@
     var official = rule ? rule.answer : shorten(sections[0].text, 420);
     var extra = sections.map(function (s) { return "[" + s.title + "] " + shorten(s.text, 380); }).join("\n");
 
-    var system = "Tu es l'assistant du portfolio d'Evan Rouzaud, freelance en IA appliquée (cadrage, pilotage et " +
+    var system = "Tu es le portfolio interactif d'Evan Rouzaud, freelance en IA appliquée (cadrage, pilotage et " +
       "développement de projets IA). Tu reformules pour le visiteur la réponse officielle fournie. " +
       "Utilise uniquement les informations de la réponse officielle et du complément, n'ajoute aucun chiffre, " +
       "aucune promesse, aucune information extérieure. Réponds en français, deux phrases maximum, ton sobre et naturel, " +
@@ -349,7 +352,8 @@
 
     var bubble = addStreamBubble();
     var text = "";
-    var source = rule ? "Source : " + rule.source : "Source : " + sections[0].title;
+    // Pas de mention de source pour les questions où elle n'a pas de sens (voir hideSource).
+    var source = (rule && rule.hideSource) ? "" : (rule ? "Source : " + rule.source : "Source : " + sections[0].title);
 
     return Promise.resolve()
       .then(function () {
@@ -380,10 +384,12 @@
           text = official;
           bubble.span.textContent = text;
         }
-        var src = document.createElement("div");
-        src.className = "chat-source";
-        src.textContent = source;
-        bubble.wrap.appendChild(src);
+        if (source) {
+          var src = document.createElement("div");
+          src.className = "chat-source";
+          src.textContent = source;
+          bubble.wrap.appendChild(src);
+        }
         if (wantsContact(question)) bubble.wrap.appendChild(actionRow(["cal", "email"]));
         scrollDown();
       })
@@ -391,10 +397,12 @@
         console.warn("[chat] génération impossible", err);
         bubble.wrap.classList.remove("chat-cursor");
         bubble.span.textContent = official;
-        var src = document.createElement("div");
-        src.className = "chat-source";
-        src.textContent = source;
-        bubble.wrap.appendChild(src);
+        if (source) {
+          var src2 = document.createElement("div");
+          src2.className = "chat-source";
+          src2.textContent = source;
+          bubble.wrap.appendChild(src2);
+        }
       });
   }
 
@@ -516,11 +524,9 @@
     };
 
     page.innerHTML = [
-      '<div class="chat-aurora" aria-hidden="true"><i></i><i></i></div>',
-
       // Barre du haut : titre discret à gauche, sélecteur de mode collé au coin droit.
       '<header class="chat-head">',
-      '  <span class="chat-title" id="chat-title">Assistant du portfolio</span>',
+      '  <span class="chat-title" id="chat-title">Portfolio interactif</span>',
       '  <div class="chat-modes" role="group" aria-label="Mode de réponse">',
       opt("rules", "Règle"),
       opt("ai", "IA locale"),
@@ -542,10 +548,9 @@
       '    </button>',
       '  </form>',
       '  <p class="chat-legal">',
-      '    Réponses produites automatiquement à partir du contenu de ce portfolio : elles peuvent contenir des erreurs.',
-      '    Aucune donnée n\'est transmise, tout reste dans votre navigateur.',
-      '    En cas de doute, <a href="mailto:' + CFG.email + '">écrivez à Evan</a> ou ',
-      '    <a href="' + CFG.calUrl + '" target="_blank" rel="noopener">réservez un créneau</a>.',
+      '    <span>' + esc(DATA.legal.disclaimer) + '</span>',
+      '    <span>' + esc(DATA.legal.privacy) + '</span>',
+      '    <span>' + esc(DATA.legal.contact).replace("écrivez-moi", '<a href="mailto:' + CFG.email + '">écrivez-moi</a>').replace("réservez un créneau de 30 minutes", '<a href="' + CFG.calUrl + '" target="_blank" rel="noopener">réservez un créneau de 30 minutes</a>') + '</span>',
       '  </p>',
       '</div>'
     ].join("");
@@ -580,8 +585,8 @@
     scrollDown();
   }
 
-  /* Le portfolio devient inerte pendant que l'assistant est ouvert, et le défilement
-     de la page est bloqué sur html ET sur body : rien ne bouge derrière. */
+  /* Le portfolio devient inerte pendant que le portfolio interactif est ouvert, et le
+     défilement de la page est bloqué sur html ET sur body : rien ne bouge derrière. */
   function setLock(on) {
     document.documentElement.classList.toggle("chat-lock", on);
     document.body.classList.toggle("chat-lock", on);
@@ -589,16 +594,16 @@
     for (var i = 0; i < nodes.length; i++) nodes[i].inert = on;
   }
 
-  /* Le bouton du coin suit l'état : « Assistant » quand c'est fermé, « Fermer » quand
-     la page est ouverte. Le libellé et l'icône changent ensemble. */
+  /* Le bouton du coin suit l'état : « Portfolio interactif » quand c'est fermé,
+     « Fermer » quand la page est ouverte. Le libellé et l'icône changent ensemble. */
   function setLauncherState(isOpen) {
     var peel = document.getElementById("peel");
     if (peel) peel.classList.toggle("is-open", isOpen);
     if (!el.launcher) return;
     var label = el.launcher.querySelector(".peel-label");
-    if (label) label.textContent = isOpen ? "Fermer" : "Assistant";
+    if (label) label.textContent = isOpen ? "Fermer" : "Portfolio interactif";
     el.launcher.setAttribute("aria-expanded", String(isOpen));
-    el.launcher.setAttribute("aria-label", isOpen ? "Fermer l'assistant" : "Ouvrir l'assistant du portfolio");
+    el.launcher.setAttribute("aria-label", isOpen ? "Fermer le portfolio interactif" : "Ouvrir le portfolio interactif");
   }
 
   function open(question) {
