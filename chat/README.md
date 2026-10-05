@@ -47,13 +47,13 @@ Une section « Assistant du portfolio » reste présente dans `index.html`, avan
 
 ## Contenu de la page assistant
 
-L'écran est découpé en trois zones, sur toute la hauteur :
+L'écran tient en trois zones, du haut en bas, sans bandeau latéral :
 
-- **`.chat-head`** : une barre fine, fond légèrement plus clair que l'historique. Le titre à gauche, et **le sélecteur de mode collé au coin haut-droit** (11 px de marge). Chaque option a une pastille `?` qui ouvre une infobulle au survol **et** au focus clavier, en texte sombre sur fond clair.
-- **`.chat-main`** : l'historique à gauche, dans une **colonne de lecture centrée de 820 px** comme les interfaces de chat classiques, avec un fond légèrement différent du header. À droite, une **colonne de 300 px** qui explique les deux modes : titre court, deux lignes, et la différence clé sur une puce à filet. Elle défile indépendamment et met en évidence le mode actif. Sous 960 px de large, elle passe au-dessus de la conversation en deux cartes.
-- **`.chat-composer`** : la saisie, ancrée en bas, sur un fond légèrement plus clair avec un filet de séparation, alignée sur la colonne de lecture.
+- **`.chat-head`** : une barre fine, fond légèrement plus clair que l'historique, 8 px de marge interne. Le titre à gauche, et **le sélecteur de mode collé au coin haut-droit**. Chaque option a une pastille `?` qui ouvre une infobulle au survol **et** au focus clavier, avec le nom du mode et son explication : c'est là que vivent les explications, il n'y a pas de colonne dédiée.
+- **`.chat-body`** : l'historique, qui prend **toute la place entre la barre du haut et la saisie**, dans une **colonne de lecture centrée de 820 px** comme les interfaces de chat classiques.
+- **`.chat-composer`** : la saisie, ancrée en bas, 9 px de marge interne, alignée sur la colonne de lecture.
 
-Le premier message est le texte `intro` de `chat-data.js` : « Bonjour, je suis le chatbot d'Evan. Posez-moi vos questions, je suis là pour vous aider. » Aucune explication de mode dans la conversation.
+Le premier message est le texte `intro` de `chat-data.js` : « Bonjour, je suis le chatbot d'Evan. Posez-moi vos questions, je suis là pour vous aider. »
 
 ## Fichiers
 

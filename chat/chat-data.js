@@ -44,19 +44,15 @@ window.CHAT_DATA = {
     "Vous êtes disponible quand ?"
   ],
 
-  /* Les deux modes : infobulle du sélecteur (tip) et fiche de la colonne de droite */
+  /* Les deux modes : titre et explication, affichés dans l'infobulle du sélecteur */
   modes: {
     rules: {
       title: "Mode Règle",
-      text: "La réponse est préparée à l'avance et s'affiche immédiatement, sans que rien ne soit calculé.",
-      key: "Aucun téléchargement, aucune donnée ne quitte la page.",
-      tip: "Réponse préparée à l'avance, affichée instantanément. Aucun téléchargement."
+      tip: "La réponse est préparée à l'avance et s'affiche immédiatement. Aucun téléchargement, aucune donnée ne quitte la page."
     },
     ai: {
       title: "Mode IA locale",
-      text: "Un petit modèle de langage, exécuté par votre navigateur, reformule la réponse à partir du contenu du portfolio.",
-      key: "Téléchargé une seule fois (350 Mo), puis mis en cache. Rien n'est envoyé à un serveur.",
-      tip: "Petit modèle exécuté dans votre navigateur. Rien n'est envoyé à un serveur."
+      tip: "Le modèle est exécuté dans votre navigateur, rien n'est envoyé à un serveur. Téléchargé une seule fois (350 Mo), puis mis en cache."
     }
   },
 

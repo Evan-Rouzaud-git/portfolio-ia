@@ -430,8 +430,6 @@
     var isRules = state.mode === "rules";
     el.modeRules.setAttribute("aria-pressed", String(isRules));
     el.modeAI.setAttribute("aria-pressed", String(!isRules));
-    if (el.cardRules) el.cardRules.setAttribute("aria-pressed", String(isRules));
-    if (el.cardAI) el.cardAI.setAttribute("aria-pressed", String(!isRules));
   }
 
   function setMode(mode) {
@@ -507,30 +505,20 @@
     page.setAttribute("inert", "");
 
     // Une option du sélecteur : le bouton, la pastille "?" et son infobulle.
+    // L'infobulle contient l'explication du mode : c'est là que vivent les explications.
     var opt = function (which, label) {
       return '<div class="mode-opt">' +
         '<button type="button" class="chat-mode" id="chat-mode-' + which + '" aria-pressed="' +
         (which === "rules" ? "true" : "false") + '">' + label + '</button>' +
         '<span class="q" aria-hidden="true">?</span>' +
-        '<span class="mode-tip" role="tooltip">' + esc(M[which].tip) + '</span>' +
+        '<span class="mode-tip" role="tooltip"><b>' + esc(M[which].title) + '</b>' + esc(M[which].tip) + '</span>' +
         '</div>';
-    };
-
-    var card = function (which) {
-      var m = M[which];
-      return '<button type="button" class="mode-card ' + which + '" id="mode-card-' + which + '" aria-pressed="' +
-        (which === "rules" ? "true" : "false") + '">' +
-        '<span class="mode-state">Mode actif</span>' +
-        '<b>' + esc(m.title) + '</b>' +
-        '<span>' + esc(m.text) + '</span>' +
-        '<em>' + esc(m.key) + '</em>' +
-        '</button>';
     };
 
     page.innerHTML = [
       '<div class="chat-aurora" aria-hidden="true"><i></i><i></i></div>',
 
-      // Barre fine : titre discret à gauche, sélecteur de mode en haut à droite.
+      // Barre du haut : titre discret à gauche, sélecteur de mode collé au coin droit.
       '<header class="chat-head">',
       '  <span class="chat-title" id="chat-title">Assistant du portfolio</span>',
       '  <div class="chat-modes" role="group" aria-label="Mode de réponse">',
@@ -539,18 +527,9 @@
       '  </div>',
       '</header>',
 
-      // Historique (colonne centrée) + explications des deux modes.
-      '<div class="chat-main">',
-      '  <div class="chat-body" id="chat-body" role="log" aria-live="polite" aria-relevant="additions text">',
-      '    <div class="chat-thread" id="chat-thread"></div>',
-      '  </div>',
-      '  <aside class="chat-side">',
-      '    <h2>Les deux modes</h2>',
-      card("rules"),
-      card("ai"),
-      '    <a class="side-cta" href="' + CFG.calUrl + '" target="_blank" rel="noopener">Réserver 30 minutes</a>',
-      '    <p class="side-note">L\'assistant répond uniquement à partir du contenu de ce portfolio.</p>',
-      '  </aside>',
+      // L'historique occupe toute la place entre la barre du haut et la saisie.
+      '<div class="chat-body" id="chat-body" role="log" aria-live="polite" aria-relevant="additions text">',
+      '  <div class="chat-thread" id="chat-thread"></div>',
       '</div>',
 
       // Saisie, ancrée en bas.
@@ -562,7 +541,6 @@
       '      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 20.5 21 12 3 3.5 3 10l12 2-12 2z"/></svg>',
       '    </button>',
       '  </form>',
-      '  <p class="chat-legal">Mode IA : le modèle est exécuté dans votre navigateur, rien n\'est envoyé à un serveur.</p>',
       '</div>'
     ].join("");
 
@@ -573,8 +551,6 @@
     el.send = page.querySelector("#chat-send");
     el.modeRules = page.querySelector("#chat-mode-rules");
     el.modeAI = page.querySelector("#chat-mode-ai");
-    el.cardRules = page.querySelector("#mode-card-rules");
-    el.cardAI = page.querySelector("#mode-card-ai");
 
     document.body.appendChild(page);
 
@@ -583,9 +559,7 @@
       ask(el.input.value);
     });
     el.modeRules.addEventListener("click", function () { setMode("rules"); el.input.focus(); });
-    el.cardRules.addEventListener("click", function () { setMode("rules"); el.input.focus(); });
     el.modeAI.addEventListener("click", switchToAI);
-    el.cardAI.addEventListener("click", switchToAI);
 
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && state.opened) close();
