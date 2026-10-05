@@ -127,23 +127,37 @@ footer{border-top:1px solid var(--line);padding:34px 0 104px}
 
 /* ---------- bouton du coin ----------
    Écrit ici et non dans chat/chat.css : il doit être visible avant le chargement
-   différé du chat. Couleur d'accent, jamais de noir. Discret mais identifiable. */
-.peel{position:fixed;right:18px;bottom:18px;z-index:80}
+   différé du chat. Couleur d'accent, jamais de noir. Il ouvre l'assistant et devient
+   « Fermer » quand la page est ouverte. */
+.peel{
+  position:fixed;z-index:90;
+  right:calc(18px + env(safe-area-inset-right,0px));
+  bottom:calc(18px + env(safe-area-inset-bottom,0px))
+}
 .peel-btn{
-  display:inline-flex;align-items:center;gap:9px;padding:12px 18px 12px 15px;border-radius:999px;
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  padding:12px 18px 12px 15px;border-radius:999px;white-space:nowrap;
   border:1px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit;
   background:linear-gradient(135deg,var(--cyan),var(--violet));color:#04121a;
   font-size:14.4px;font-weight:700;line-height:1;letter-spacing:-.01em;
-  box-shadow:0 8px 22px rgba(0,0,0,.3);
-  transition:transform .2s ease,filter .2s ease
+  box-shadow:0 8px 22px rgba(0,0,0,.32);
+  transition:transform .2s ease,filter .2s ease,background .2s ease,color .2s ease
 }
 .peel-btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
 .peel-btn:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
-.peel-btn svg{width:19px;height:19px;flex:0 0 auto}
-@media(max-width:560px){
-  .peel{right:14px;bottom:14px}
-  .peel-label{display:none}
-  .peel-btn{padding:13px;border-radius:50%}
+.peel-btn .ico{width:19px;height:19px;flex:0 0 auto}
+.peel-btn .ico-close{display:none}
+/* page ouverte : le bouton devient un bouton de fermeture, plus discret */
+.peel.is-open .ico-chat{display:none}
+.peel.is-open .ico-close{display:block}
+.peel.is-open .peel-btn{
+  background:rgba(8,11,20,.92);color:var(--txt);border-color:rgba(255,255,255,.22);
+  backdrop-filter:blur(8px)
+}
+@media(max-width:480px){
+  .peel{right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+  .peel-btn{padding:13px;border-radius:50%;gap:0}
+  .peel-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 }
 
 .rv{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
@@ -614,8 +628,11 @@ footer{border-top:1px solid var(--line);padding:34px 0 104px}
 <div class="peel" id="peel">
   <button type="button" id="chat-launcher" class="peel-btn"
           aria-label="Ouvrir l'assistant du portfolio" aria-expanded="false" aria-controls="chat-page">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <svg class="ico ico-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H8l-4 3v-5.4A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5z"/>
+    </svg>
+    <svg class="ico ico-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18"/>
     </svg>
     <span class="peel-label">Assistant</span>
   </button>

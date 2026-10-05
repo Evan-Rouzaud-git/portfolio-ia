@@ -35,23 +35,24 @@
 }
 
 /* ---------------------------------------------------------------
-   La page : un seul geste, plein écran dès le premier frame
+   La page : plein écran, au-dessus du portfolio
    --------------------------------------------------------------- */
 .chat-page{
   position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;z-index:70;
-  display:flex;flex-direction:column;overflow:hidden;
+  overflow:hidden;
+  --chat-head-h:52px;
   transform-origin:100% 100%;
-  transform:scale(.72) translate3d(1.5%,2.5%,0);
+  transform:scale(.97) translate3d(.4%,.6%,0);
   opacity:0;visibility:hidden;pointer-events:none;
   will-change:transform,opacity;
-  transition:transform .52s cubic-bezier(.22,1,.36,1),opacity .3s ease-out,
-             visibility 0s linear .52s;
+  transition:transform .48s cubic-bezier(.22,1,.36,1),opacity .28s ease-out,
+             visibility 0s linear .48s;
   color:var(--chat-txt);font-family:inherit;font-size:16px;line-height:1.6;
   background:var(--chat-page)
 }
 .chat-page.open{
   visibility:visible;opacity:1;pointer-events:auto;transform:none;
-  transition:transform .52s cubic-bezier(.22,1,.36,1),opacity .26s ease-out,
+  transition:transform .48s cubic-bezier(.22,1,.36,1),opacity .24s ease-out,
              visibility 0s linear 0s
 }
 @media(prefers-reduced-motion:reduce){
@@ -80,9 +81,10 @@
    Barre du haut : titre discret à gauche, sélecteur en haut à droite
    --------------------------------------------------------------- */
 .chat-head{
-  position:relative;z-index:3;flex:0 0 auto;
+  position:absolute;top:0;left:0;right:0;z-index:4;
+  height:var(--chat-head-h);
   display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:8px 14px 8px 18px;
+  padding:0 14px 0 18px;
   background:var(--chat-head);border-bottom:1px solid var(--chat-line)
 }
 .chat-title{
@@ -127,12 +129,13 @@
 .chat-mode:focus-visible{outline:2px solid var(--chat-blue);outline-offset:2px}
 
 /* ---------------------------------------------------------------
-   Historique : toute la place entre la barre du haut et la saisie
+   Historique : de la barre du haut jusqu'au bas de l'écran
    --------------------------------------------------------------- */
 .chat-body{
-  position:relative;z-index:2;flex:1;min-height:0;overflow-y:auto;
+  position:absolute;top:var(--chat-head-h);right:0;bottom:0;left:0;z-index:2;
+  overflow-y:auto;overscroll-behavior:contain;
   background:var(--chat-thread);
-  padding:22px 24px 26px
+  padding:22px 24px 132px
 }
 .chat-body::-webkit-scrollbar{width:10px}
 .chat-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:8px}
@@ -141,7 +144,10 @@
   width:100%;max-width:var(--chat-thread-w);margin:0 auto;
   display:flex;flex-direction:column;gap:14px
 }
-@media(max-width:960px){.chat-body{padding:18px 16px 22px}}
+@media(max-width:960px){
+  .chat-page{--chat-head-h:48px}
+  .chat-body{padding:18px 16px 140px}
+}
 
 /* ---------------------------------------------------------------
    Messages
@@ -199,12 +205,13 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
 @media(prefers-reduced-motion:reduce){.chat-typing i,.chat-cursor::after{animation:none}}
 
 /* ---------------------------------------------------------------
-   Saisie : ancrée en bas, colonne alignée sur l'historique
+   Saisie : collée au bas de l'écran, colonne alignée sur l'historique
    --------------------------------------------------------------- */
 .chat-composer{
-  position:relative;z-index:3;flex:0 0 auto;
-  padding:9px 18px 9px;
-  background:var(--chat-input);border-top:1px solid var(--chat-line)
+  position:absolute;left:0;right:0;bottom:0;z-index:4;
+  padding:10px 18px 12px;
+  background:linear-gradient(0deg,var(--chat-input) 78%,rgba(17,26,44,.92));
+  border-top:1px solid var(--chat-line)
 }
 .chat-form{
   display:flex;align-items:center;gap:10px;width:100%;max-width:var(--chat-thread-w);margin:0 auto;
@@ -225,8 +232,19 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
 }
 .chat-send:disabled{opacity:.5;cursor:not-allowed}
 .chat-send:focus-visible{outline:2px solid var(--chat-blue);outline-offset:2px}
-/* place réservée au bouton du coin, pour qu'il ne recouvre jamais l'envoi */
-@media(max-width:1150px){.chat-composer{padding-right:84px}}
 
-/* le portfolio ne défile plus pendant que l'assistant est ouvert */
-.chat-lock{overflow:hidden}
+/* mention sous la saisie : réponses automatiques, confidentialité, contact */
+.chat-legal{
+  width:100%;max-width:var(--chat-thread-w);margin:9px auto 0;
+  font-size:11.6px;line-height:1.5;color:var(--chat-muted);text-align:center
+}
+.chat-legal a{color:var(--chat-blue);text-decoration:none;border-bottom:1px solid rgba(94,231,255,.35)}
+.chat-legal a:hover{border-color:var(--chat-blue)}
+.chat-legal a:focus-visible{outline:2px solid var(--chat-blue);outline-offset:2px}
+
+/* place réservée au bouton du coin, pour qu'il ne recouvre jamais l'envoi */
+@media(max-width:1150px){.chat-composer{padding-right:88px}}
+@media(max-width:560px){.chat-legal{text-align:left}}
+
+/* plus aucun défilement derrière, sur html comme sur body */
+html.chat-lock,body.chat-lock{overflow:hidden;overscroll-behavior:none}

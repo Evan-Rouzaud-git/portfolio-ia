@@ -532,7 +532,7 @@
       '  <div class="chat-thread" id="chat-thread"></div>',
       '</div>',
 
-      // Saisie, ancrée en bas.
+      // Saisie, collée au bas de l'écran, avec la mention de transparence.
       '<div class="chat-composer">',
       '  <form class="chat-form" id="chat-form">',
       '    <label for="chat-input" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Votre question</label>',
@@ -541,6 +541,12 @@
       '      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 20.5 21 12 3 3.5 3 10l12 2-12 2z"/></svg>',
       '    </button>',
       '  </form>',
+      '  <p class="chat-legal">',
+      '    Réponses produites automatiquement à partir du contenu de ce portfolio : elles peuvent contenir des erreurs.',
+      '    Aucune donnée n\'est transmise, tout reste dans votre navigateur.',
+      '    En cas de doute, <a href="mailto:' + CFG.email + '">écrivez à Evan</a> ou ',
+      '    <a href="' + CFG.calUrl + '" target="_blank" rel="noopener">réservez un créneau</a>.',
+      '  </p>',
       '</div>'
     ].join("");
 
@@ -574,10 +580,25 @@
     scrollDown();
   }
 
-  /* Le portfolio devient inerte pendant que l'assistant est ouvert. */
-  function setInert(on) {
+  /* Le portfolio devient inerte pendant que l'assistant est ouvert, et le défilement
+     de la page est bloqué sur html ET sur body : rien ne bouge derrière. */
+  function setLock(on) {
+    document.documentElement.classList.toggle("chat-lock", on);
+    document.body.classList.toggle("chat-lock", on);
     var nodes = document.querySelectorAll("body > header, body > main, body > footer");
     for (var i = 0; i < nodes.length; i++) nodes[i].inert = on;
+  }
+
+  /* Le bouton du coin suit l'état : « Assistant » quand c'est fermé, « Fermer » quand
+     la page est ouverte. Le libellé et l'icône changent ensemble. */
+  function setLauncherState(isOpen) {
+    var peel = document.getElementById("peel");
+    if (peel) peel.classList.toggle("is-open", isOpen);
+    if (!el.launcher) return;
+    var label = el.launcher.querySelector(".peel-label");
+    if (label) label.textContent = isOpen ? "Fermer" : "Assistant";
+    el.launcher.setAttribute("aria-expanded", String(isOpen));
+    el.launcher.setAttribute("aria-label", isOpen ? "Fermer l'assistant" : "Ouvrir l'assistant du portfolio");
   }
 
   function open(question) {
@@ -586,12 +607,8 @@
     el.page.classList.add("open");
     el.page.removeAttribute("inert");
     el.page.setAttribute("aria-hidden", "false");
-    document.body.classList.add("chat-lock");
-    setInert(true);
-    if (el.launcher) {
-      el.launcher.setAttribute("aria-expanded", "true");
-      el.launcher.setAttribute("aria-label", "Fermer l'assistant");
-    }
+    setLock(true);
+    setLauncherState(true);
     if (!el.thread.childElementCount) greet();
     refreshModeUI();
     if (question) ask(question); else el.input.focus();
@@ -603,22 +620,18 @@
     el.page.classList.remove("open");
     el.page.setAttribute("aria-hidden", "true");
     el.page.setAttribute("inert", "");
-    setInert(false);
+    setLauncherState(false);
     // Le portfolio redevient utilisable dès que la page a fini de se replier.
-    setTimeout(function () { document.body.classList.remove("chat-lock"); }, 540);
-    if (el.launcher) {
-      el.launcher.setAttribute("aria-expanded", "false");
-      el.launcher.setAttribute("aria-label", "Ouvrir l'assistant du portfolio");
-      el.launcher.focus();
-    }
+    setTimeout(function () { setLock(false); }, 520);
+    if (el.launcher) el.launcher.focus();
   }
 
   function init() {
     el.launcher = document.getElementById("chat-launcher");
     build();
     refreshModeUI();
+    setLauncherState(false);
     if (el.launcher) {
-      el.launcher.setAttribute("aria-expanded", "false");
       el.launcher.setAttribute("aria-controls", "chat-page");
       el.launcher.addEventListener("click", function () {
         if (state.opened) close(); else open();

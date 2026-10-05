@@ -39,9 +39,9 @@ window.CHAT_DATA = {
   intro: "Bonjour, je suis le chatbot d'Evan. Posez-moi vos questions, je suis là pour vous aider.",
   placeholder: "Écrivez votre question...",
   suggestions: [
+    "Pourquoi embaucher Evan ?",
     "Quels sont vos tarifs ?",
-    "Comment travaillez-vous ?",
-    "Vous êtes disponible quand ?"
+    "Comment travaillez-vous ?"
   ],
 
   /* Les deux modes : titre et explication, affichés dans l'infobulle du sélecteur */
@@ -281,7 +281,7 @@ window.CHAT_DATA = {
     },
     {
       id: "confiance",
-      keywords: ["debutant", "débutant", "confiance", "pourquoi vous", "pourquoi evan", "premiere mission", "première mission", "pas d'experience", "pas d'expérience", "risque de vous confier", "jeune diplome", "jeune diplômé"],
+      keywords: ["debutant", "débutant", "confiance", "pas d'experience", "pas d'expérience", "risque de vous confier", "premiere mission", "première mission", "jeune diplome", "jeune diplômé"],
       answer: "Parce que ce qu'il sait faire est déjà visible : cinq produits existent, fonctionnent, et deux sont commercialisés. Vous pouvez les tester, lire leur code ou regarder leurs démonstrations avant de l'écrire. Sa première expérience s'est faite en alternance, chez un client réel, avec de vrais utilisateurs et des démonstrations devant une direction générale.",
       links: ["case", "github"],
       source: "FAQ"
@@ -419,6 +419,13 @@ window.CHAT_DATA = {
       source: "Profil"
     },
     {
+      id: "embaucher",
+      keywords: ["embaucher", "embauche", "pourquoi vous", "pourquoi evan", "pourquoi le choisir", "dois-je", "faut-il vous", "vous choisir", "faire appel a vous", "faire appel à vous", "est-ce que ca vaut", "est-ce que ça vaut", "prendre un freelance", "freelance ou pas", "ca vaut le coup", "vaut le coup", "interet de travailler"],
+      answer: "Oui, si trois conditions sont réunies : un besoin IA concret, un budget, et une échéance. Dans ce cas vous avez un interlocuteur unique qui cadre le besoin, priorise, pilote par jalons et développe la solution, avec un premier prototype démontrable en 2 à 6 semaines et un devis écrit avant de commencer. Sinon, commencez par l'échange de 30 minutes : s'il n'est pas la bonne personne ou si ce n'est pas le bon moment, Evan vous le dira franchement.",
+      links: ["cal", "case"],
+      source: "Pourquoi Evan"
+    },
+    {
       id: "propriete",
       keywords: ["propriete", "propriété", "appartient", "code source", "livrable", "livrables", "qui possede le code", "qui possède le code", "licence", "open source", "reutiliser le code", "réutiliser le code"],
       answer: "Le code livré vous appartient : sources, documentation et tests, sans dépendance à ma présence pour le faire tourner. Les projets incluent des tests automatisés et des journaux d'exécution, parce qu'une IA en production doit être observable. Une session de formation permet à vos équipes de reprendre la main.",
@@ -449,6 +456,11 @@ window.CHAT_DATA = {
       id: "profil",
       title: "Profil",
       text: "Evan Rouzaud est freelance en IA appliquée : cadrage du besoin, priorisation, pilotage du projet et développement de la solution. Formation : Mastère Manager Transformation Digitale, Data et IA (RNCP 7, ISCOD) et Master IXEO EUR en hautes technologies (mention Bien, Université de Limoges). Expérience : alternance IA chez IM Projet de mars 2025 à juin 2026 (29 entretiens semi-directifs, 131 répondants sur 200, 42 scénarios métier, 32 user stories validées, agent Excel et chatbot privé prototypés, cinq démonstrations devant la direction générale, deux webinaires IA et six sessions de formation Copilot). Recherche appliquée en deep learning au XLIM (CNRS) en 2024 : images hyperspectrales, calculs accélérés de 500 %. Stage d'ingénieur optique en Thaïlande en 2023 : magnétomètre optique conçu de zéro, coût des lasers réduit de 66 %. Langues : français natif, anglais C1 (TOEIC 945), allemand B1. Il est en fin de cursus et lance son activité : son expérience vient de l'alternance, pas encore de missions clientes, et il le dit clairement."
+    },
+    {
+      id: "pourquoi-evan",
+      title: "Pourquoi embaucher Evan",
+      text: "La réponse à la question « dois-je embaucher Evan ? » est oui si trois conditions sont réunies : un besoin IA concret, un budget, et une échéance. Evan couvre le cadrage du besoin, la priorisation, le pilotage par jalons et le développement de la solution, donc vous n'avez qu'un seul interlocuteur, du premier atelier au produit en production. Un premier prototype démontrable arrive en 2 à 6 semaines, avec un devis écrit validé avant le démarrage. Les tarifs sont de 350 à 500 € par jour, ou à partir de 2 500 € pour un prototype au forfait. Ce qui le distingue : cinq produits livrés de bout en bout dont deux en vente, une expérience de cadrage réelle (29 entretiens, 32 user stories validées, 42 scénarios métier), et la capacité de dire non quand le projet n'a pas de sens. Si le besoin n'est pas encore cadré, l'échange de 30 minutes sert justement à le vérifier, sans engagement."
     },
     {
       id: "positionnement",
