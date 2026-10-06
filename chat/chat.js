@@ -74,6 +74,10 @@
 
   var CONTACT_WORDS = ["rendez", "rdv", "appel", "appeler", "reserv", "réserv", "creneau", "créneau", "contact", "devis", "discuter", "parler", "echang", "échange", "cal.com"];
 
+  /* Mise en page dans le flux (téléphones, tablettes au doigt) : même condition que le
+     bloc média de chat.css. Ailleurs, la colonne d'actions flotte en bas à droite. */
+  var NARROW = "(max-width:760px),(pointer:coarse) and (max-width:1100px)";
+
   var el = {};
   var state = {
     mode: "rules",             // le sélecteur démarre toujours sur Règle
@@ -569,11 +573,10 @@
       '    <span>' + esc(DATA.legal.privacy) + '</span>',
       '    <span>' + esc(DATA.legal.contact).replace("écrivez-moi", '<a href="mailto:' + CFG.email + '">écrivez-moi</a>') + '</span>',
       '  </p>',
-      '</div>',
-
-      // « Réserver 30 minutes » est épinglé en bas à droite, hors du flux. Il reste seul
-      // ici : le retour au site passe par le bouton du coin, qui change de libellé.
-      '<div class="chat-fixed-actions" id="chat-fixed-actions"></div>'
+      // Les deux actions vivent dans la saisie : épinglées en bas à droite sur ordinateur,
+      // empilées sous la mention sur mobile. Voir .chat-fixed-actions dans chat.css.
+      '  <div class="chat-fixed-actions" id="chat-fixed-actions"></div>',
+      '</div>'
     ].join("");
 
     el.page = page;
@@ -593,7 +596,24 @@
     book.target = "_blank";
     book.rel = "noopener";
     book.textContent = "Réserver 30 minutes";
+
+    /* Deuxième action, sous la première. Elle n'apparaît que sur mobile, où le bouton du
+       coin est masqué pendant que l'assistant est ouvert (voir chat.css). Page dédiée :
+       c'est un lien vers le site. Pages du site : c'est la fermeture de l'assistant. */
+    var site;
+    if (STANDALONE) {
+      site = document.createElement("a");
+      site.href = "site.html";
+    } else {
+      site = document.createElement("button");
+      site.type = "button";
+      site.addEventListener("click", close);
+    }
+    site.className = "btn-action ghost btn-site";
+    site.textContent = "Site web";
+
     el.actions.appendChild(book);
+    el.actions.appendChild(site);
     placeActions();
 
     document.body.appendChild(page);
@@ -610,21 +630,29 @@
     });
   }
 
-  /* Le bouton du coin et « Réserver 30 minutes » forment une seule colonne en bas à droite :
-     même largeur, et la réserve juste au-dessus du bouton. Sur mobile les deux passent en
-     pleine largeur au-dessus de la saisie, sinon ils la recouvriraient : la hauteur de la
-     saisie dépend du nombre de lignes de la mention, donc on la mesure. */
+  /* Sur ordinateur, le bouton du coin et « Réserver 30 minutes » forment une colonne en bas
+     à droite : même largeur, et la réserve juste au-dessus du bouton. Sur mobile, les deux
+     actions sont dans le flux de la saisie, sous la mention : il n'y a rien à positionner,
+     donc rien à mesurer. */
   function placeActions() {
     if (!el.actions || !el.composer) return;
     var peel = document.getElementById("peel");
     // Le bouton du coin est tantôt un bouton (pages du site), tantôt un lien (page dédiée).
     var coin = peel ? (peel.firstElementChild || peel) : null;
-    var narrow = window.matchMedia("(max-width:560px)").matches;
+    var narrow = window.matchMedia(NARROW).matches;
+
+    if (narrow) {
+      if (coin) coin.style.minWidth = "";
+      el.actions.style.minWidth = "";
+      if (peel) peel.style.bottom = "";
+      el.actions.style.bottom = "";
+      return;
+    }
 
     // même largeur pour les deux boutons, mesurée sur le libellé le plus long
     if (coin) coin.style.minWidth = "";
     el.actions.style.minWidth = "";
-    if (!narrow && coin && coin.offsetWidth) {
+    if (coin && coin.offsetWidth) {
       var w = Math.max(coin.offsetWidth, el.actions.offsetWidth);
       coin.style.minWidth = w + "px";
       el.actions.style.minWidth = w + "px";
@@ -635,15 +663,8 @@
       el.actions.style.bottom = "";
       return;
     }
-    var peelH = peel ? peel.offsetHeight : 0;
-    var compH = el.composer.offsetHeight;
-    if (narrow) {
-      if (peel) peel.style.bottom = (compH + 12) + "px";
-      el.actions.style.bottom = (compH + 12 + peelH + 10) + "px";
-    } else {
-      if (peel) peel.style.bottom = "";
-      el.actions.style.bottom = (24 + peelH + 10) + "px";
-    }
+    if (peel) peel.style.bottom = "";
+    el.actions.style.bottom = (24 + (peel ? peel.offsetHeight : 0) + 10) + "px";
   }
 
   /* Écran d'accueil : message, suggestions groupées par micro-label, actions rapides.

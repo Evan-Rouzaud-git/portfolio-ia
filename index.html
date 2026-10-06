@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
 <title>Portfolio interactif — Evan Rouzaud</title>
 <meta name="description" content="Le portfolio interactif d'Evan Rouzaud : posez votre question, l'assistant répond à partir du portfolio. Mode règles instantané, ou petit modèle de langage qui tourne dans votre navigateur.">
 <meta name="author" content="Evan Rouzaud">
@@ -39,6 +39,9 @@
     text-decoration:none;transition:background .18s,color .18s,border-color .18s
   }
   .peel-btn:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  /* Sur mobile, le retour au site est un bouton de la saisie (voir chat/chat.css) : le
+     bouton du coin n'a plus rien à faire là pendant que l'assistant occupe l'écran. */
+  @media(max-width:760px),(pointer:coarse) and (max-width:1100px){.peel.is-open{display:none}}
   @media(prefers-reduced-motion:reduce){.peel-btn{transition:none}}
   @media(max-width:560px){
     .peel{left:calc(24px + env(safe-area-inset-left,0px));right:calc(24px + env(safe-area-inset-right,0px))}

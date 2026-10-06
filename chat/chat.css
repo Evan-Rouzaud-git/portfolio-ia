@@ -159,7 +159,6 @@
 .chat-thread > .chat-welcome:only-child{margin:auto 0}
 @media(max-width:960px){
   .chat-page{--chat-head-h:48px}
-  .chat-body{padding:18px 16px 250px}
 }
 
 /* ---------------------------------------------------------------
@@ -284,8 +283,10 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
 .chat-legal a:hover{border-color:var(--chat-paper)}
 .chat-legal a:focus-visible{outline:2px solid var(--chat-paper);outline-offset:2px}
 
-/* « Réserver 30 minutes » est épinglé en bas à droite de l'écran, hors du flux, juste
-   au-dessus du bouton du coin (voir placeActions dans chat.js). */
+/* « Réserver 30 minutes » et « Site web ».
+   Sur ordinateur : épinglés en bas à droite, hors du flux, l'un au-dessus de l'autre, le
+   bouton du coin fermant la colonne (voir placeActions dans chat.js).
+   Sur mobile : dans le flux de la saisie, sous la mention (voir la fin du fichier). */
 .chat-fixed-actions{
   position:fixed;right:24px;bottom:24px;z-index:6;
   display:flex;flex-direction:column;gap:10px;align-items:stretch
@@ -301,17 +302,37 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
 .btn-action.ghost{background:transparent;color:var(--chat-txt);border-color:var(--chat-line-hi)}
 .btn-action.ghost:hover{border-color:var(--chat-txt)}
 .btn-action:focus-visible{outline:2px solid var(--chat-paper);outline-offset:2px}
-/* Sur mobile, la pile passe au-dessus de la saisie : en pleine largeur, elle la
-   recouvrirait. La hauteur de la saisie est mesurée dans chat.js (voir placeActions). */
-@media(max-width:560px){
-  .chat-fixed-actions{left:24px;right:24px}
-}
+/* sur ordinateur, le retour au site est le bouton du coin : celui du flux reste caché */
+.btn-site{display:none}
 
-/* Sur les largeurs moyennes, la colonne d'actions flotte au-dessus du bas de la saisie :
-   la colonne de saisie s'arrête avant elle pour ne jamais recouvrir l'envoi. Sur mobile,
-   la colonne passe au-dessus de la saisie (voir placeActions dans chat.js), rien à réserver. */
-@media(min-width:561px) and (max-width:1340px){.chat-composer{padding-right:250px}}
-@media(max-width:560px){.chat-legal{text-align:left}}
+/* Colonne flottante : la colonne de saisie s'arrête avant elle pour ne jamais recouvrir
+   l'envoi. Le doigt sur tablette passe par la mise en page dans le flux (voir plus bas). */
+@media(min-width:1101px) and (max-width:1340px){.chat-composer{padding-right:250px}}
+@media(min-width:761px) and (max-width:1100px) and (pointer:fine){.chat-composer{padding-right:250px}}
+
+/* ---------------------------------------------------------------
+   Téléphones, et tablettes au doigt : tout dans le flux, rien qui flotte
+   au-dessus du contenu. La page devient une colonne : barre du haut,
+   historique qui défile, saisie, mention, puis les deux actions empilées.
+   --------------------------------------------------------------- */
+@media(max-width:760px),(pointer:coarse) and (max-width:1100px){
+  .chat-page{display:flex;flex-direction:column}
+  .chat-head{position:static;flex:0 0 auto}
+  .chat-body{position:static;flex:1 1 auto;min-height:0;padding:18px 16px 22px}
+  .chat-composer{
+    position:static;flex:0 0 auto;
+    padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px))
+  }
+  .chat-legal{text-align:left}
+  .chat-fixed-actions{
+    position:static;right:auto;bottom:auto;
+    margin:14px auto 0;max-width:var(--chat-thread-w)
+  }
+  .btn-site{display:block}
+  .chat-fixed-actions .btn-action{width:100%}
+  /* l'infobulle des modes se pose sous la barre du haut, jamais hors de l'écran */
+  .mode-tip{position:fixed;left:12px;right:12px;top:calc(var(--chat-head-h) + 6px);width:auto}
+}
 
 /* plus aucun défilement derrière, sur html comme sur body */
 html.chat-lock,body.chat-lock{overflow:hidden;overscroll-behavior:none}

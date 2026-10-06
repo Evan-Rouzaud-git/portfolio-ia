@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
 <title>Evan Rouzaud | Cadrage, pilotage et développement de projets IA</title>
 <meta name="description" content="Projets IA de bout en bout : cadrage du besoin, roadmap et priorisation, pilotage par jalons, puis développement (agents LLM, RAG, IA locale, machine learning). Profil hybride pour des rôles de Product Owner IA, chef de projet IA, Solution Architect IA ou ingénieur IA.">
 <meta name="author" content="Evan Rouzaud">
@@ -343,6 +343,9 @@ footer{border-top:1px solid var(--rule);padding:24px 0 84px}
 .peel.is-open .peel-btn{background:transparent;color:var(--txt);border-color:var(--rule-hi)}
 .peel.is-open .peel-btn:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
 .peel.is-open .peel-dot{display:none}
+/* Sur mobile, l'assistant occupe tout l'écran et son retour au site est un bouton de la
+   saisie (voir chat/chat.css) : le bouton du coin n'a plus rien à faire là. */
+@media(max-width:760px),(pointer:coarse) and (max-width:1100px){.peel.is-open{display:none}}
 
 
 /* ---------- apparition ---------- */
