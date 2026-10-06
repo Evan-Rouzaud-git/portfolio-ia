@@ -29,9 +29,14 @@
   var CFG = DATA.config;
   var STORE_MODEL = "chat-model";
   var STORE_CACHED = "chat-model-cached";
-  var STORE_SEEN = "chat-seen";   // la pastille rouge a déjà été vue : on ne la remontre plus
+  var STORE_AI_SEEN = "chat-ai-seen"; // la pastille du mode IA a déjà été vue : on ne la remontre plus
   var REFUS = "Je réponds uniquement à partir de ce portfolio. Pour toute autre question, écrivez-moi directement à " + CFG.email + ".";
   var REFUS_RE = /uniquement (a|à) partir de ce portfolio/i;
+
+  /* Le bouton du coin est le seul bouton de bascule entre les deux interfaces : il porte
+     deux libellés, selon ce qu'il propose de faire. */
+  var LABEL_FERME = "Portfolio interactif"; // le portfolio interactif est fermé : le bouton l'ouvre
+  var LABEL_OUVERT = "Site web";            // il est ouvert : le bouton rend le site
 
   var MODELS = [
     "https://esm.run/@mlc-ai/web-llm@0.2.85",
@@ -482,6 +487,10 @@
 
   function switchToAI() {
     setMode("ai");
+    // La pastille du sélecteur a rempli son rôle : elle ne reviendra plus.
+    try { localStorage.setItem(STORE_AI_SEEN, "1"); } catch (e) {}
+    var option = document.getElementById("mode-opt-ai");
+    if (option) option.classList.add("seen");
     if (!webgpuAvailable()) {
       state.engineStatus = "unsupported";
       addMsg("bot", "Ce navigateur ne prend pas en charge WebGPU : le mode IA ne peut pas tourner ici. Le mode règles répond aux mêmes questions.", { links: ["cal", "email"] });
@@ -498,7 +507,7 @@
    *
    * Page plein écran, posée au-dessus du portfolio : c'est elle qui s'ouvre depuis le
    * coin bas-droit (transform + opacity, voir chat.css). Le portfolio ne bouge pas.
-   * Fermeture par le même bouton de coin, ou par Echap.
+   * Fermeture par le bouton du coin, qui affiche alors « Site web », ou par Echap.
    * ------------------------------------------------------------------ */
   function build() {
     var M = DATA.modes;
@@ -513,10 +522,14 @@
 
     // Une option du sélecteur : le bouton, la pastille "?" et son infobulle.
     // L'infobulle contient l'explication du mode : c'est là que vivent les explications.
+    // L'option IA est bordée d'orange et porte une pastille dans son coin haut-droit,
+    // toutes deux retirées au premier clic (classe "seen" sur .mode-opt).
     var opt = function (which, label) {
-      return '<div class="mode-opt">' +
+      return '<div class="mode-opt" id="mode-opt-' + which + '">' +
         '<button type="button" class="chat-mode" id="chat-mode-' + which + '" aria-pressed="' +
-        (which === "rules" ? "true" : "false") + '">' + label + '</button>' +
+        (which === "rules" ? "true" : "false") + '">' + label +
+        (which === "ai" ? '<span class="mode-dot" aria-hidden="true"></span>' : '') +
+        '</button>' +
         '<span class="q" aria-hidden="true">?</span>' +
         '<span class="mode-tip" role="tooltip"><b>' + esc(M[which].title) + '</b>' + esc(M[which].tip) + '</span>' +
         '</div>';
@@ -527,7 +540,7 @@
       '<header class="chat-head">',
       '  <span class="chat-title" id="chat-title">Portfolio interactif</span>',
       '  <div class="chat-modes" role="group" aria-label="Mode de réponse">',
-      opt("rules", "Règle"),
+      opt("rules", "Règles"),
       opt("ai", "IA locale"),
       '  </div>',
       '</header>',
@@ -537,7 +550,7 @@
       '  <div class="chat-thread" id="chat-thread"></div>',
       '</div>',
 
-      // Saisie, collée au bas de l'écran, avec la mention de transparence.
+      // Saisie, collée au bas de l'écran : le champ, puis la mention. Rien d'autre.
       '<div class="chat-composer">',
       '  <form class="chat-form" id="chat-form">',
       '    <label for="chat-input" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Votre question</label>',
@@ -549,9 +562,13 @@
       '  <p class="chat-legal">',
       '    <span>' + esc(DATA.legal.disclaimer) + '</span>',
       '    <span>' + esc(DATA.legal.privacy) + '</span>',
-      '    <span>' + esc(DATA.legal.contact).replace("écrivez-moi", '<a href="mailto:' + CFG.email + '">écrivez-moi</a>').replace("réservez un créneau de 30 minutes", '<a href="' + CFG.calUrl + '" target="_blank" rel="noopener">réservez un créneau de 30 minutes</a>') + '</span>',
+      '    <span>' + esc(DATA.legal.contact).replace("écrivez-moi", '<a href="mailto:' + CFG.email + '">écrivez-moi</a>') + '</span>',
       '  </p>',
-      '</div>'
+      '</div>',
+
+      // « Réserver 30 minutes » est épinglé en bas à droite, hors du flux. Il reste seul
+      // ici : le retour au site passe par le bouton du coin, qui change de libellé.
+      '<div class="chat-fixed-actions" id="chat-fixed-actions"></div>'
     ].join("");
 
     el.page = page;
@@ -559,8 +576,20 @@
     el.thread = page.querySelector("#chat-thread");
     el.input = page.querySelector("#chat-input");
     el.send = page.querySelector("#chat-send");
+    el.composer = page.querySelector(".chat-composer");
+    el.actions = page.querySelector("#chat-fixed-actions");
     el.modeRules = page.querySelector("#chat-mode-rules");
     el.modeAI = page.querySelector("#chat-mode-ai");
+    el.launcherLabel = document.querySelector("#chat-launcher .peel-label");
+
+    var book = document.createElement("a");
+    book.className = "btn-action primary";
+    book.href = CFG.calUrl;
+    book.target = "_blank";
+    book.rel = "noopener";
+    book.textContent = "Réserver 30 minutes";
+    el.actions.appendChild(book);
+    placeActions();
 
     document.body.appendChild(page);
 
@@ -574,6 +603,41 @@
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && state.opened) close();
     });
+  }
+
+  /* Le bouton du coin et « Réserver 30 minutes » forment une seule colonne en bas à droite :
+     même largeur, et la réserve juste au-dessus du bouton. Sur mobile les deux passent en
+     pleine largeur au-dessus de la saisie, sinon ils la recouvriraient : la hauteur de la
+     saisie dépend du nombre de lignes de la mention, donc on la mesure. */
+  function placeActions() {
+    if (!el.actions || !el.composer) return;
+    var peel = document.getElementById("peel");
+    var btn = document.getElementById("chat-launcher");
+    var narrow = window.matchMedia("(max-width:560px)").matches;
+
+    // même largeur pour les deux boutons, mesurée sur le libellé le plus long
+    if (btn) btn.style.minWidth = "";
+    el.actions.style.minWidth = "";
+    if (!narrow && btn && btn.offsetWidth) {
+      var w = Math.max(btn.offsetWidth, el.actions.offsetWidth);
+      btn.style.minWidth = w + "px";
+      el.actions.style.minWidth = w + "px";
+    }
+
+    if (!state.opened) {
+      if (peel) peel.style.bottom = "";
+      el.actions.style.bottom = "";
+      return;
+    }
+    var peelH = peel ? peel.offsetHeight : 0;
+    var compH = el.composer.offsetHeight;
+    if (narrow) {
+      if (peel) peel.style.bottom = (compH + 12) + "px";
+      el.actions.style.bottom = (compH + 12 + peelH + 10) + "px";
+    } else {
+      if (peel) peel.style.bottom = "";
+      el.actions.style.bottom = (24 + peelH + 10) + "px";
+    }
   }
 
   /* Écran d'accueil : message, suggestions groupées par micro-label, actions rapides.
@@ -613,29 +677,6 @@
     });
     box.appendChild(groups);
 
-    var actions = document.createElement("div");
-    actions.className = "welcome-actions";
-    (DATA.quickActions || []).forEach(function (action) {
-      if (action.id === "site") {
-        var site = document.createElement("button");
-        site.type = "button";
-        site.className = "chat-action ghost";
-        site.textContent = action.label;
-        site.addEventListener("click", close);
-        actions.appendChild(site);
-        return;
-      }
-      var link = LINKS[action.id];
-      if (!link) return;
-      var a = document.createElement("a");
-      a.className = "chat-action " + (link.primary ? "primary" : "ghost");
-      a.href = link.href;
-      a.textContent = action.label;
-      if (link.external) { a.target = "_blank"; a.rel = "noopener"; }
-      actions.appendChild(a);
-    });
-    box.appendChild(actions);
-
     el.thread.appendChild(box);
     scrollDown();
   }
@@ -649,16 +690,16 @@
     for (var i = 0; i < nodes.length; i++) nodes[i].inert = on;
   }
 
-  /* Le bouton du coin suit l'état : « Portfolio interactif » quand c'est fermé,
-     « Fermer » quand la page est ouverte. Le libellé et l'icône changent ensemble. */
+  /* Le bouton du coin porte l'état : libellé, aria-expanded, aria-label et pastille.
+     Ouvert, il propose le site et perd sa pastille ; fermé, il propose le portfolio
+     interactif et la reprend. */
   function setLauncherState(isOpen) {
     var peel = document.getElementById("peel");
     if (peel) peel.classList.toggle("is-open", isOpen);
     if (!el.launcher) return;
-    var label = el.launcher.querySelector(".peel-label");
-    if (label) label.textContent = isOpen ? "Fermer" : "Portfolio interactif";
     el.launcher.setAttribute("aria-expanded", String(isOpen));
-    el.launcher.setAttribute("aria-label", isOpen ? "Fermer le portfolio interactif" : "Ouvrir le portfolio interactif");
+    el.launcher.setAttribute("aria-label", isOpen ? "Afficher le site web" : "Ouvrir le portfolio interactif");
+    if (el.launcherLabel) el.launcherLabel.textContent = isOpen ? LABEL_OUVERT : LABEL_FERME;
   }
 
   function open(question) {
@@ -669,12 +710,11 @@
     el.page.setAttribute("aria-hidden", "false");
     setLock(true);
     setLauncherState(true);
-    // La pastille rouge a rempli son rôle : elle ne reviendra plus.
-    try { localStorage.setItem(STORE_SEEN, "1"); } catch (e) {}
-    var peel = document.getElementById("peel");
-    if (peel) peel.classList.add("seen");
+    // Le site est de nouveau visible : il était masqué le temps du chargement.
+    document.documentElement.classList.remove("chat-boot");
     if (!el.thread.childElementCount) greet();
     refreshModeUI();
+    placeActions();
     if (question) ask(question); else el.input.focus();
   }
 
@@ -685,6 +725,7 @@
     el.page.setAttribute("aria-hidden", "true");
     el.page.setAttribute("inert", "");
     setLauncherState(false);
+    placeActions();
     // Le portfolio redevient utilisable dès que la page a fini de se replier.
     setTimeout(function () { setLock(false); }, 520);
     if (el.launcher) el.launcher.focus();
@@ -695,8 +736,15 @@
     build();
     refreshModeUI();
     setLauncherState(false);
+    window.addEventListener("resize", placeActions);
+    // Les libellés des deux boutons n'ont pas la même largeur selon la police : on recale
+    // la colonne quand les polices du site ont fini de charger.
+    if (document.fonts && document.fonts.ready && document.fonts.ready.then) document.fonts.ready.then(placeActions);
     var peel = document.getElementById("peel");
-    if (peel && localStorage.getItem(STORE_SEEN)) peel.classList.add("seen");
+    if (localStorage.getItem(STORE_AI_SEEN)) {
+      var optAI = document.getElementById("mode-opt-ai");
+      if (optAI) optAI.classList.add("seen");
+    }
     if (el.launcher) {
       el.launcher.setAttribute("aria-controls", "chat-page");
       el.launcher.addEventListener("click", function () {
@@ -707,6 +755,14 @@
         delete el.launcher.dataset.pendingOpen;
         open(pending === "1" ? null : pending);
       }
+    }
+
+    /* Auto-ouverture : la page qui porte data-auto-open sur le bouton du coin fait du
+       portfolio interactif son interface par défaut, à chaque chargement. Le retour par
+       l'historique (page restaurée depuis le cache du navigateur) le rouvre aussi. */
+    if (peel && peel.hasAttribute("data-auto-open")) {
+      window.addEventListener("pageshow", function (e) { if (e.persisted && !state.opened) open(); });
+      open();
     }
 
     window.openChatAssistant = open;

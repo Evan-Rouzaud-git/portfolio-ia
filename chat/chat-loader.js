@@ -5,6 +5,10 @@
  * sur un bouton "data-chat-open" placé dans la page. Un préchargement est aussi lancé
  * après le chargement de la page, pour que le premier clic ouvre instantanément.
  *
+ * Sur la page dont l'assistant est l'interface par défaut (data-auto-open sur le bouton du
+ * coin), le chargement démarre immédiatement : l'assistant s'ouvre par-dessus le site, qui
+ * reste dans le DOM, masqué le temps du chargement par la classe "chat-boot".
+ *
  * Les scripts sont chargés EN SÉQUENCE, l'un après l'autre : chat.js a besoin de
  * window.CHAT_DATA, et deux scripts injectés en parallèle s'exécutent dans un ordre
  * non garanti. C'était la cause du bouton inerte au premier clic.
@@ -46,17 +50,13 @@
     return t && t.closest ? t.closest("#chat-launcher, [data-chat-open]") : null;
   }
 
-  // Le portfolio interactif a déjà été ouvert une fois : la pastille rouge a rempli son
-  // rôle, on la retire dès le chargement de la page.
-  try {
-    if (localStorage.getItem("chat-seen")) {
-      var peel = document.getElementById("peel");
-      if (peel) peel.classList.add("seen");
-    }
-  } catch (e) { /* navigation privée : on laisse la pastille */ }
-
-  // Préchargement après la page : le premier clic ouvre sans attente.
-  if (document.readyState === "complete") setTimeout(boot, IDLE_DELAY);
+  /* Sur la page où l'assistant est l'interface par défaut (data-auto-open sur le bouton du
+     coin), on charge tout de suite : le site n'apparaît pas avant lui. Ailleurs, le
+     préchargement attend la fin du chargement de la page, pour ne pas lui prendre sa bande
+     passante. Le filet de sécurité qui rend le site en cas d'échec est posé par la page
+     elle-même (voir index.html), pour qu'il tienne même si ce fichier ne se charge pas. */
+  if (document.querySelector("#peel[data-auto-open]")) boot();
+  else if (document.readyState === "complete") setTimeout(boot, IDLE_DELAY);
   else addEventListener("load", function () { setTimeout(boot, IDLE_DELAY); });
 
   // Préchargement au survol ou au focus clavier.

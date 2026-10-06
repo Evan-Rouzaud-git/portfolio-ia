@@ -177,24 +177,35 @@ footer{border-top:1px solid var(--rule);padding:24px 0 84px}
 /* ---------- bouton du portfolio interactif ---------- */
 .peel{
   position:fixed;z-index:90;
-  right:calc(18px + env(safe-area-inset-right,0px));
-  bottom:calc(18px + env(safe-area-inset-bottom,0px))
+  right:calc(24px + env(safe-area-inset-right,0px));
+  bottom:calc(24px + env(safe-area-inset-bottom,0px))
 }
 .peel-btn{
   position:relative;display:inline-flex;align-items:center;justify-content:center;gap:9px;
   padding:12px 17px;white-space:nowrap;cursor:pointer;font-family:var(--sans);
   background:var(--accent);color:var(--bg);border:1px solid var(--accent);
   font-size:11.8px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
-  transition:background .18s,color .18s
+  transition:background .18s,color .18s,border-color .18s
 }
 .peel-btn:hover{background:transparent;color:var(--accent)}
 .peel-btn .ico{width:17px;height:17px;flex:0 0 auto}
-.peel-btn .ico-close{display:none}
-.peel-dot{position:absolute;top:-5px;right:-5px;width:11px;height:11px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
-.peel.is-open .peel-dot,.peel.seen .peel-dot{display:none}
-.peel.is-open .ico-chat{display:none}
-.peel.is-open .ico-close{display:block}
-.peel.is-open .peel-btn{background:var(--surface);color:var(--txt);border-color:var(--rule-hi)}
+.peel-dot{
+  position:absolute;top:-5px;right:-5px;width:11px;height:11px;border-radius:50%;
+  background:var(--accent);border:2px solid var(--bg);
+  animation:dotPulse 2.4s ease-out infinite
+}
+/* Pulsation de la pastille : seul box-shadow du site, il fait signe sans rien déplacer.
+   Même animation que la pastille du sélecteur de mode (voir chat/chat.css). */
+@keyframes dotPulse{
+  0%{box-shadow:0 0 0 0 rgba(255,91,46,.55)}
+  70%{box-shadow:0 0 0 7px rgba(255,91,46,0)}
+  100%{box-shadow:0 0 0 0 rgba(255,91,46,0)}
+}
+/* Assistant ouvert : le bouton propose le site, en filet, et perd sa pastille d'invitation.
+   C'est le même bouton, avec l'autre libellé : un seul bouton pour les deux sens. */
+.peel.is-open .peel-btn{background:transparent;color:var(--txt);border-color:var(--rule-hi)}
+.peel.is-open .peel-btn:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.peel.is-open .peel-dot{display:none}
 
 /* ---------- apparition ---------- */
 .rv{opacity:0;transform:translateY(12px);transition:opacity .55s ease,transform .55s ease}
@@ -203,6 +214,7 @@ footer{border-top:1px solid var(--rule);padding:24px 0 84px}
   .rv{opacity:1;transform:none;transition:none}
   html{scroll-behavior:auto}
   .btn,.peel-btn,.nav-links a{transition:none}
+  .peel-dot{animation:none}
 }
 
 /* ---------- responsive ---------- */
@@ -239,9 +251,11 @@ footer{border-top:1px solid var(--rule);padding:24px 0 84px}
 }
 @media(max-width:560px){
   .nav-cta{display:none}
-  .peel-btn{padding:13px}
-  .peel-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-  .peel{right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+  /* Sur mobile, le bouton du coin est en pleine largeur : il forme une colonne avec
+     « Réserver 30 minutes » quand l'assistant est ouvert. Son libellé reste visible, c'est
+     lui qui dit ce que fait le bouton. */
+  .peel{left:calc(24px + env(safe-area-inset-left,0px));right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+  .peel-btn{display:flex;width:100%;padding:15px 13px}
 }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -720,17 +734,15 @@ footer{border-top:1px solid var(--rule);padding:24px 0 84px}
 </footer>
 
 <!-- ================= ASSISTANT : BOUTON DU COIN ================= -->
-<!-- Bouton discret en bas à droite : il ouvre le portfolio interactif, et le referme s'il
-     est déjà ouvert. Le moteur est chargé par chat/chat-loader.js, l'interface est
+<!-- Un seul bouton, deux libellés : « Portfolio interactif » quand l'assistant est fermé,
+     « Site web » quand il est ouvert. Sur cette page, il reste à la demande : aucune
+     auto-ouverture. Le moteur est chargé par chat/chat-loader.js, l'interface est
      construite par chat.js. -->
 <div class="peel" id="peel">
   <button type="button" id="chat-launcher" class="peel-btn"
           aria-label="Ouvrir le portfolio interactif" aria-expanded="false" aria-controls="chat-page">
     <svg class="ico ico-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H8l-4 3v-5.4A8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5z"/>
-    </svg>
-    <svg class="ico ico-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
-      <path d="M6 6l12 12M18 6L6 18"/>
     </svg>
     <span class="peel-dot" aria-hidden="true"></span>
     <span class="peel-label">Portfolio interactif</span>

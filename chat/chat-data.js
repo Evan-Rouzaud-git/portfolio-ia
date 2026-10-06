@@ -61,23 +61,19 @@ window.CHAT_DATA = {
       ]
     }
   ],
-  quickActions: [
-    { id: "cal", label: "Réserver 30 minutes" },
-    { id: "email", label: "Écrire un mail" },
-    { id: "site", label: "Voir le site" }
-  ],
+  quickActions: [],
 
   /* Mention affichée sous la saisie */
   legal: {
     disclaimer: "Ces réponses sont générées automatiquement à partir de mon portfolio et peuvent contenir des erreurs.",
     privacy: "Aucune donnée n'est transmise : tout reste dans votre navigateur.",
-    contact: "Pour aller plus loin, écrivez-moi ou réservez un créneau de 30 minutes."
+    contact: "Pour aller plus loin, écrivez-moi."
   },
 
   /* Les deux modes : titre et explication, affichés dans l'infobulle du sélecteur */
   modes: {
     rules: {
-      title: "Mode Règle",
+      title: "Mode règles",
       tip: "La réponse est préparée à l'avance et s'affiche immédiatement. Aucun téléchargement, aucune donnée ne quitte la page."
     },
     ai: {

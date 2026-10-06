@@ -11,9 +11,10 @@
  * prefers-reduced-motion : fondu simple.
  *
  * Mise en page : plein écran, du haut en bas.
- *   .chat-head      barre fine : titre à gauche, sélecteur de mode en haut à droite
- *   .chat-body      historique, colonne de lecture centrée 820 px, toute la place restante
- *   .chat-composer  saisie, ancrée en bas
+ *   .chat-head            barre fine : titre à gauche, sélecteur de mode en haut à droite
+ *   .chat-body            historique, colonne de lecture centrée 820 px, toute la place restante
+ *   .chat-composer        saisie, ancrée en bas : le champ, puis la mention, rien d'autre
+ *   .chat-fixed-actions   deux actions épinglées en bas à droite, hors du flux
  *
  * Le bouton du coin est stylé dans index.html et case-studies.html : il doit être
  * visible avant le chargement différé de ce fichier.
@@ -89,9 +90,27 @@
 /* sélecteur segmenté, collé au coin haut-droit */
 .chat-modes{
   display:flex;gap:2px;padding:3px;border-radius:4px;flex:0 0 auto;
-  background:rgba(255,255,255,.04);border:1px solid var(--chat-line)
+  background:var(--chat-head);border:1px solid var(--chat-line)
 }
 .mode-opt{position:relative;display:flex;align-items:center;gap:5px;padding-right:6px}
+/* Pastille orange du mode IA, posée dans le coin haut-droit du bouton : elle déborde
+   légèrement, avec un liseré papier qui la détache. Retirée au premier clic. */
+.mode-dot{
+  position:absolute;top:-4px;right:-4px;width:10px;height:10px;border-radius:50%;
+  background:var(--chat-accent);border:1px solid var(--chat-page);
+  animation:dotPulse 2.4s ease-out infinite
+}
+/* Pulsation : c'est le seul box-shadow du site, et il est demandé explicitement.
+   L'anneau s'étend puis s'efface, sans jamais déplacer quoi que ce soit. */
+@keyframes dotPulse{
+  0%{box-shadow:0 0 0 0 rgba(255,91,46,.55)}
+  70%{box-shadow:0 0 0 7px rgba(255,91,46,0)}
+  100%{box-shadow:0 0 0 0 rgba(255,91,46,0)}
+}
+.mode-opt.seen .mode-dot{display:none}
+/* Le filet orange sur le bouton IA est le signal principal ; il disparaît avec la pastille. */
+#mode-opt-ai .chat-mode{border:1px solid var(--chat-accent);padding:9px 16px}
+#mode-opt-ai.seen .chat-mode{border-color:transparent;padding:8px 15px}
 .mode-opt .q{
   display:grid;place-items:center;width:15px;height:15px;border-radius:50%;
   border:1px solid var(--chat-line-hi);color:var(--chat-muted);
@@ -110,9 +129,10 @@
 .mode-opt:hover .mode-tip,.mode-opt:focus-within .mode-tip{opacity:1;visibility:visible;transform:none}
 .mode-tip b{display:block;margin-bottom:4px;color:var(--chat-txt);font-weight:700}
 .chat-mode{
+  position:relative;
   padding:8px 15px;border:0;border-radius:4px;background:transparent;cursor:pointer;font-family:inherit;
   color:var(--chat-muted);font-size:13.2px;font-weight:650;line-height:1.2;white-space:nowrap;
-  transition:background .18s,color .18s
+  transition:background .18s,color .18s,border-color .18s
 }
 .chat-mode[aria-pressed="true"]{
   background:var(--chat-paper);color:var(--chat-page)
@@ -129,15 +149,17 @@
   padding:22px 24px 140px
 }
 .chat-body::-webkit-scrollbar{width:10px}
-.chat-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:8px}
+.chat-body::-webkit-scrollbar-thumb{background:var(--chat-line-hi)}
 /* colonne de lecture centrée, comme les interfaces de chat classiques */
 .chat-thread{
-  width:100%;max-width:var(--chat-thread-w);margin:0 auto;
+  width:100%;max-width:var(--chat-thread-w);margin:0 auto;min-height:100%;
   display:flex;flex-direction:column;gap:14px
 }
+/* l'accueil seul est centré verticalement dans l'espace au-dessus de la saisie */
+.chat-thread > .chat-welcome:only-child{margin:auto 0}
 @media(max-width:960px){
   .chat-page{--chat-head-h:48px}
-  .chat-body{padding:18px 16px 158px}
+  .chat-body{padding:18px 16px 250px}
 }
 
 /* ---------------------------------------------------------------
@@ -159,7 +181,6 @@
   text-transform:uppercase;color:var(--chat-accent)
 }
 .wgroup-items{display:flex;flex-wrap:wrap;gap:8px}
-.welcome-actions{display:flex;flex-wrap:wrap;gap:10px;padding-top:22px}
 @media(max-width:760px){
   .wgroup{grid-template-columns:minmax(0,1fr);gap:9px}
   .wgroup-label{padding-top:0}
@@ -198,14 +219,14 @@
 }
 a.chat-action,a.chat-action:visited{text-decoration:none}
 .chat-action.primary,a.chat-action.primary,a.chat-action.primary:visited{background:var(--chat-accent);color:var(--chat-page)}
-.chat-action.ghost{background:rgba(255,255,255,.05);border-color:var(--chat-line-hi);color:var(--chat-txt)}
+.chat-action.ghost{background:transparent;border-color:var(--chat-line-hi);color:var(--chat-txt)}
 .chat-action:hover{filter:brightness(1.06)}
 .chat-action:focus-visible{outline:2px solid var(--chat-paper);outline-offset:2px}
 
 .chat-chips{display:flex;flex-wrap:wrap;gap:9px}
 .chat-chip{
   padding:10px 16px;border-radius:2px;border:1px solid var(--chat-line-hi);
-  background:rgba(255,255,255,.04);color:var(--chat-txt);font-size:14px;font-weight:550;
+  background:transparent;color:var(--chat-txt);font-size:14px;font-weight:550;
   font-family:inherit;cursor:pointer;transition:border-color .2s,background .2s,transform .2s
 }
 .chat-chip:hover{border-color:var(--chat-line-hi);background:var(--chat-head)}
@@ -221,7 +242,7 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
 .chat-progress{margin-top:10px;height:5px;border-radius:4px;background:rgba(0,0,0,.35);overflow:hidden}
 .chat-progress i{display:block;height:100%;width:0;border-radius:4px;background:var(--chat-paper);transition:width .3s}
 
-@media(prefers-reduced-motion:reduce){.chat-typing i,.chat-cursor::after{animation:none}}
+@media(prefers-reduced-motion:reduce){.chat-typing i,.chat-cursor::after,.mode-dot{animation:none}}
 
 /* ---------------------------------------------------------------
    Saisie : collée au bas de l'écran, colonne alignée sur l'historique
@@ -235,8 +256,7 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
 .chat-form{
   display:flex;align-items:center;gap:10px;width:100%;max-width:var(--chat-thread-w);margin:0 auto;
   padding:6px 6px 6px 18px;border-radius:2px;
-  background:rgba(255,255,255,.03);border:1px solid var(--chat-line-hi);
-  
+  background:var(--chat-head);border:1px solid var(--chat-line-hi)
 }
 .chat-form:focus-within{border-color:var(--chat-paper)}
 .chat-input{
@@ -264,8 +284,33 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
 .chat-legal a:hover{border-color:var(--chat-paper)}
 .chat-legal a:focus-visible{outline:2px solid var(--chat-paper);outline-offset:2px}
 
-/* place réservée au bouton du coin, pour qu'il ne recouvre jamais l'envoi */
-@media(max-width:1400px){.chat-composer{padding-right:96px}}
+/* « Réserver 30 minutes » est épinglé en bas à droite de l'écran, hors du flux, juste
+   au-dessus du bouton du coin (voir placeActions dans chat.js). */
+.chat-fixed-actions{
+  position:fixed;right:24px;bottom:24px;z-index:6;
+  display:flex;flex-direction:column;gap:10px;align-items:stretch
+}
+.btn-action{
+  padding:12px 20px;border:1px solid transparent;border-radius:0;cursor:pointer;font-family:inherit;
+  font-size:11.8px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;line-height:1;
+  white-space:nowrap;text-decoration:none;text-align:center;
+  transition:background .18s,color .18s,border-color .18s
+}
+.btn-action.primary{background:var(--chat-accent);color:var(--chat-page);border-color:var(--chat-accent)}
+.btn-action.primary:hover{background:transparent;color:var(--chat-accent)}
+.btn-action.ghost{background:transparent;color:var(--chat-txt);border-color:var(--chat-line-hi)}
+.btn-action.ghost:hover{border-color:var(--chat-txt)}
+.btn-action:focus-visible{outline:2px solid var(--chat-paper);outline-offset:2px}
+/* Sur mobile, la pile passe au-dessus de la saisie : en pleine largeur, elle la
+   recouvrirait. La hauteur de la saisie est mesurée dans chat.js (voir placeActions). */
+@media(max-width:560px){
+  .chat-fixed-actions{left:24px;right:24px}
+}
+
+/* Sur les largeurs moyennes, la colonne d'actions flotte au-dessus du bas de la saisie :
+   la colonne de saisie s'arrête avant elle pour ne jamais recouvrir l'envoi. Sur mobile,
+   la colonne passe au-dessus de la saisie (voir placeActions dans chat.js), rien à réserver. */
+@media(min-width:561px) and (max-width:1340px){.chat-composer{padding-right:250px}}
 @media(max-width:560px){.chat-legal{text-align:left}}
 
 /* plus aucun défilement derrière, sur html comme sur body */
