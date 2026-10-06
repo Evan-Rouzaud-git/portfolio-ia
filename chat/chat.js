@@ -576,11 +576,67 @@
     });
   }
 
-  /* Premier message de la conversation, puis questions proposées. Les explications de
-     mode restent dans la colonne de droite et dans les infobulles, pas ici. */
+  /* Écran d'accueil : message, suggestions groupées par micro-label, actions rapides.
+     Rien n'est encadré : le texte, les filets et les questions suffisent. */
   function greet() {
-    addMsg("bot", DATA.intro);
-    el.thread.appendChild(topicRow(DATA.suggestions.map(function (s) { return { label: s, question: s }; })));
+    var box = document.createElement("div");
+    box.className = "chat-welcome";
+
+    var text = document.createElement("p");
+    text.className = "welcome-text";
+    text.textContent = DATA.intro;
+    box.appendChild(text);
+
+    var groups = document.createElement("div");
+    groups.className = "welcome-groups";
+    (DATA.suggestionGroups || []).forEach(function (group) {
+      var row = document.createElement("div");
+      row.className = "wgroup";
+
+      var label = document.createElement("span");
+      label.className = "wgroup-label";
+      label.textContent = group.label;
+      row.appendChild(label);
+
+      var items = document.createElement("div");
+      items.className = "wgroup-items";
+      group.items.forEach(function (item) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "chat-chip";
+        b.textContent = item.label;
+        b.addEventListener("click", function () { ask(item.question); });
+        items.appendChild(b);
+      });
+      row.appendChild(items);
+      groups.appendChild(row);
+    });
+    box.appendChild(groups);
+
+    var actions = document.createElement("div");
+    actions.className = "welcome-actions";
+    (DATA.quickActions || []).forEach(function (action) {
+      if (action.id === "site") {
+        var site = document.createElement("button");
+        site.type = "button";
+        site.className = "chat-action ghost";
+        site.textContent = action.label;
+        site.addEventListener("click", close);
+        actions.appendChild(site);
+        return;
+      }
+      var link = LINKS[action.id];
+      if (!link) return;
+      var a = document.createElement("a");
+      a.className = "chat-action " + (link.primary ? "primary" : "ghost");
+      a.href = link.href;
+      a.textContent = action.label;
+      if (link.external) { a.target = "_blank"; a.rel = "noopener"; }
+      actions.appendChild(a);
+    });
+    box.appendChild(actions);
+
+    el.thread.appendChild(box);
     scrollDown();
   }
 

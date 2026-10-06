@@ -35,13 +35,36 @@ window.CHAT_DATA = {
     modelFastSize: "250 Mo"
   },
 
-  /* Premier message de la conversation, puis suggestions cliquables */
-  intro: "Bonjour, je suis le portfolio interactif d'Evan.\nPosez-moi vos questions, je pourrai vous aider.",
+  /* Message d'accueil, puis suggestions groupées et actions rapides */
+  intro: "Bonjour, je suis l'assistant d'Evan Rouzaud, freelance en IA appliquée.\nJe connais son profil, ses projets, sa méthode et ses tarifs.\nPosez-moi une question, ou choisissez-en une ci-dessous.",
   placeholder: "Écrivez votre question...",
-  suggestions: [
-    "Combien de temps pour un prototype ?",
-    "Mes données restent-elles chez moi ?",
-    "Pouvez-vous reprendre un projet existant ?"
+  suggestionGroups: [
+    {
+      label: "Projets",
+      items: [
+        { label: "Quels projets a-t-il livrés ?", question: "Quels projets a-t-il livrés ?" },
+        { label: "Parle-moi de Lead List QA", question: "Parle-moi de Lead List QA" }
+      ]
+    },
+    {
+      label: "Méthode et délais",
+      items: [
+        { label: "Comment travaille-t-il ?", question: "Comment travaille-t-il ?" },
+        { label: "Combien de temps pour un prototype ?", question: "Combien de temps pour un prototype ?" }
+      ]
+    },
+    {
+      label: "Tarifs et contact",
+      items: [
+        { label: "Quels sont ses tarifs ?", question: "Quels sont ses tarifs ?" },
+        { label: "Comment le contacter ?", question: "Comment le contacter ?" }
+      ]
+    }
+  ],
+  quickActions: [
+    { id: "cal", label: "Réserver 30 minutes" },
+    { id: "email", label: "Écrire un mail" },
+    { id: "site", label: "Voir le site" }
   ],
 
   /* Mention affichée sous la saisie */
@@ -174,7 +197,7 @@ window.CHAT_DATA = {
     /* ---------- méthode, projet, pilotage ---------- */
     {
       id: "methode",
-      keywords: ["methode", "méthode", "process", "comment travaillez", "comment vous travaillez", "comment ca se passe", "comment ça se passe", "comment se passe un projet", "ca se passe comment", "se deroule", "deroulement", "deroule", "déroulé", "etapes", "étapes", "organisation", "accompagnement", "organisation du projet"],
+      keywords: ["methode", "méthode", "process", "comment travaille", "comment travaillez", "comment vous travaillez", "comment ca se passe", "comment ça se passe", "comment se passe un projet", "ca se passe comment", "se deroule", "deroulement", "deroule", "déroulé", "etapes", "étapes", "organisation", "accompagnement", "organisation du projet"],
       answer: "Quatre temps. Un échange de cadrage de 30 minutes pour comprendre le besoin et identifier les parties prenantes. Un cadrage écrit : entretiens utilisateurs, backlog, priorisation par la valeur, roadmap par jalons et business case. Un prototype en 2 à 6 semaines, piloté par jalons et points de décision. Puis la mise en production et la transmission : tests, supervision, documentation et formation de vos équipes.",
       links: ["cal"],
       source: "Méthode"
