@@ -21,16 +21,16 @@
 
 :root{
   /* dark premium, sur la palette du site ; chaque zone a sa nuance */
-  --chat-page:#0E0E0C;
-  --chat-head:#141310;
-  --chat-thread:#0E0E0C;
-  --chat-input:#161412;
-  --chat-line:rgba(252,248,241,.14);
-  --chat-line-hi:rgba(252,248,241,.26);
-  --chat-txt:#FCF8F1;
-  --chat-muted:rgba(252,248,241,.62);
-  --chat-paper:#FCF8F1;
-  --chat-accent:#9E2B25;
+  --chat-page:#0C0B0A;
+  --chat-head:#14120F;
+  --chat-thread:#0C0B0A;
+  --chat-input:#14120F;
+  --chat-line:#262320;
+  --chat-line-hi:#3A3530;
+  --chat-txt:#EDE8E0;
+  --chat-muted:#8A857D;
+  --chat-paper:#EDE8E0;
+  --chat-accent:#FF5B2E;
   --chat-thread-w:820px;
   --chat-head-h:52px;
 }
@@ -83,9 +83,8 @@
 }
 /* marque : petit carré dégradé, plutôt qu'une pastille d'état */
 .chat-title::before{
-  content:"";width:13px;height:13px;border-radius:4px;flex:0 0 auto;
-  background:var(--chat-paper);
-  box-shadow:0 0 0 3px rgba(252,248,241,.08)
+  content:"";width:13px;height:13px;border-radius:0;flex:0 0 auto;
+  background:var(--chat-accent)
 }
 
 /* sélecteur segmenté, collé au coin haut-droit */
@@ -105,7 +104,7 @@
   padding:11px 13px;border-radius:3px;text-align:left;
   background:#111a2c;border:1px solid var(--chat-line-hi);
   color:var(--chat-txt);font-size:12.8px;font-weight:500;line-height:1.45;
-  box-shadow:0 16px 40px rgba(0,0,0,.45);
+  
   opacity:0;visibility:hidden;transform:translateY(-4px);
   transition:opacity .16s ease,transform .16s ease,visibility .16s
 }
@@ -117,8 +116,7 @@
   transition:background .18s,color .18s
 }
 .chat-mode[aria-pressed="true"]{
-  background:var(--chat-paper);color:var(--chat-page);
-  box-shadow:0 4px 14px rgba(252,248,241,.16)
+  background:var(--chat-paper);color:var(--chat-page)
 }
 .chat-mode:focus-visible{outline:2px solid var(--chat-paper);outline-offset:2px}
 
@@ -154,8 +152,8 @@
 }
 .chat-msg.user{
   align-self:flex-end;
-  background:rgba(158,43,37,.22);
-  border:1px solid rgba(158,43,37,.5);border-bottom-right-radius:0
+  background:rgba(255,91,46,.14);
+  border:1px solid #3A3530;border-bottom-right-radius:0
 }
 .chat-msg.system{align-self:center;max-width:100%;text-align:center;font-size:12.8px;color:var(--chat-muted);background:transparent;border:0;padding:2px 6px}
 .chat-cursor::after{
@@ -185,7 +183,7 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
   background:rgba(255,255,255,.04);color:var(--chat-txt);font-size:14px;font-weight:550;
   font-family:inherit;cursor:pointer;transition:border-color .2s,background .2s,transform .2s
 }
-.chat-chip:hover{border-color:rgba(252,248,241,.6);background:rgba(252,248,241,.08);transform:translateY(-1px)}
+.chat-chip:hover{border-color:#FF5B2E;background:#14120F;transform:translateY(-1px)}
 .chat-chip:focus-visible{outline:2px solid var(--chat-paper);outline-offset:2px}
 
 .chat-typing{display:flex;gap:5px;align-items:center;padding:4px 2px}
@@ -213,9 +211,9 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
   display:flex;align-items:center;gap:10px;width:100%;max-width:var(--chat-thread-w);margin:0 auto;
   padding:6px 6px 6px 18px;border-radius:2px;
   background:rgba(255,255,255,.03);border:1px solid var(--chat-line-hi);
-  box-shadow:0 12px 34px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04)
+  
 }
-.chat-form:focus-within{border-color:rgba(252,248,241,.6);box-shadow:0 12px 34px rgba(0,0,0,.35),0 0 0 4px rgba(252,248,241,.1)}
+.chat-form:focus-within{border-color:var(--chat-accent)}
 .chat-input{
   flex:1;min-width:0;padding:14px 0;border:0;background:transparent;
   font-size:16px;font-family:inherit;color:var(--chat-txt)
@@ -226,7 +224,7 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
 .chat-send{
   width:48px;height:48px;border-radius:4px;border:0;cursor:pointer;flex:0 0 auto;
   background:var(--chat-paper);color:var(--chat-page);
-  display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.3)
+  display:grid;place-items:center
 }
 .chat-send:disabled{opacity:.5;cursor:not-allowed}
 .chat-send:focus-visible{outline:2px solid var(--chat-paper);outline-offset:2px}
@@ -237,7 +235,7 @@ a.chat-action,a.chat-action:visited{text-decoration:none}
   font-size:11.4px;line-height:1.5;color:var(--chat-muted);text-align:center
 }
 .chat-legal span + span::before{content:"·";margin:0 8px;opacity:.45}
-.chat-legal a{color:var(--chat-paper);text-decoration:none;border-bottom:1px solid rgba(158,43,37,.8)}
+.chat-legal a{color:var(--chat-paper);text-decoration:none;border-bottom:1px solid #FF5B2E}
 .chat-legal a:hover{border-color:var(--chat-paper)}
 .chat-legal a:focus-visible{outline:2px solid var(--chat-paper);outline-offset:2px}
 
