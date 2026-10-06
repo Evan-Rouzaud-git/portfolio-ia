@@ -27,7 +27,6 @@
   if (!DATA) { console.warn("[chat] chat-data.js manquant"); return; }
 
   var CFG = DATA.config;
-  var STORE_MODE = "chat-mode";
   var STORE_MODEL = "chat-model";
   var STORE_CACHED = "chat-model-cached";
   var STORE_SEEN = "chat-seen";   // la pastille rouge a déjà été vue : on ne la remontre plus
@@ -67,7 +66,7 @@
 
   var el = {};
   var state = {
-    mode: localStorage.getItem(STORE_MODE) === "ai" ? "ai" : "rules",
+    mode: "rules",             // le sélecteur démarre toujours sur Règle
     model: localStorage.getItem(STORE_MODEL) || CFG.model,
     engine: null,
     engineStatus: "idle",      // idle | loading | ready | unsupported | error
@@ -443,7 +442,6 @@
 
   function setMode(mode) {
     state.mode = mode === "ai" ? "ai" : "rules";
-    localStorage.setItem(STORE_MODE, state.mode);
     refreshModeUI();
   }
 
