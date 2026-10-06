@@ -8,7 +8,8 @@ Portfolio de présentation pour des missions freelance en IA appliquée : cadrag
 
 | Fichier | Rôle |
 |---|---|
-| `index.html` | Page principale : ce que je fais, case studies, à propos, tarifs, contact |
+| `index.html` | Page dédiée au portfolio interactif : elle ne contient que l'assistant, qui s'ouvre au chargement |
+| `site.html` | Le site : ce que je fais, case studies, à propos, tarifs, contact |
 | `case-studies.html` | Trois études de cas détaillées : InSight, Lead List QA, AI Business Analyst Workbench |
 | `chat/` | Portfolio interactif : mode règles et mode IA locale exécutée dans le navigateur |
 | `videos/` | Démonstrations vidéo des cinq projets |
@@ -16,7 +17,12 @@ Portfolio de présentation pour des missions freelance en IA appliquée : cadrag
 
 ## Portfolio interactif
 
-Le bouton en bas à droite ouvre une page plein écran proposant deux modes :
+Le site et le portfolio interactif sont deux pages distinctes. `index.html` ne contient que
+l'assistant : il s'ouvre au chargement et son bouton du coin ramène à `site.html`. Depuis le
+site ou les case studies, le bouton en bas à droite ouvre le portfolio interactif par-dessus
+la page, à la demande.
+
+L'assistant propose deux modes :
 
 - **Mode règles** : correspondance par mots-clés sur 52 réponses préparées. Instantané, sans téléchargement.
 - **Mode IA locale** : un petit modèle de langage (Qwen2.5 0.5B, via WebGPU et WebLLM) tourne dans le navigateur du visiteur. Aucun serveur, aucune clé API, aucune donnée transmise.

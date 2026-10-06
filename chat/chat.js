@@ -26,6 +26,11 @@
   var DATA = window.CHAT_DATA;
   if (!DATA) { console.warn("[chat] chat-data.js manquant"); return; }
 
+  /* Page dédiée au portfolio interactif : son corps porte data-chat-standalone. Il n'y a
+     alors aucun site derrière, donc rien à masquer, rien à fermer, et l'assistant s'ouvre
+     tout de suite. Ailleurs, l'assistant s'ouvre par-dessus le site, à la demande. */
+  var STANDALONE = false;
+
   var CFG = DATA.config;
   var STORE_MODEL = "chat-model";
   var STORE_CACHED = "chat-model-cached";
@@ -612,15 +617,16 @@
   function placeActions() {
     if (!el.actions || !el.composer) return;
     var peel = document.getElementById("peel");
-    var btn = document.getElementById("chat-launcher");
+    // Le bouton du coin est tantôt un bouton (pages du site), tantôt un lien (page dédiée).
+    var coin = peel ? (peel.firstElementChild || peel) : null;
     var narrow = window.matchMedia("(max-width:560px)").matches;
 
     // même largeur pour les deux boutons, mesurée sur le libellé le plus long
-    if (btn) btn.style.minWidth = "";
+    if (coin) coin.style.minWidth = "";
     el.actions.style.minWidth = "";
-    if (!narrow && btn && btn.offsetWidth) {
-      var w = Math.max(btn.offsetWidth, el.actions.offsetWidth);
-      btn.style.minWidth = w + "px";
+    if (!narrow && coin && coin.offsetWidth) {
+      var w = Math.max(coin.offsetWidth, el.actions.offsetWidth);
+      coin.style.minWidth = w + "px";
       el.actions.style.minWidth = w + "px";
     }
 
@@ -710,8 +716,6 @@
     el.page.setAttribute("aria-hidden", "false");
     setLock(true);
     setLauncherState(true);
-    // Le site est de nouveau visible : il était masqué le temps du chargement.
-    document.documentElement.classList.remove("chat-boot");
     if (!el.thread.childElementCount) greet();
     refreshModeUI();
     placeActions();
@@ -719,7 +723,8 @@
   }
 
   function close() {
-    if (!state.opened) return;
+    // Page dédiée : il n'y a pas de site à révéler derrière, donc rien à fermer.
+    if (STANDALONE || !state.opened) return;
     state.opened = false;
     el.page.classList.remove("open");
     el.page.setAttribute("aria-hidden", "true");
@@ -732,6 +737,7 @@
   }
 
   function init() {
+    STANDALONE = !!(document.body && document.body.hasAttribute("data-chat-standalone"));
     el.launcher = document.getElementById("chat-launcher");
     build();
     refreshModeUI();
@@ -740,7 +746,6 @@
     // Les libellés des deux boutons n'ont pas la même largeur selon la police : on recale
     // la colonne quand les polices du site ont fini de charger.
     if (document.fonts && document.fonts.ready && document.fonts.ready.then) document.fonts.ready.then(placeActions);
-    var peel = document.getElementById("peel");
     if (localStorage.getItem(STORE_AI_SEEN)) {
       var optAI = document.getElementById("mode-opt-ai");
       if (optAI) optAI.classList.add("seen");
@@ -757,13 +762,9 @@
       }
     }
 
-    /* Auto-ouverture : la page qui porte data-auto-open sur le bouton du coin fait du
-       portfolio interactif son interface par défaut, à chaque chargement. Le retour par
-       l'historique (page restaurée depuis le cache du navigateur) le rouvre aussi. */
-    if (peel && peel.hasAttribute("data-auto-open")) {
-      window.addEventListener("pageshow", function (e) { if (e.persisted && !state.opened) open(); });
-      open();
-    }
+    /* Page dédiée au portfolio interactif (corps marqué data-chat-standalone) : il n'y a
+       pas de site derrière, l'assistant s'ouvre donc tout de suite, sans masquage. */
+    if (STANDALONE) open();
 
     window.openChatAssistant = open;
     window.__chatReady = true;

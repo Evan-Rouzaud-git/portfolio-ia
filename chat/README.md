@@ -43,7 +43,7 @@ Aucun `clip-path`, aucune largeur, hauteur ou position animée : il n'y a donc a
 
 Le portfolio devient inerte pendant que l'assistant est ouvert (`inert`), et son défilement est bloqué.
 
-Une section « Assistant du portfolio » reste présente dans `index.html`, avant le contact : ses boutons portent `data-chat-open` (avec la question en valeur si besoin), le chargeur les reconnaît, ouvre la page et envoie la question.
+Une section « Assistant du portfolio » reste présente dans `site.html`, avant le contact : ses boutons portent `data-chat-open` (avec la question en valeur si besoin), le chargeur les reconnaît, ouvre la page et envoie la question.
 
 ## Contenu de la page assistant
 
@@ -66,7 +66,7 @@ chat/
   README.md        Ce document.
 ```
 
-Le bouton du coin est stylé dans `index.html` et `case-studies.html` : il doit être visible avant le chargement différé de `chat.css`.
+Le bouton du coin est stylé dans `site.html`, `case-studies.html` et `index.html` (la page dédiée au portfolio interactif) : il doit être visible avant le chargement différé de `chat.css`.
 
 **Chargement** : `chat.css`, `chat-data.js` et `chat.js` ne sont chargés qu'au premier besoin (survol ou clic sur le bouton, ou clic sur un bouton `data-chat-open`). Le reste de la page n'attend rien. Le modèle de langage (WebLLM) reste chargé uniquement si le visiteur active le mode IA.
 
