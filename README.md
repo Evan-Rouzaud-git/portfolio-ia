@@ -1,4 +1,4 @@
-# Portfolio IA — Evan Rouzaud
+# Portfolio IA : Evan Rouzaud
 
 Portfolio de présentation pour des missions freelance en IA appliquée : cadrage du besoin, pilotage de projet et développement de la solution.
 
